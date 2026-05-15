@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "name": "shadowledger-nexus",
+  "builds": [
+    {
+      "src": "apps/web/package.json",
+      "use": "@vercel/next"
+    },
+    {
+      "src": "apps/backend/src/vercel.ts",
+      "use": "@vercel/node",
+      "config": {
+        "helpers": false
+      }
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/trpc/:path*",
+      "destination": "apps/backend/src/vercel.ts"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/apps/web/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}

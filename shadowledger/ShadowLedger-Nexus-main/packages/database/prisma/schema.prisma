@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  treasuries  Treasury[]
+  agents      Agent[]
+  payrolls    Payroll[]
+}
+
+model Treasury {
+  id              String   @id @default(cuid())
+  address         String   @unique
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  balance         Float    @default(0)
+  currency        String   @default("SOL")
+  isPrivate       Boolean  @default(true)
+  exposureScore   Int      @default(0)
+  
+  transactions    Transaction[]
+}
+
+model Agent {
+  id              String   @id @default(cuid())
+  name            String
+  type            String   // Enum fallback for SQLite
+  status          String   @default("IDLE")
+  config          String?  // Json fallback
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  
+  lastAction      String?
+  lastActionAt    DateTime?
+  createdAt       DateTime @default(now())
+}
+
+model Payroll {
+  id              String   @id @default(cuid())
+  name            String
+  amount          Float
+  frequency       String   // e.g., "monthly", "weekly"
+  nextRun         DateTime
+  status          String   @default("ACTIVE")
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id])
+  
+  recipients      Recipient[]
+}
+
+model Recipient {
+  id        String   @id @default(cuid())
+  address   String
+  name      String?
+  payrollId String
+  payroll   Payroll @relation(fields: [payrollId], references: [id])
+}
+
+model Transaction {
+  id              String   @id @default(cuid())
+  signature       String?  @unique
+  treasuryId      String
+  treasury        Treasury @relation(fields: [treasuryId], references: [id])
+  amount          Float
+  type            String
+  status          String
+  metadata        String?  // Json fallback
+  createdAt       DateTime @default(now())
+}
+
+model Simulation {
+  id        String   @id @default(cuid())
+  name      String
+  type      String
+  input     String
+  result    String?
+  createdAt DateTime @default(now())
+}
+
+model SafetyAudit {
+  id          String   @id @default(cuid())
+  agentType   String
+  action      String
+  riskScore   Float
+  allowed     Boolean
+  reason      String?
+  metadata    String?
+  createdAt   DateTime @default(now())
+}

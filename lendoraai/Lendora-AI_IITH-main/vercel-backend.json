@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/index.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/ws",
+      "dest": "api/index.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "api/index.py"
+    }
+  ],
+  "env": {
+    "OLLAMA_BASE_URL": "@ollama_base_url",
+    "ETHEREUM_NETWORK": "@ethereum_network",
+    "ETHEREUM_RPC_URL": "@ethereum_rpc_url"
+  }
+}
+

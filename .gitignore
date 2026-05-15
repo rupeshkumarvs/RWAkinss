@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Next.js
+**/.next/
+**/out/
+**/build/
+**/dist/
+
+# Environment files — NEVER commit these
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+**/.env.*.local
+**/.env.example.bak
+
+# Python
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/venv/
+**/.venv/
+**/env/
+
+# Logs
+*.log
+**/logs/
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Rust / Solana / Anchor
+**/target/
+**/*.so
+**/*.d
+
+# Docker
+**/docker-data/
+
+# Prisma
+**/prisma/migrations/**/migration.sql
+
+# Secrets
+**/demo-wallet.json
+**/wallet.json
+**/*.pem
+**/*.key

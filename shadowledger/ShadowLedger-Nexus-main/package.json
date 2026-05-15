@@ -1,0 +1,37 @@
+{
+  "name": "shadowledger-nexus",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "vercel-build": "prisma generate --schema=packages/database/prisma/schema.prisma && turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "db:setup": "cd packages/database && npx prisma migrate dev && npx prisma db seed"
+  },
+  "devDependencies": {
+    "@inquirer/prompts": "^8.4.3",
+    "ajv": "^8.20.0",
+    "napi-postinstall": "^0.3.4",
+    "prettier": "^3.2.5",
+    "turbo": "latest"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.6.1",
+    "@tanstack/react-query": "^4.36.1",
+    "call-bind-apply-helpers": "^1.0.2",
+    "call-bound": "^1.0.4",
+    "es-errors": "^1.3.0",
+    "get-intrinsic": "^1.3.0",
+    "prisma": "^5.11.0",
+    "three": "^0.184.0"
+  }
+}

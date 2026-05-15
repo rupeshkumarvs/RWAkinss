@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #050505;
+  --color-foreground: #ffffff;
+  
+  --color-cyan-glow: #00f2ff;
+  --color-purple-glow: #bc13fe;
+  --color-emerald-glow: #00ff88;
+  --color-crimson-glow: #ff003c;
+  
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui;
+  --font-mono: var(--font-outfit), ui-monospace, SFMono-Regular;
+  
+  --radius-3xl: 2rem;
+  --radius-2xl: 1.5rem;
+  --radius-xl: 1rem;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-cyan-glow/30;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)];
+  }
+  
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-2xl border border-white/5;
+  }
+  
+  .neo-glow-cyan {
+    @apply shadow-[0_0_20px_rgba(0,242,255,0.3)] border-cyan-glow/50;
+  }
+  
+  .neo-glow-purple {
+    @apply shadow-[0_0_20px_rgba(188,19,254,0.3)] border-purple-glow/50;
+  }
+  
+  .text-glow {
+    text-shadow: 0 0 15px currentColor;
+  }
+  
+  .text-glow-cyan {
+    @apply text-cyan-glow;
+    text-shadow: 0 0 10px rgba(0,242,255,0.5);
+  }
+}
+
+/* Cinematic Background */
+.cinematic-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #050505 100%);
+  overflow: hidden;
+}
+
+.cinematic-bg::before {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  top: -50%;
+  left: -50%;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.05); }
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  animation: pulse-subtle 10s infinite ease-in-out;
+}

@@ -1,0 +1,32 @@
+{
+  "monitors": [
+    {
+      "friendly_name": "CreditBlocks API - Liveness",
+      "url": "https://api.creditblocks.io/health",
+      "type": 1,
+      "interval": 300,
+      "timeout": 30,
+      "keyword_type": 1,
+      "keyword_value": "\"status\":\"healthy\"",
+      "alert_contacts": []
+    },
+    {
+      "friendly_name": "CreditBlocks API - Readiness",
+      "url": "https://api.creditblocks.io/health/ready",
+      "type": 1,
+      "interval": 300,
+      "timeout": 30,
+      "keyword_type": 1,
+      "keyword_value": "\"status\":\"ready\"",
+      "alert_contacts": []
+    }
+  ],
+  "alert_contacts": [
+    {
+      "type": 2,
+      "value": "team@creditblocks.io",
+      "friendly_name": "Team Email"
+    }
+  ]
+}
+

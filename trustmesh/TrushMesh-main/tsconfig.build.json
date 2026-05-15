@@ -1,0 +1,26 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "tests",
+    "dist",
+    "node_modules",
+    "vitest.config.ts",
+    "prisma",
+    "src/components",
+    "src/pages",
+    "src/main.tsx",
+    "src/App.tsx",
+    "src/types",
+    "src/stores",
+    "src/lib/axios.ts",
+    "src/lib/demoData.ts",
+    "src/lib/runtimeConfig.ts",
+    "src/lib/utils.ts",
+    "src/lib/websocket.ts",
+    "src/vite-env.d.ts"
+  ]
+}

@@ -1,0 +1,76 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: creditblocks
+  labels:
+    app: creditblocks
+    component: backend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 4000
+    targetPort: 4000
+    protocol: TCP
+    name: http
+  selector:
+    app: creditblocks
+    component: backend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: creditblocks
+  labels:
+    app: creditblocks
+    component: frontend
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: creditblocks
+    component: frontend
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: creditblocks
+  labels:
+    app: creditblocks
+    component: database
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+    name: postgres
+  selector:
+    app: creditblocks
+    component: database
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  namespace: creditblocks
+  labels:
+    app: creditblocks
+    component: cache
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+    targetPort: 6379
+    protocol: TCP
+    name: redis
+  selector:
+    app: creditblocks
+    component: cache
+

@@ -1,0 +1,17 @@
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.next/
+**/.next/
+.turbo/
+**/.turbo/
+*.db
+*.db-journal
+.env
+.env.*
+node_modules
+dist
+.next
+.turbo
+.vercel

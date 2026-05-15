@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "types": ["node", "vitest"]
+  },
+  "include": ["src/**/*.ts", "prisma/**/*.ts", "tests/**/*.ts", "vitest.config.ts", "vite.config.ts"],
+  "exclude": [
+    "dist",
+    "node_modules",
+    "src/components",
+    "src/pages",
+    "src/main.tsx",
+    "src/App.tsx",
+    "src/types",
+    "src/stores",
+    "src/lib/axios.ts",
+    "src/lib/demoData.ts",
+    "src/lib/runtimeConfig.ts",
+    "src/lib/utils.ts",
+    "src/lib/websocket.ts",
+    "src/vite-env.d.ts"
+  ]
+}

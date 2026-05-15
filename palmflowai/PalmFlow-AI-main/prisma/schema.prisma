@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Agent {
+  id            String   @id @default(cuid())
+  name          String
+  role          String
+  status        String   @default("active") // active, idle, executing, paused
+  budget        Float
+  spent         Float    @default(0)
+  tasksCount    Int      @default(0)
+  efficiency    Float    @default(100)
+  pnl           Float    @default(0)    // Profit and Loss tracking
+  rating        Float    @default(5.0)  // User rating / performance score
+  walletAddress String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  transactions  Transaction[]
+  policies      Policy[]
+  projects      Project[]
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  amount      Float
+  currency    String   @default("PUSD")
+  type        String   // deposit, withdrawal, payment, swap, investment
+  description String
+  status      String   @default("completed") // pending, completed, failed
+  txHash      String?
+  agentId     String?
+  agent       Agent?   @relation(fields: [agentId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Stream {
+  id            String   @id @default(cuid())
+  recipientName String
+  recipientRole String
+  ratePerSecond Float
+  totalStreamed Float    @default(0)
+  status        String   @default("active") // active, paused, finished
+  walletAddress String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Policy {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // spending_limit, risk_threshold, reserve_ratio
+  value       Float
+  description String
+  isActive    Boolean  @default(true)
+  agentId     String?
+  agent       Agent?   @relation(fields: [agentId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id            String   @id @default(cuid())
+  name          String
+  description   String
+  goalAmount    Float
+  raisedAmount  Float    @default(0)
+  status        String   @default("active") // active, funded, failed
+  creatorAddress String
+  aiScore       Int      @default(0)
+  aiAudit       String?  @db.Text
+  imageUrl      String?
+  category      String   @default("General")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  investments   Investment[]
+  agentId       String?
+  agent         Agent?   @relation(fields: [agentId], references: [id])
+}
+
+model Investment {
+  id            String   @id @default(cuid())
+  amount        Float
+  walletAddress String
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id])
+  createdAt     DateTime @default(now())
+}
