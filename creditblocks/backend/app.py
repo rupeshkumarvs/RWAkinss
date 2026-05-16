@@ -111,13 +111,17 @@ async def global_exception_handler(request: Request, exc: Exception):
 # Security headers middleware (must be first)
 app.add_middleware(SecurityHeadersMiddleware)
 
-# CORS middleware for frontend - allow all origins for hackathon
+# CORS middleware — explicit origins (credentials + wildcard is browser-rejected)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for hackathon
+    allow_origins=[
+        "https://kubryx.vercel.app",
+        "http://localhost:3000",
+    ],
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allow_headers=["*"],
+    allow_headers=["Content-Type", "Authorization"],
 )
 
 # Validate required environment variables at startup

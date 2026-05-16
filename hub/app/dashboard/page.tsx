@@ -117,28 +117,43 @@ export default function DashboardPage() {
     }
   }
 
-  async function loadHealth() {
-    const next: Record<string, Health> = {}
-    await Promise.all(tools.map(async (tool) => {
-      try {
-        next[tool.name] = 'checking'
-        if (!tool.env) throw new Error('Missing env')
-        if (tool.rpc) {
-          await fetchJson(tool.env, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ jsonrpc: '2.0', id: Date.now(), method: 'getHealth', params: {} }),
-          })
-        } else {
-          const data = await fetchJson<{ status?: string }>(`${tool.env}/health`)
-          if (data.status && data.status !== 'ok') throw new Error('Health check failed')
-        }
-        next[tool.name] = 'ok'
-      } catch {
-        next[tool.name] = 'down'
+  async function checkOne(tool: typeof tools[number]): Promise<Health> {
+    if (!tool.env) return 'down'
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 5000)
+    try {
+      if (tool.rpc) {
+        const res = await fetch(tool.env, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jsonrpc: '2.0', id: Date.now(), method: 'getHealth', params: {} }),
+          signal: controller.signal,
+        })
+        if (!res.ok) return 'down'
+      } else {
+        const res = await fetch(`${tool.env}/health`, { signal: controller.signal })
+        if (!res.ok) return 'down'
+        const data = await res.json().catch(() => ({})) as { status?: string }
+        if (data.status && data.status !== 'ok' && data.status !== 'healthy') return 'down'
       }
-    }))
-    setHealth(next)
+      return 'ok'
+    } catch {
+      return 'down'
+    } finally {
+      clearTimeout(timeout)
+    }
+  }
+
+  async function loadHealth() {
+    setHealth(Object.fromEntries(tools.map((t) => [t.name, 'checking' as Health])))
+    const entries = await Promise.all(tools.map(async (t) => [t.name, await checkOne(t)] as const))
+    setHealth(Object.fromEntries(entries))
+  }
+
+  async function retryOne(tool: typeof tools[number]) {
+    setHealth((prev) => ({ ...prev, [tool.name]: 'checking' }))
+    const status = await checkOne(tool)
+    setHealth((prev) => ({ ...prev, [tool.name]: status }))
   }
 
   async function loadStats() {
@@ -248,13 +263,16 @@ export default function DashboardPage() {
             <article className="card" key={tool.name}>
               <div className="metric-row">
                 <h2>{tool.name}</h2>
-                <span className={`health-badge ${health[tool.name] === 'ok' ? 'is-live' : 'is-down'}`}>
+                <span className={`health-badge ${health[tool.name] === 'ok' ? 'is-live' : health[tool.name] === 'checking' ? 'is-checking' : 'is-down'}`}>
                   <span className="chain-dot" />
-                  {health[tool.name] || 'checking'}
+                  {health[tool.name] === 'ok' ? 'Live' : health[tool.name] === 'checking' ? 'Checking…' : 'Offline'}
                 </span>
               </div>
               <ChainBadge chain={tool.chain} />
-              <Link className="btn-outline" href={tool.href}>Open tool</Link>
+              <div className="item-actions">
+                <Link className="btn-outline" href={tool.href}>Open tool</Link>
+                <button className="btn-outline" onClick={() => retryOne(tool)} aria-label={`Retry ${tool.name}`}>↻</button>
+              </div>
             </article>
           ))}
         </section>
