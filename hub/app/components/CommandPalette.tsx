@@ -23,6 +23,12 @@ export default function CommandPalette() {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const commands: CommandItem[] = [
+    { id: 'nav-executive', title: 'Open Sovereign Executive Command', subtitle: 'Highest-level command interface, global indicators, threat matrices & snap restores', category: 'Navigation', action: () => router.push('/executive') },
+    { id: 'nav-governance', title: 'Open Protocol Governance Center', subtitle: 'Submit KIP proposals, cast votes, and trace ZK policy quorums', category: 'Navigation', action: () => router.push('/governance') },
+    { id: 'nav-policies', title: 'Open Infrastructure Policy Registry', subtitle: 'Review boundary guardrails, telemetry escalations & conflict tracks', category: 'Navigation', action: () => router.push('/policies') },
+    { id: 'nav-coordination', title: 'Open Protocol Coordination Layer', subtitle: 'Cross-chain operational synchronization, mesh topologies & event traces', category: 'Navigation', action: () => router.push('/coordination') },
+    { id: 'nav-operations', title: 'Open Executive Operations Mission Control', subtitle: 'Global risk scores, incident traces & AI recommendations', category: 'Navigation', action: () => router.push('/operations') },
+    { id: 'nav-protocols', title: 'Open Protocol Control Center', subtitle: 'Coordinate QIE, Solana, Stellar & Arbitrum sync environments', category: 'Navigation', action: () => router.push('/protocols') },
     { id: 'nav-dash', title: 'Open Dashboard Command Center', subtitle: 'View system health & stats', category: 'Navigation', action: () => router.push('/dashboard') },
     { id: 'nav-integrations', title: 'Open Ecosystem Integration Hub', subtitle: 'View connected chains, wallets & AI metadata', category: 'Navigation', action: () => router.push('/integrations') },
     { id: 'nav-analytics', title: 'Open Advanced Analytics Lab', subtitle: 'Rolling chain TPS & latency trends', category: 'Navigation', action: () => router.push('/analytics') },

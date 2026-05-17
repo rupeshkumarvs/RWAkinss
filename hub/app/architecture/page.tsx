@@ -202,6 +202,17 @@ export default function ArchitecturePage() {
                   stroke = 'rgba(34, 197, 94, 0.4)'
                 }
 
+                // Digital Twin active heat propagation overlays:
+                if (activeScenario === 'degraded_rpc' && n.layer === 'telemetry') {
+                  stroke = '#EC4899' // Diagnostic magenta pulse
+                } else if (activeScenario === 'suspicious_activity' && n.layer === 'security') {
+                  stroke = '#EF4444' // Threat red pulse
+                } else if (activeScenario === 'treasury_imbalance' && n.id === 'treasury') {
+                  stroke = '#F5C518' // Asset gold alert pulse
+                } else if (activeScenario === 'chain_congestion' && n.id === 'split') {
+                  stroke = '#3B82F6' // Congestion blue pulse
+                }
+
                 return (
                   <g 
                     key={n.id}
@@ -219,13 +230,13 @@ export default function ArchitecturePage() {
                       strokeWidth={isSelected || isHovered ? 2.5 : 1}
                       style={{ transition: 'all 0.2s' }}
                     />
-                    {(isSelected || isHovered) && (
+                    {(isSelected || isHovered || activeScenario !== 'none') && (
                       <circle
                         cx={n.x}
                         cy={n.y}
                         r={n.id === 'ai-os' || n.id === 'wallet' ? 30 : 24}
                         fill="none"
-                        stroke="#F5C518"
+                        stroke={stroke}
                         strokeWidth="0.5"
                         strokeDasharray="2 2"
                         className="pulse-circle"

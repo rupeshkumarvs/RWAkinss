@@ -46,6 +46,8 @@ export interface OrgState {
   roles: OrgRole[]
   teamActivity: TeamActivity[]
   operationalAlerts: OperationalAlert[]
+  tenantUptimeScores: Record<string, number>
+  tenantRiskThresholds: Record<string, number>
 }
 
 const DEFAULT_ORGS: Organization[] = [
@@ -110,6 +112,16 @@ const DEFAULT_STATE: OrgState = {
   roles: ['Admin', 'Treasury Manager', 'Risk Analyst', 'Operations', 'Auditor'],
   teamActivity: DEFAULT_TEAM_ACTIVITIES,
   operationalAlerts: DEFAULT_ALERTS,
+  tenantUptimeScores: {
+    'org-acme': 99.98,
+    'org-shadow': 98.42,
+    'org-eternal': 99.95
+  },
+  tenantRiskThresholds: {
+    'org-acme': 15,
+    'org-shadow': 30,
+    'org-eternal': 8
+  }
 }
 
 let globalState = { ...DEFAULT_STATE }

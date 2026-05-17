@@ -18,73 +18,115 @@ export default function StoryPage() {
 
   const slides: NarrativeSlide[] = [
     {
-      id: 'why',
-      title: 'Why Kubryx Exists',
-      subtitle: 'Eliminating the Fragmented Multi-Chain operational friction.',
+      id: 'works',
+      title: 'How Kubryx Works',
+      subtitle: 'A single operating system coordinating decentralized state transitions.',
       paragraphs: [
-        'Enterprise operations in the Web3 space are structurally paralyzed by fragmented primitives. Fragmented wallets, inconsistent chain metadata, and separate network protocols make cross-chain coordination a manual, risky process.',
-        'Existing platforms treat individual tools as siloed utilities. Corporate cashflows flow on one network, automated agent meshes deploy on another, and compliance audits operate on a third, leaving operators with no single source of truth.',
-        'Kubryx resolves this operational paralysis. By treating multi-chain tools as built-in components of a single operating system, we unify state transitions, AI insights, and telemetry diagnostics into a single dashboard command panel.'
+        'Corporate finance is severely bottlenecked by multi-chain friction. Individual networks are isolated silos with disparate wallet abstractions, RPC latency profiles, and non-standard contract parameters.',
+        'Kubryx resolves this by treating blockchain environments as integrated operational channels of a single unified OS. We absorb active wallet contexts reactively, allowing distinct tools to share synchronized parameters in client memory.',
+        'This allows treasury desks, autonomous staking models, and secure vaults to collaborate seamlessly without manual bridging, complex network switches, or custom orchestration code.'
       ],
       metrics: [
-        { label: 'Network Fragments Unified', value: '8 Tools, 1 OS' },
-        { label: 'Manual Friction Reduction', value: '94%' }
+        { label: 'Built-in Tools', value: '8 Tools, 1 OS' },
+        { label: 'Integration Layer', value: 'Unified Context' }
       ]
     },
     {
-      id: 'os',
-      title: 'Unified Blockchain OS',
-      subtitle: 'Transforming disparate tools into an integrated execution loop.',
+      id: 'ai-coord',
+      title: 'AI-Assisted Coordination',
+      subtitle: 'Where natural language orchestration meets mathematical certainty.',
       paragraphs: [
-        'Operating systems succeed when they abstract complex hardware into standard APIs and consistent visual layouts. Kubryx applies this exact computer science paradigm to the multi-chain landscape.',
-        'Instead of asking corporate treasurers to manually bridge assets and switch RPC providers, Kubryx implements a global cross-tool state syncing layer that shares information reactively in client memory.',
-        'When you connect MetaMask on QIE, Phantom on Solana, or Freighter on Stellar, Kubryx absorbs these addresses into a singular profile, allowing security engines, lending negotiated bots, and payroll streams to collaborate in real-time.'
+        'Conventional automation rules are rigid, fragile, and fail to adapt during volatile market conditions. Standard AI agents, conversely, lack cryptographic safety guarantees.',
+        'Kubryx blends these paradigms into a high-security coordination layer. Advanced LLM pipelines analyze complex liquidity states and negotiate rates, but every transaction must pass detached Freighter XDR or Phantom Ed25519 signature checks before execution.',
+        'This dual-engine model provides corporate operators with intuitive narrative control while guaranteeing absolute cryptographic vault isolation against external exploits or AI hallucinations.'
       ],
       metrics: [
-        { label: 'Simultaneous Active Wallets', value: 'Multi-chain' },
-        { label: 'State Synchronization Latency', value: 'Instant' }
+        { label: 'Orchestration Engine', value: 'Autonomous LLM' },
+        { label: 'Cryptographic Bound', value: 'Ed25519 Detached' }
       ]
     },
     {
-      id: 'ai-infra',
-      title: 'AI + Multi-Chain Infrastructure',
-      subtitle: 'Where cryptographic verification meets natural language logic.',
+      id: 'auto-infra',
+      title: 'Autonomous Infrastructure',
+      subtitle: 'Self-healing SLA nodes and dynamic telemetry protection.',
       paragraphs: [
-        'Modern artificial intelligence is highly versatile but lacks deterministic bounds. Web3 blockchain environments are highly secure and deterministic but lack structural adaptability.',
-        'Kubryx blends these paradigms into a robust operational hybrid. We utilize advanced Groq LLM pipelines to handle payroll stream allocations and loan rate negotiations, but enforce strict cryptographic verifications (such as Ed25519 nacl detached proofs) before committing state changes.',
-        'This dual-engine architecture ensures that while operations remain simple and human-driven, critical security states are mathematically guaranteed against manipulation or hallucination.'
+        'Web3 regional nodes are prone to frequent packet dropouts and memory congestion. Kubryx builds systemic resilience directly into our core telemetry layer.',
+        'Our custom diagnostics suite monitors RPC response speeds in milliseconds. If a regional node suffers a cold restart or latency spike, a 6-second abort threshold intercepts the query and auto-routes traffic through cache failovers.',
+        'This maintains continuous corporate uptime and guarantees a reliable, presentation-safe showcase under simulated latency or node outages.'
       ],
       metrics: [
-        { label: 'LLM Orchestration Layer', value: 'Groq Pipeline' },
-        { label: 'Cryptographic Signature Verification', value: 'Ed25519 Detached' }
+        { label: 'Nominal Gateway SLA', value: '45ms' },
+        { label: 'Resilience Uptime', value: '99.98%' }
       ]
     },
     {
-      id: 'financial',
-      title: 'Autonomous Financial Coordination',
-      subtitle: 'Self-balancing streams and proactive agent meshes.',
-      paragraphs: [
-        'Traditional financial payrolls and staking operations are inherently retrospective, locking up operational value in inefficient weekly or monthly settlement cycles.',
-        'Kubryx introduces autonomous real-time financial stream routing. Capital flows continuously on Solana Devnet through automated stream optimizer models while Agent Mesh delegates verify vault balances continuously.',
-        'These models adapt dynamically. If a treasury imbalance is detected, the built-in PalmFlow payroll advisor issues rebalancing proposals instantly, delegating staking boosts to NCRD liquidity systems to maximize yield.'
-      ],
-      metrics: [
-        { label: 'Autonomous Staking APY Boost', value: 'Up to 12.5%' },
-        { label: 'Mempool Broadcast Safeguard', value: 'Active' }
-      ]
-    },
-    {
-      id: 'intelligence',
+      id: 'cross-chain-intel',
       title: 'Cross-Chain Operational Intelligence',
-      subtitle: 'Unifying multi-chain telemetry with automated SLA safeties.',
+      subtitle: 'Correlating multi-chain event buses to orchestrate liquid flows.',
       paragraphs: [
-        'Web3 networks frequently degrade, resulting in transaction timeouts, RPC node drops, and broken frontends. Kubryx builds systemic resilience directly into our core.',
-        'Our custom Telemetry observability logs measure API latency in milliseconds, while the API resilience layer intercepts failed network requests under a 6-second timeout rule, hot-swapping transparent cached backups.',
-        'The result is a highly stable operating environment that remains fully responsive and presentation-safe under all conditions, keeping users informed via an administrative diagnostics console.'
+        'Staking and lending yields fluctuate continuously across EVM L2 and Soroban environments. Retrospective periodic sweeps lock up critical capital.',
+        'Kubryx coordinates an autonomous cross-chain event bus that listens to gas limits and yields. When a staking APY spikes on QIE, the engine dispatches optimized rebalance proposals to corporate stakeholders.',
+        'These recommendations are accompanied by detailed event causality chains and confidence estimates, allowing teams to execute complex asset sweeps instantly.'
       ],
       metrics: [
-        { label: 'Nominal Telemetry Ping Speed', value: '45ms' },
-        { label: 'Exponential Retry Backoffs', value: '3x Retries' }
+        { label: 'Supported Chains', value: 'QIE, Solana, Stellar, Arbitrum' },
+        { label: 'Cross-Chain Bus Uptime', value: '100% Core' }
+      ]
+    },
+    {
+      id: 'future-finance',
+      title: 'Future of Organizational Finance',
+      subtitle: 'Next-generation digital twins and continuous yield streaming.',
+      paragraphs: [
+        'Modern treasury assets demand continuous operational execution. Kubryx envisions a future where multi-party payroll streams, debt optimization pools, and AI nodes operate autonomously.',
+        'To stress-test these scenarios safely, Kubryx integrates an isolated Digital Twin framework. Executives can simulate heavy congestions, key compromise compromises, and RPC cascades to verify automated AI safeties in sandboxed sandboxes.',
+        'By combining physical execution with synthetic twin simulations, Kubryx empowers enterprises and DAOs with unprecedented control over digital assets and liquid flows.'
+      ],
+      metrics: [
+        { label: 'Sandbox Simulation profiles', value: '12 Scenarios' },
+        { label: 'Investor Showcase Uptime', value: 'Certified' }
+      ]
+    },
+    {
+      id: 'sovereign-ops',
+      title: 'Operational Sovereignty',
+      subtitle: 'A decentralized, independent network governing autonomous digital resources.',
+      paragraphs: [
+        'Traditional infrastructure relies on centralized third-party hosting, vulnerable to administrative shifts, domain blockages, and single-point routing failures.',
+        'Kubryx introduces Operational Sovereignty by establishing a decentralized, self-governing consensus mesh. Nodes continuously verify quorum signatures, validate execution parameters, and maintain an independent operational state.',
+        'This ensures that key corporate assets, multi-sig streams, and yield protocols remain fully resilient and sovereign against external network partitionings or centralized outages.'
+      ],
+      metrics: [
+        { label: 'Sovereignty Index', value: '98.4%' },
+        { label: 'Consensus Quorum', value: 'Validator Mesh' }
+      ]
+    },
+    {
+      id: 'ai-governed',
+      title: 'AI-Governed Coordination & Network Policies',
+      subtitle: 'Rigorous machine-speed logic gated by ZK policy lineages.',
+      paragraphs: [
+        'AI agent automation must be bound by clear operational parameters to prevent transaction drifts, liquidity drains, or resource misallocations during extreme volatility.',
+        'Our Infrastructure Policy Engine establishes stateful telemetry escalation rules, resource constraint boundaries, and simulation safety sandboxes. These policies are traced dynamically in our governance registry.',
+        'Every automated decision leaves a clear, immutable lineage trace, allowing developers and compliance teams to audit AI-agent behavior with absolute logical explainability.'
+      ],
+      metrics: [
+        { label: 'Conflict Detection', value: 'Automated Trackers' },
+        { label: 'Policy Registers', value: 'Zero-Knowledge Trace' }
+      ]
+    },
+    {
+      id: 'digital-ops',
+      title: 'Digital Operational Networks & Future Economies',
+      subtitle: 'Simulating decentralized liquidity equilibrium at protocol scale.',
+      paragraphs: [
+        'As protocol-scale finance scales, multi-chain liquidity must migrate dynamically to counter yield changes, gas spikes, and network congestions.',
+        'Kubryx balances these flows through our Autonomous Economic Coordination engine. The engine models dynamic pool flows and calculates coordinate rewards to incentivize healthy liquidity distributions.',
+        'By matching machine-speed yield balancing with mathematical equilibrium indexes, we construct a sovereign operational layer capable of serving the next generation of global DAOs and protocols.'
+      ],
+      metrics: [
+        { label: 'Equilibrium Index', value: '94.6%' },
+        { label: 'Rewards Pool', value: 'NCRD Incentives' }
       ]
     }
   ]

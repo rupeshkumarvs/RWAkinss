@@ -21,6 +21,12 @@ export type SimulationScenario =
   | 'treasury_imbalance'
   | 'loan_risk_escalation'
   | 'telemetry_anomaly_spikes'
+  | 'treasury_depletion'
+  | 'latency_crisis'
+  | 'wallet_compromise'
+  | 'telemetry_storm'
+  | 'coordination_failure'
+  | 'rpc_fragmentation'
 
 export interface SimulationProfile {
   id: SimulationScenario
@@ -71,6 +77,12 @@ export const SIMULATION_SCENARIOS: SimulationProfile[] = [
   { id: 'treasury_imbalance', name: 'Treasury Asset Disparity & Drift Warning', description: 'Simulates severe automated payroll mismatch between active multi-sig stream balances.', symptoms: ['Treasury AI issues rebalance request', 'Debt threshold warning triggered', 'Asset allocation drift score exceeds 15%'], severity: 'medium' },
   { id: 'loan_risk_escalation', name: 'AI Lending Risk Level Escalation', description: 'Simulates massive default rate trends under sudden high yield market drops.', symptoms: ['Lendora AI triggers loan health freeze', 'Credit Passport staking requirement doubles', 'Repayment window narrows to 14 days'], severity: 'high' },
   { id: 'telemetry_anomaly_spikes', name: 'Telemetry Diagnostics Spike Anomalies', description: 'Simulates a high volume of server failures due to remote cold restarts.', symptoms: ['Anomaly logs exceed 45 triggers', 'Visual telemetry dashboard flashes warnings', 'Offline backup servers take routing precedence'], severity: 'critical' },
+  { id: 'treasury_depletion', name: 'Treasury Depletion Cascade', description: 'Simulates active cascading failure and dynamic liquidity drain across multi-sig nodes.', symptoms: ['Treasury reserves decline by 80%', 'Smart streams freeze autonomously', 'Collateral thresholds trigger warnings'], severity: 'critical' },
+  { id: 'latency_crisis', name: 'Chain-Wide Latency Crisis', description: 'Models cascading network-wide dropouts with peak latencies above 5000ms.', symptoms: ['RPC nodes timeout completely', 'UI routing delays', 'State synchronization mismatch pings'], severity: 'critical' },
+  { id: 'wallet_compromise', name: 'Wallet Compromise Chain Reaction', description: 'Simulates cascading wallet drainage vectors across multi-chain private vault locks.', symptoms: ['Multiple malicious signature calls detected', 'Security posture falls to CRITICAL', 'Emergency zero-metadata routing override active'], severity: 'critical' },
+  { id: 'telemetry_storm', name: 'Telemetry Anomaly Storm', description: 'Triggers a synthetic packet storm flooding telemetry ingestion buffers.', symptoms: ['Anomaly logs cross 500 triggers', 'Gateway retry loops overload', 'Dynamic load balancer limits reached'], severity: 'high' },
+  { id: 'coordination_failure', name: 'AI Coordination Failure', description: 'Models synchronization loss between AI agents and smart contract state locks.', symptoms: ['Agent workload balance fails', 'Task queues delay', 'Autonomous rebalancing recommendations locked'], severity: 'high' },
+  { id: 'rpc_fragmentation', name: 'RPC Fragmentation Scenario', description: 'Models isolated regional state splits where distinct RPCs return inconsistent block states.', symptoms: ['Block index drift measured at 4 blocks', 'Chain consistency score drops to 60%', 'Dynamic routing switches to consensus baseline'], severity: 'critical' }
 ]
 
 const DEFAULT_ANALYTICS: OperationalAnalytics = {

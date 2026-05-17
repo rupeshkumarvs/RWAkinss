@@ -130,7 +130,7 @@ export default function ExecutiveWalkthrough() {
             textTransform: 'uppercase'
           }}
         >
-          Executive Demo ({demoStep + 1}/6)
+          Executive Demo ({demoStep + 1}/{SHOWCASE_FLOW.length})
         </span>
         <div>
           <h4 style={{ margin: 0, fontSize: 14, color: '#fff', fontWeight: 700 }}>

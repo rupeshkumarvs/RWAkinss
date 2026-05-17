@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePlatformState, updatePlatformState, SIMULATION_SCENARIOS, SimulationScenario } from '../../lib/platform-engine'
-import { getTelemetryErrors } from '../../lib/telemetry'
+import { useAutonomousOps } from '../../lib/autonomous-ops'
+import { useDigitalTwin } from '../../lib/digital-twin'
 import { toast } from '../../lib/toast'
 import ExecutiveWalkthrough from '../components/ExecutiveWalkthrough'
 import CommandPalette from '../components/CommandPalette'
@@ -18,6 +19,8 @@ interface SecurityLog {
 
 export default function SecurityPage() {
   const { activeScenario, analytics } = usePlatformState()
+  const { operationalRiskScore, infrastructureConfidenceScore, walletTrustState, resilienceStatus } = useAutonomousOps()
+  const { activeProfile, injectScenario } = useDigitalTwin()
   const [securityFeed, setSecurityFeed] = useState<SecurityLog[]>([])
 
   // Dynamic system trust score calculations based on scenario
@@ -94,8 +97,7 @@ export default function SecurityPage() {
   }, [activeScenario])
 
   function handleSelectScenario(id: SimulationScenario) {
-    updatePlatformState(() => ({ activeScenario: id }))
-    toast.success(`Simulation profile switched: ${id.replace('_', ' ')}`)
+    injectScenario(id)
   }
 
   return (
@@ -105,11 +107,20 @@ export default function SecurityPage() {
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <Link className="gold-text" href="/dashboard" style={{ fontSize: 13, textDecoration: 'none' }}>◀ Back to Dashboard</Link>
             <span style={{ color: '#666', fontSize: 12 }}>/</span>
-            <span style={{ fontSize: 13, color: '#aaa' }}>Security Center</span>
+            <span style={{ fontSize: 13, color: '#aaa' }}>Security Intel</span>
           </div>
           <h1 style={{ margin: '6px 0 0', fontSize: 28, fontWeight: 800, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span>🛡️</span> Security Command Center
+            <span>🛡️</span> Hardened Security Intelligence
           </h1>
+        </div>
+        
+        <div style={{ display: 'flex', gap: 8 }}>
+          <span style={{ fontSize: 10, background: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '4px 10px', borderRadius: 20 }}>
+            AI Guard: Uptime Nominal
+          </span>
+          <span style={{ fontSize: 10, background: 'rgba(255, 255, 255, 0.04)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.08)', padding: '4px 10px', borderRadius: 20 }}>
+            Post: {walletTrustState}
+          </span>
         </div>
       </header>
 
@@ -135,28 +146,29 @@ export default function SecurityPage() {
             <strong style={{ fontSize: 13, color: envColor, letterSpacing: '0.05em' }}>{envStatus}</strong>
           </div>
           <p style={{ margin: '4px 0 0', fontSize: 12, color: '#ccc' }}>
-            All multi-chain nodes, wallet verifications, and AI orchestration memory pools are monitored.
+            Multi-chain hardware signing, isolated RPC envelopes, and decentralized key locks are hardened.
           </p>
         </div>
         <div style={{ display: 'flex', gap: 20 }}>
           <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: 10, color: '#888', textTransform: 'uppercase' }}>System Trust Score</span>
+            <span style={{ fontSize: 10, color: '#888', textTransform: 'uppercase' }}>System Integrity</span>
             <h4 style={{ margin: 0, fontSize: 22, color: '#fff', fontWeight: 800 }}>{trustScore}%</h4>
           </div>
           <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: 10, color: '#888', textTransform: 'uppercase' }}>Risk Mitigation</span>
+            <span style={{ fontSize: 10, color: '#888', textTransform: 'uppercase' }}>Threat Mitigation</span>
             <h4 style={{ margin: 0, fontSize: 14, color: riskColor, fontWeight: 800, marginTop: 4 }}>{riskLevel}</h4>
           </div>
         </div>
       </div>
 
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, alignItems: 'start' }}>
+      {/* Main Grid split */}
+      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, alignItems: 'start', marginBottom: 24 }}>
         
         {/* Advanced Simulation Scenario Selector */}
         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <h2 style={{ fontSize: 16, margin: 0 }}>Advanced System Simulation Panel</h2>
+          <h2 style={{ fontSize: 16, margin: 0 }}>Digital Twin Simulation Panel</h2>
           <p style={{ fontSize: 12, color: '#888', margin: 0 }}>
-            Simulate degraded networks, key threat parameters, or high loads to test Kubryx fault-tolerant architectures live.
+            Inject synthetic multi-chain anomalies or key threat parameters into the isolated sandbox registry.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 6 }}>
@@ -198,30 +210,60 @@ export default function SecurityPage() {
           </div>
         </div>
 
-        {/* Security Feed & Cryptographic Status */}
+        {/* Security metrics and cluster matrix */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          
+          {/* Anomaly Clustering & Signing consistency */}
           <div className="card">
-            <h2 style={{ fontSize: 16, marginBottom: 12 }}>SLA & Observability Matrix</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              <div style={{ padding: 12, background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 6 }}>
-                <span style={{ fontSize: 10, color: '#888' }}>Latency roundtrip</span>
-                <h4 style={{ margin: '2px 0 0', fontSize: 20, color: '#F5C518', fontWeight: 800 }}>{analytics.averageLatency}ms</h4>
+            <h2 style={{ fontSize: 16, marginBottom: 12 }}>🔒 Hardened Security Intelligence Metrics</h2>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 11 }}>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: 6 }}>
+                <span style={{ color: '#888' }}>Signing Consistency:</span>
+                <strong style={{ color: '#10B981' }}>100% freighter / Phantom ed25519</strong>
               </div>
-              <div style={{ padding: 12, background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 6 }}>
-                <span style={{ fontSize: 10, color: '#888' }}>Active Anomalies</span>
-                <h4 style={{ margin: '2px 0 0', fontSize: 20, color: analytics.telemetryAnomalyCount > 0 ? '#EF4444' : '#10B981', fontWeight: 800 }}>{analytics.telemetryAnomalyCount}</h4>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: 6 }}>
+                <span style={{ color: '#888' }}>Chain Integrity Confidence:</span>
+                <strong style={{ color: '#10B981' }}>QIE 99.9% • Solana 99.8% • Stellar 100%</strong>
               </div>
-              <div style={{ padding: 12, background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 6 }}>
-                <span style={{ fontSize: 10, color: '#888' }}>Fallback activations</span>
-                <h4 style={{ margin: '2px 0 0', fontSize: 20, color: '#fff', fontWeight: 800 }}>{analytics.fallbackActivations}</h4>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: 6 }}>
+                <span style={{ color: '#888' }}>AI Safety Confidence:</span>
+                <strong style={{ color: '#10B981' }}>99.9% (Zero-Metadata routing)</strong>
               </div>
-              <div style={{ padding: 12, background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 6 }}>
-                <span style={{ fontSize: 10, color: '#888' }}>Confidence Index</span>
-                <h4 style={{ margin: '2px 0 0', fontSize: 20, color: '#10B981', fontWeight: 800 }}>99.9%</h4>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: 6 }}>
+                <span style={{ color: '#888' }}>Operational Threat Score:</span>
+                <strong style={{ color: operationalRiskScore > 50 ? '#EF4444' : '#fff' }}>{operationalRiskScore} / 100</strong>
               </div>
+
+              {/* Anomaly Clusters */}
+              <div style={{ marginTop: 10 }}>
+                <strong style={{ color: '#F5C518', fontSize: 10, display: 'block', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: 6 }}>
+                  Active Anomaly Clustering Matrices
+                </strong>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: 9 }}>
+                  <div style={{ padding: 8, background: '#040404', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 4 }}>
+                    <span style={{ color: '#888' }}>Cluster #1 (RPC Errors)</span>
+                    <strong style={{ display: 'block', fontSize: 12, color: activeScenario === 'degraded_rpc' ? '#EF4444' : '#fff', marginTop: 2 }}>
+                      {activeScenario === 'degraded_rpc' ? '6 Active' : '0 Anomalies'}
+                    </strong>
+                  </div>
+                  <div style={{ padding: 8, background: '#040404', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 4 }}>
+                    <span style={{ color: '#888' }}>Cluster #2 (Keys Signatures)</span>
+                    <strong style={{ display: 'block', fontSize: 12, color: activeScenario === 'suspicious_activity' ? '#EF4444' : '#fff', marginTop: 2 }}>
+                      {activeScenario === 'suspicious_activity' ? '1 Threat Locked' : '0 Anomalies'}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
 
+          {/* Suspicious activity logs feed */}
           <div className="card">
             <h2 style={{ fontSize: 16, marginBottom: 12 }}>Suspicious Activity Feed</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -244,6 +286,40 @@ export default function SecurityPage() {
               ))}
             </div>
           </div>
+
+        </div>
+      </section>
+
+      {/* Security posture timeline */}
+      <section className="card">
+        <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 700 }}>🕰 Threat Escalation Timeline</h3>
+        <p style={{ margin: '0 0 16px', fontSize: 12, color: '#888' }}>
+          Historical cryptographic check logs auditing cross-chain transaction finality and private vault lock events.
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {[
+            { time: '14:30:12', event: 'Freighter XDR secure multi-sig co-signature verified', status: 'Passed', color: '#10B981' },
+            { time: '14:28:44', event: activeScenario === 'suspicious_activity' ? 'ALERT: Key signature isolation certificate hold applied' : 'Private Vault signature check completed', status: activeScenario === 'suspicious_activity' ? 'Threat Isolated' : 'Passed', color: activeScenario === 'suspicious_activity' ? '#EF4444' : '#10B981' },
+            { time: '14:20:00', event: 'Ed25519 signature detached check verified successfully on Phantom payload', status: 'Passed', color: '#10B981' }
+          ].map((item, idx) => (
+            <div 
+              key={idx}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                fontSize: 11,
+                padding: '6px 10px',
+                borderBottom: '1px solid rgba(255,255,255,0.03)'
+              }}
+            >
+              <div style={{ display: 'flex', gap: 12 }}>
+                <span style={{ color: '#666' }}>{item.time}</span>
+                <span style={{ color: '#ccc' }}>{item.event}</span>
+              </div>
+              <strong style={{ color: item.color }}>{item.status}</strong>
+            </div>
+          ))}
         </div>
       </section>
 
