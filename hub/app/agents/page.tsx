@@ -41,7 +41,7 @@ type Activity = {
   timestamp?: string
 }
 
-const apiBase = process.env.NEXT_PUBLIC_TRUSTMESH_API || ''
+const apiBase = process.env.NEXT_PUBLIC_TRUSTMESH_URL || process.env.NEXT_PUBLIC_TRUSTMESH_API || ''
 const PROGRAM_ID = '66DXeSqBccWxWWw9S21vxe2Mvvqqkmw5KsK5jqA42quz'
 
 function shortAddress(address: string) {
