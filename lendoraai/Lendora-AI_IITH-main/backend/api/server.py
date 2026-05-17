@@ -79,56 +79,41 @@ except ImportError as e:
 # Application Setup
 # ============================================================================
 
-async def _initialize_agents_background(app: FastAPI):
-    """Load crewai and instantiate agents off the boot path so the port can bind first."""
+def _ensure_agents_loaded(app: FastAPI) -> bool:
+    """Lazy-load crewai modules and instantiate agents on first use.
+    Called from endpoints that actually need the agents — never from startup."""
+    if getattr(app.state, 'agents_initialized', False):
+        return True
+    if not _load_agent_modules():
+        return False
     try:
-        await asyncio.sleep(0.5)  # let uvicorn finish binding the socket first
-        loaded = _load_agent_modules()
-        if not loaded:
-            print("[Agents] crewai modules not available, running in simulation mode")
-            return
-
-        try:
+        if not getattr(app.state, 'lenny_agent', None):
             app.state.lenny_agent = create_borrower_agent()  # type: ignore[misc]
-            print("[Agents] Lenny (Borrower Agent) initialized")
-        except Exception as e:
-            print(f"[Agents] Lenny initialization failed: {e}")
-            app.state.lenny_agent = None
-
-        try:
-            app.state.luna_agent = create_lender_agent()  # type: ignore[misc]
-            print("[Agents] Luna (Lender Agent) initialized")
-        except Exception as e:
-            print(f"[Agents] Luna initialization failed: {e}")
-            app.state.luna_agent = None
-
-        if app.state.lenny_agent or app.state.luna_agent:
-            app.state.agents_initialized = True
-            app.state.agent_heartbeat_task = asyncio.create_task(agent_heartbeat())
-            print("[Agents] AI agents online; heartbeat started")
-            try:
-                await manager.broadcast({
-                    "type": "agent_status",
-                    "data": {"status": "idle", "task": "Ready for loan negotiations"}
-                })
-            except Exception:
-                pass
+            print("[Agents] Lenny (Borrower Agent) initialized on demand")
     except Exception as e:
-        print(f"[Agents] Background init crashed: {e}")
+        print(f"[Agents] Lenny init failed: {e}")
+        app.state.lenny_agent = None
+    try:
+        if not getattr(app.state, 'luna_agent', None):
+            app.state.luna_agent = create_lender_agent()  # type: ignore[misc]
+            print("[Agents] Luna (Lender Agent) initialized on demand")
+    except Exception as e:
+        print(f"[Agents] Luna init failed: {e}")
+        app.state.luna_agent = None
+    if app.state.lenny_agent or app.state.luna_agent:
+        app.state.agents_initialized = True
+        return True
+    return False
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Keep startup as cheap as possible — Render free tier is 512Mi and the
+    # crewai/chromadb/lancedb/onnxruntime/pyarrow import chain alone can blow
+    # past that. Everything heavy is deferred to first use of the relevant
+    # endpoint via _ensure_agents_loaded().
     port = int(os.getenv("PORT", "8000"))
-    host = os.getenv("HOST", "0.0.0.0")
-    display_host = "localhost" if host == "0.0.0.0" else host
-
-    print("=" * 70)
-    print("Lendora AI Backend API Started")
-    print(f"REST API:    http://{display_host}:{port}")
-    print(f"WebSocket:   ws://{display_host}:{port}/ws")
-    print(f"Docs:        http://{display_host}:{port}/docs")
-    print("=" * 70)
+    print(f"[Lendora] Booting on 0.0.0.0:{port} — agents will load on first request")
 
     app.state.hydra_manager = None
     app.state.agents_initialized = False
@@ -136,40 +121,21 @@ async def lifespan(app: FastAPI):
     app.state.lenny_agent = None
     app.state.luna_agent = None
 
-    # Defaults so litellm/crewai don't crash if these env vars are unset
+    # Defaults so litellm/crewai don't crash if these env vars are unset when
+    # agents lazy-load later.
     os.environ.setdefault('OPENAI_API_KEY', 'dummy-key-for-development')
     os.environ.setdefault('ANTHROPIC_API_KEY', 'dummy-key-for-development')
 
-    # Fire-and-forget background init — keeps boot fast so Render can detect the port
-    app.state.agent_init_task = asyncio.create_task(_initialize_agents_background(app))
-
     yield
 
-    # Cancel background init if still running
-    if hasattr(app.state, 'agent_init_task') and app.state.agent_init_task:
-        app.state.agent_init_task.cancel()
-        try:
-            await app.state.agent_init_task
-        except (asyncio.CancelledError, Exception):
-            pass
-
-    # Shutdown
-    print("[Shutdown] Cleaning up resources...")
-
-    # Cancel agent heartbeat task
-    if hasattr(app.state, 'agent_heartbeat_task') and app.state.agent_heartbeat_task:
+    if getattr(app.state, 'agent_heartbeat_task', None):
         app.state.agent_heartbeat_task.cancel()
         try:
             await app.state.agent_heartbeat_task
-        except asyncio.CancelledError:
+        except (asyncio.CancelledError, Exception):
             pass
-        print("[Agents] Heartbeat task cancelled")
+    print("[Shutdown] Cleaned up resources")
 
-    # Stop agents
-    if hasattr(app.state, 'agents_initialized') and app.state.agents_initialized:
-        print("[Agents] Agents shutdown complete")
-
-    # Hydra removed - no cleanup needed
 
 app = FastAPI(
     title="Lendora AI API",
