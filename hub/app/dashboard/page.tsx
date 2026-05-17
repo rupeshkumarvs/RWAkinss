@@ -10,7 +10,9 @@ import { toast } from '../../lib/toast'
 import { logTelemetryError, getTelemetryErrors, clearTelemetryErrors, TelemetryError } from '../../lib/telemetry'
 import OnboardingTour from '../components/OnboardingTour'
 import { useCrossToolIntelligence, updateIntelligenceState, getRecommendedActions, recordOSEvent } from '../../lib/cross-tool-intelligence'
-import { usePlatformState } from '../../lib/platform-engine'
+import { usePlatformState, updatePlatformState, PLATFORM_MODES } from '../../lib/platform-engine'
+import { useOrgContext, updateOrgState, resolveAlert, recordTeamEvent } from '../../lib/org-context'
+import { useEventBus, fireEvent, toggleRule, resetRules } from '../../lib/event-bus'
 import ExecutiveWalkthrough from '../components/ExecutiveWalkthrough'
 import CommandPalette from '../components/CommandPalette'
 
@@ -100,7 +102,26 @@ async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
 export default function DashboardPage() {
   const pathname = usePathname()
   const intelligenceState = useCrossToolIntelligence()
-  const { activeScenario, analytics } = usePlatformState()
+  const { currentMode, activeScenario, analytics } = usePlatformState()
+  const { currentOrgId, currentWorkspaceId, currentRole, organizations, teamActivity, operationalAlerts } = useOrgContext()
+  const { rules, logs: eventLogs } = useEventBus()
+
+  const activeOrg = useMemo(() => {
+    return organizations.find(o => o.id === currentOrgId) || organizations[0]
+  }, [organizations, currentOrgId])
+
+  const activeWorkspace = useMemo(() => {
+    return activeOrg.workspaces.find(w => w.id === currentWorkspaceId) || activeOrg.workspaces[0]
+  }, [activeOrg, currentWorkspaceId])
+
+  const filteredAlerts = useMemo(() => {
+    return operationalAlerts.filter(a => a.orgId === currentOrgId && !a.resolved)
+  }, [operationalAlerts, currentOrgId])
+
+  const filteredActivity = useMemo(() => {
+    return teamActivity.filter(act => act.orgId === currentOrgId && act.workspaceId === currentWorkspaceId)
+  }, [teamActivity, currentOrgId, currentWorkspaceId])
+
   const [ethWallet, setEthWallet] = useState('')
   const [solWallet, setSolWallet] = useState('')
   const [stellarWallet, setStellarWallet] = useState('')
@@ -377,6 +398,135 @@ export default function DashboardPage() {
     <main className="dashboard-layout">
       <aside className="dashboard-sidebar">
         <Link className="logo" href="/">Kubryx</Link>
+
+        {/* Global Platform Operating Mode Selector */}
+        <div className="card" style={{ marginBottom: 12, padding: 12, borderColor: 'rgba(245, 197, 24, 0.25)' }}>
+          <h2 style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
+            Platform Mode
+          </h2>
+          <select 
+            value={currentMode}
+            onChange={(e) => {
+              const val = e.target.value as any
+              updatePlatformState(() => ({ currentMode: val }))
+              toast.success(`Platform Mode switched: ${val.toUpperCase()}`)
+            }}
+            style={{
+              width: '100%',
+              padding: '6px 8px',
+              borderRadius: 6,
+              background: '#040404',
+              border: '1px solid rgba(255,255,255,0.15)',
+              color: '#fff',
+              fontSize: 12,
+              outline: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            {PLATFORM_MODES.map((m) => (
+              <option key={m.id} value={m.id}>
+                {m.id === 'live' ? '🟢' : m.id === 'demo' ? '🟡' : m.id === 'simulation' ? '🟣' : m.id === 'executive' ? '🔵' : '💗'} {m.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Multi-User Organization Selector */}
+        <div className="card" style={{ marginBottom: 12, padding: 12 }}>
+          <h2 style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
+            Active Organization
+          </h2>
+          <select 
+            value={currentOrgId}
+            onChange={(e) => {
+              const nextId = e.target.value
+              updateOrgState(() => ({ currentOrgId: nextId }))
+              toast.success(`Organization switched to ${organizations.find(o => o.id === nextId)?.name}`)
+            }}
+            style={{
+              width: '100%',
+              padding: '6px 8px',
+              borderRadius: 6,
+              background: '#040404',
+              border: '1px solid rgba(255,255,255,0.15)',
+              color: '#fff',
+              fontSize: 12,
+              outline: 'none',
+              cursor: 'pointer',
+              marginBottom: 10
+            }}
+          >
+            {organizations.map((org) => (
+              <option key={org.id} value={org.id}>{org.name}</option>
+            ))}
+          </select>
+
+          {/* Active Workspaces List */}
+          <h2 style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
+            Workspaces
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
+            {activeOrg.workspaces.map((ws) => {
+              const isSelected = ws.id === currentWorkspaceId
+              return (
+                <button
+                  key={ws.id}
+                  onClick={() => {
+                    updateOrgState(() => ({ currentWorkspaceId: ws.id }))
+                    toast.success(`Workspace switched: ${ws.name}`)
+                  }}
+                  style={{
+                    textAlign: 'left',
+                    padding: '4px 6px',
+                    borderRadius: 4,
+                    fontSize: 11,
+                    background: isSelected ? 'rgba(245,197,24,0.06)' : 'transparent',
+                    border: 'none',
+                    color: isSelected ? '#F5C518' : '#aaa',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  <span style={{ fontSize: 8 }}>{isSelected ? '⬢' : '⬡'}</span>
+                  {ws.name}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* User Role Selector */}
+          <h2 style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
+            User Role Context
+          </h2>
+          <select 
+            value={currentRole}
+            onChange={(e) => {
+              const nextRole = e.target.value as any
+              updateOrgState(() => ({ currentRole: nextRole }))
+              recordTeamEvent('You', nextRole, `switched operational role to ${nextRole}`)
+              toast.success(`Switched role context: ${nextRole}`)
+            }}
+            style={{
+              width: '100%',
+              padding: '6px 8px',
+              borderRadius: 6,
+              background: '#040404',
+              border: '1px solid rgba(255,255,255,0.15)',
+              color: '#fff',
+              fontSize: 11,
+              outline: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            {['Admin', 'Treasury Manager', 'Risk Analyst', 'Operations', 'Auditor'].map((role) => (
+              <option key={role} value={role}>{role}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="card wallet-card" id="wallet-connector-section">
           <h2>Wallets</h2>
           
@@ -483,6 +633,223 @@ export default function DashboardPage() {
             <StatCard label="Treasury Balance" value={treasuryBalance} live={liveSources.treasury} />
           </section>
         </ErrorBoundary>
+
+        {/* ECOSYSTEM OPERATIONS & EVENT BUS CONTROL ROOM */}
+        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 20, marginTop: 20 }}>
+          
+          {/* Column 1: Organization Alert Desk & Team Coordination */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            
+            {/* Shared Operational Alerts */}
+            <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ fontSize: 15, margin: 0, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>🔔</span> Shared Operational Alerts
+                </h3>
+                <span style={{ fontSize: 9, background: filteredAlerts.length > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', color: filteredAlerts.length > 0 ? '#EF4444' : '#10B981', padding: '2px 8px', borderRadius: 10, fontWeight: 800 }}>
+                  {filteredAlerts.length} ACTIVE
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+                {filteredAlerts.length === 0 ? (
+                  <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: '30px 0', opacity: 0.6 }}>
+                    <span style={{ fontSize: 24, marginBottom: 6 }}>⬡</span>
+                    <p style={{ margin: 0, fontSize: 12 }}>All systems clear. No outstanding alerts.</p>
+                  </div>
+                ) : (
+                  filteredAlerts.map((alert) => {
+                    const badgeColor = alert.severity === 'critical' ? '#EF4444' : alert.severity === 'warning' ? '#F5C518' : '#3B82F6'
+                    return (
+                      <div 
+                        key={alert.id}
+                        style={{
+                          padding: '10px 12px',
+                          background: 'rgba(255,255,255,0.01)',
+                          border: `1px solid rgba(255,255,255,0.05)`,
+                          borderLeft: `3px solid ${badgeColor}`,
+                          borderRadius: '0 6px 6px 0',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          gap: 12
+                        }}
+                      >
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 2 }}>
+                            <strong style={{ fontSize: 12, color: '#fff' }}>{alert.title}</strong>
+                            <span style={{ fontSize: 8, fontWeight: 800, color: badgeColor, textTransform: 'uppercase' }}>
+                              {alert.severity}
+                            </span>
+                          </div>
+                          <p style={{ margin: 0, fontSize: 11, color: '#ccc', lineHeight: 1.3 }}>{alert.description}</p>
+                          <span style={{ fontSize: 8, color: '#666', display: 'block', marginTop: 4 }}>
+                            {new Date(alert.timestamp).toLocaleTimeString()}
+                          </span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            resolveAlert(alert.id)
+                            toast.success('Alert resolved')
+                          }}
+                          className="btn-outline"
+                          style={{ padding: '3px 8px', fontSize: 10, height: 'auto', alignSelf: 'center' }}
+                        >
+                          Resolve
+                        </button>
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Simulated Team Activity Feed */}
+            <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <h3 style={{ fontSize: 15, margin: 0, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>👥</span> Team Coordination Feed
+                </h3>
+                <span style={{ fontSize: 10, color: '#888', display: 'block', marginTop: 2 }}>
+                  Simulated multi-user logs inside {activeOrg.name} ({activeWorkspace.name})
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: '220px', overflowY: 'auto' }}>
+                {filteredActivity.length === 0 ? (
+                  <p style={{ margin: 0, fontSize: 11, fontStyle: 'italic', color: '#666', textAlign: 'center', padding: '16px 0' }}>
+                    No workspace activity logged yet. Switch roles to trigger events.
+                  </p>
+                ) : (
+                  filteredActivity.map((act) => (
+                    <div 
+                      key={act.id}
+                      style={{ 
+                        padding: '6px 10px', 
+                        background: 'rgba(255,255,255,0.01)', 
+                        border: '1px solid rgba(255,255,255,0.03)', 
+                        borderRadius: 6,
+                        fontSize: 11
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, marginBottom: 2 }}>
+                        <span className="gold-text">
+                          {act.user} <span style={{ color: '#888' }}>({act.role})</span>
+                        </span>
+                        <span style={{ color: '#666' }}>{new Date(act.timestamp).toLocaleTimeString()}</span>
+                      </div>
+                      <p style={{ margin: 0, color: '#ccc' }}>{act.action}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Column 2: Event Bus & Trigger Action Engine */}
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 10 }}>
+              <div>
+                <h3 style={{ fontSize: 15, margin: 0, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span>🔌</span> Cross-Tool Event Bus
+                </h3>
+                <p style={{ margin: 0, fontSize: 11, color: '#888' }}>Trigger and simulate platform automation.</p>
+              </div>
+              <button 
+                onClick={resetRules}
+                className="btn-outline" 
+                style={{ fontSize: 10, padding: '3px 8px', height: 'auto' }}
+              >
+                Clear Stats
+              </button>
+            </div>
+
+            {/* Automation Rules */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {rules.map((rule) => (
+                <div 
+                  key={rule.id}
+                  style={{
+                    padding: 10,
+                    background: rule.active ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.2)',
+                    border: `1px solid ${rule.active ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)'}`,
+                    borderRadius: 8,
+                    opacity: rule.active ? 1 : 0.6
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                    <strong style={{ fontSize: 12, color: rule.active ? '#fff' : '#888' }}>{rule.title}</strong>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 9, color: '#F5C518', background: 'rgba(245,197,24,0.06)', padding: '1px 5px', borderRadius: 4 }}>
+                        Runs: {rule.timesTriggered}
+                      </span>
+                      <input 
+                        type="checkbox"
+                        checked={rule.active}
+                        onChange={() => toggleRule(rule.id)}
+                        style={{ cursor: 'pointer', accentColor: '#F5C518' }}
+                      />
+                    </div>
+                  </div>
+                  <p style={{ margin: '0 0 8px', fontSize: 10, color: '#888', lineHeight: 1.3 }}>{rule.description}</p>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#10B981' }}>
+                      {rule.trigger.slice(0, 16)}... → {rule.action.slice(0, 16)}...
+                    </span>
+                    <button
+                      onClick={() => {
+                        fireEvent(rule.trigger)
+                        recordTeamEvent('Automation Engine', currentRole || 'Admin', `processed event sweep: ${rule.title}`)
+                      }}
+                      disabled={!rule.active}
+                      className="btn-gold"
+                      style={{ padding: '3px 8px', fontSize: 10, height: 'auto' }}
+                    >
+                      ⚡ Sim Trigger
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Event Propagation Logs */}
+            <div>
+              <h4 style={{ margin: '0 0 6px', fontSize: 11, color: '#F5C518', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Real-Time Event Propagation Logs
+              </h4>
+              <div 
+                style={{ 
+                  height: 140, 
+                  overflowY: 'auto', 
+                  background: '#040404', 
+                  border: '1px solid rgba(255,255,255,0.06)', 
+                  borderRadius: 6,
+                  padding: 10,
+                  fontSize: 10,
+                  fontFamily: 'monospace',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 6
+                }}
+              >
+                {eventLogs.map((log) => (
+                  <div key={log.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: 4 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: log.status === 'triggered' ? '#10B981' : log.status === 'skipped' ? '#EF4444' : '#888', marginBottom: 2 }}>
+                      <strong>[{log.status.toUpperCase()}] {log.eventName}</strong>
+                      <span>{new Date(log.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                    <p style={{ margin: 0, color: '#ccc', fontSize: 9 }}>{log.details}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+        </section>
 
         <ErrorBoundary label="analytics">
           <section className="card" style={{ marginTop: 20 }}>

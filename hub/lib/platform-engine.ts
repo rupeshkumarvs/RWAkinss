@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 
+export type PlatformMode = 'live' | 'demo' | 'simulation' | 'executive' | 'developer'
+
 export interface ChainMetadata {
   id: string
   name: string
@@ -32,101 +34,45 @@ export interface OperationalAnalytics {
   aiRequestsProcessed: number
   transactionsObserved: number
   walletConnectionsCount: number
-  backendUptimeTrends: Record<string, number> // tool -> percentage
-  chainActivityRates: Record<string, number> // chain -> active transactions/sec
+  backendUptimeTrends: Record<string, number>
+  chainActivityRates: Record<string, number>
   telemetryAnomalyCount: number
   averageLatency: number
   fallbackActivations: number
 }
 
-// 1. Centralized Chain Metadata
-export const CHAIN_REGISTRY: Record<string, ChainMetadata> = {
-  qie: {
-    id: 'qie',
-    name: 'QIE Mainnet',
-    chainId: '1990',
-    explorerUrl: 'https://mainnet.qie.info',
-    rpcUrl: 'https://rpc.qie.info',
-    status: 'healthy',
-  },
-  solana: {
-    id: 'solana',
-    name: 'Solana Devnet',
-    explorerUrl: 'https://explorer.solana.com',
-    rpcUrl: 'https://api.devnet.solana.com',
-    status: 'healthy',
-  },
-  stellar: {
-    id: 'stellar',
-    name: 'Stellar Testnet',
-    explorerUrl: 'https://stellar.expert/explorer/testnet',
-    rpcUrl: 'https://horizon-testnet.stellar.org',
-    status: 'healthy',
-  },
-  arbitrum: {
-    id: 'arbitrum',
-    name: 'Arbitrum One',
-    chainId: '42161',
-    explorerUrl: 'https://arbiscan.io',
-    rpcUrl: 'https://arb1.arbitrum.io/rpc',
-    status: 'healthy',
-  },
+export interface ModeProfile {
+  id: PlatformMode
+  name: string
+  description: string
+  indicatorColor: string
 }
 
-// 2. Interactive Simulation Scenarios
-export const SIMULATION_SCENARIOS: SimulationProfile[] = [
-  {
-    id: 'none',
-    name: 'Nominal Operational State',
-    description: 'All pipelines operate normally under production-grade SLA parameters (45ms).',
-    symptoms: ['Optimal gateway response times', 'Zero error backoffs', 'Normal security baseline'],
-    severity: 'low',
-  },
-  {
-    id: 'degraded_rpc',
-    name: 'Degraded RPC Gateway Infrastructure',
-    description: 'Simulates high request failure bounds on remote EVM and Solana RPC nodes.',
-    symptoms: ['Average latency spikes to 950ms', 'Cache fallback layers activate automatically', 'Telemetry registers RETRY_BACKOFF alerts'],
-    severity: 'medium',
-  },
-  {
-    id: 'chain_congestion',
-    name: 'Chain Congestion & Mempool Saturation',
-    description: 'Simulates severe network delay and high gas limits on Ethereum-based layers.',
-    symptoms: ['Transaction confirmation times delayed by 180s', 'Estimated gas prices spike by 400%', 'Arbitrum bridge timeouts detected'],
-    severity: 'medium',
-  },
-  {
-    id: 'suspicious_activity',
-    name: 'Suspicious Wallet Keys & Key Compromise',
-    description: 'Simulates rapid token routing attempts from blacklisted high-risk contracts.',
-    symptoms: ['Private Vault locks routing key locks', 'Security score falls to CRITICAL', 'Security console fires RPC_DEGRADATION warnings'],
-    severity: 'high',
-  },
-  {
-    id: 'treasury_imbalance',
-    name: 'Treasury Asset Disparity & Drift Warning',
-    description: 'Simulates severe automated payroll mismatch between active multi-sig stream balances.',
-    symptoms: ['Treasury AI issues rebalance request', 'Debt threshold warning triggered', 'Asset allocation drift score exceeds 15%'],
-    severity: 'medium',
-  },
-  {
-    id: 'loan_risk_escalation',
-    name: 'AI Lending Risk Level Escalation',
-    description: 'Simulates massive default rate trends under sudden high yield market drops.',
-    symptoms: ['Lendora AI triggers loan health freeze', 'Credit Passport staking requirement doubles', 'Repayment window narrows to 14 days'],
-    severity: 'high',
-  },
-  {
-    id: 'telemetry_anomaly_spikes',
-    name: 'Telemetry Diagnostics Spike Anomalies',
-    description: 'Simulates a high volume of server failures due to remote cold restarts.',
-    symptoms: ['Anomaly logs exceed 45 triggers', 'Visual telemetry dashboard flashes warnings', 'Offline backup servers take routing precedence'],
-    severity: 'critical',
-  },
+export const PLATFORM_MODES: ModeProfile[] = [
+  { id: 'live', name: 'Live Production Mode', description: 'Connects to remote blockchain endpoints and captures live transaction flows.', indicatorColor: '#10B981' },
+  { id: 'demo', name: 'Deterministic Demo Mode', description: 'Pre-populates all wallet portfolios, scores, and streams with investor-safe datasets.', indicatorColor: '#F5C518' },
+  { id: 'simulation', name: 'Synthetic Simulation Mode', description: 'Simulates mempool congestion, key compromises, and multi-sig payroll disparities.', indicatorColor: '#A855F7' },
+  { id: 'executive', name: 'Executive Showcase Mode', description: 'Locks storytelling paths, highlights slideshow overlays, and optimizes UX.', indicatorColor: '#3B82F6' },
+  { id: 'developer', name: 'Developer Diagnostics Mode', description: 'Exposes hydration timers, latency timelines, memory pressures, and technical logs.', indicatorColor: '#EC4899' },
 ]
 
-// Default analytics values
+export const CHAIN_REGISTRY: Record<string, ChainMetadata> = {
+  qie: { id: 'qie', name: 'QIE Mainnet', chainId: '1990', explorerUrl: 'https://mainnet.qie.info', rpcUrl: 'https://rpc.qie.info', status: 'healthy' },
+  solana: { id: 'solana', name: 'Solana Devnet', explorerUrl: 'https://explorer.solana.com', rpcUrl: 'https://api.devnet.solana.com', status: 'healthy' },
+  stellar: { id: 'stellar', name: 'Stellar Testnet', explorerUrl: 'https://stellar.expert/explorer/testnet', rpcUrl: 'https://horizon-testnet.stellar.org', status: 'healthy' },
+  arbitrum: { id: 'arbitrum', name: 'Arbitrum One', chainId: '42161', explorerUrl: 'https://arbiscan.io', rpcUrl: 'https://arb1.arbitrum.io/rpc', status: 'healthy' },
+}
+
+export const SIMULATION_SCENARIOS: SimulationProfile[] = [
+  { id: 'none', name: 'Nominal Operational State', description: 'All pipelines operate normally under production-grade SLA parameters (45ms).', symptoms: ['Optimal gateway response times', 'Zero error backoffs', 'Normal security baseline'], severity: 'low' },
+  { id: 'degraded_rpc', name: 'Degraded RPC Gateway Infrastructure', description: 'Simulates high request failure bounds on remote EVM and Solana RPC nodes.', symptoms: ['Average latency spikes to 950ms', 'Cache fallback layers activate automatically', 'Telemetry registers RETRY_BACKOFF alerts'], severity: 'medium' },
+  { id: 'chain_congestion', name: 'Chain Congestion & Mempool Saturation', description: 'Simulates severe network delay and high gas limits on Ethereum-based layers.', symptoms: ['Transaction confirmation times delayed by 180s', 'Estimated gas prices spike by 400%', 'Arbitrum bridge timeouts detected'], severity: 'medium' },
+  { id: 'suspicious_activity', name: 'Suspicious Wallet Keys & Key Compromise', description: 'Simulates rapid token routing attempts from blacklisted high-risk contracts.', symptoms: ['Private Vault locks routing key locks', 'Security score falls to CRITICAL', 'Security console fires RPC_DEGRADATION warnings'], severity: 'high' },
+  { id: 'treasury_imbalance', name: 'Treasury Asset Disparity & Drift Warning', description: 'Simulates severe automated payroll mismatch between active multi-sig stream balances.', symptoms: ['Treasury AI issues rebalance request', 'Debt threshold warning triggered', 'Asset allocation drift score exceeds 15%'], severity: 'medium' },
+  { id: 'loan_risk_escalation', name: 'AI Lending Risk Level Escalation', description: 'Simulates massive default rate trends under sudden high yield market drops.', symptoms: ['Lendora AI triggers loan health freeze', 'Credit Passport staking requirement doubles', 'Repayment window narrows to 14 days'], severity: 'high' },
+  { id: 'telemetry_anomaly_spikes', name: 'Telemetry Diagnostics Spike Anomalies', description: 'Simulates a high volume of server failures due to remote cold restarts.', symptoms: ['Anomaly logs exceed 45 triggers', 'Visual telemetry dashboard flashes warnings', 'Offline backup servers take routing precedence'], severity: 'critical' },
+]
+
 const DEFAULT_ANALYTICS: OperationalAnalytics = {
   aiRequestsProcessed: 2840,
   transactionsObserved: 1145,
@@ -152,14 +98,15 @@ const DEFAULT_ANALYTICS: OperationalAnalytics = {
   fallbackActivations: 0,
 }
 
-// Client-side singleton state
 interface PlatformState {
+  currentMode: PlatformMode
   activeScenario: SimulationScenario
   analytics: OperationalAnalytics
   chains: Record<string, ChainMetadata>
 }
 
 let platformState: PlatformState = {
+  currentMode: 'demo', // default to demo mode for deterministic show-safe dashboards
   activeScenario: 'none',
   analytics: { ...DEFAULT_ANALYTICS },
   chains: { ...CHAIN_REGISTRY },
@@ -175,14 +122,17 @@ function notifyListeners() {
   }
 }
 
-// Initialize safely
+// Hydrate safely on client
 if (typeof window !== 'undefined') {
   try {
     const saved = localStorage.getItem('kubryx_platform_state')
     if (saved) {
+      const parsed = JSON.parse(saved)
       platformState = {
-        ...platformState,
-        ...JSON.parse(saved),
+        currentMode: parsed.currentMode || 'demo',
+        activeScenario: parsed.activeScenario || 'none',
+        analytics: { ...DEFAULT_ANALYTICS, ...parsed.analytics },
+        chains: parsed.chains || { ...CHAIN_REGISTRY },
       }
     }
   } catch {
@@ -196,11 +146,21 @@ export function getPlatformState() {
 
 export function updatePlatformState(updater: (prev: PlatformState) => Partial<PlatformState>) {
   const diff = updater(platformState)
+  
+  // Safe Isolation between modes:
+  // If switched to Live mode, reset active simulation scenarios to none
+  if (diff.currentMode === 'live') {
+    diff.activeScenario = 'none'
+  }
+  // If switched to simulation mode and no active scenario, default to degraded_rpc
+  if (diff.currentMode === 'simulation' && platformState.activeScenario === 'none') {
+    diff.activeScenario = 'degraded_rpc'
+  }
+  
   platformState = { ...platformState, ...diff }
   notifyListeners()
 }
 
-// Reactive Hook
 export function usePlatformState() {
   const [state, setState] = useState<PlatformState>({ ...platformState })
 
@@ -220,49 +180,74 @@ export function usePlatformState() {
     }
   }, [])
 
-  // Auto fluctuate analytics slightly to make the system feel organic and fully alive!
+  // Auto fluctuate analytics depending on the current Operating Mode and Sim Scenarios
   useEffect(() => {
     if (typeof window === 'undefined') return
+    
     const interval = setInterval(() => {
       updatePlatformState((prev) => {
+        const mode = prev.currentMode
         const scenario = prev.activeScenario
         
         let latencyBase = 45
         let telemetryAnomalies = 0
         let fallbackBase = prev.analytics.fallbackActivations
 
-        if (scenario === 'degraded_rpc') {
-          latencyBase = 950 + Math.floor(Math.random() * 80)
-          telemetryAnomalies = 14 + Math.floor(Math.random() * 5)
-          fallbackBase += Math.random() > 0.6 ? 1 : 0
-        } else if (scenario === 'chain_congestion') {
-          latencyBase = 320 + Math.floor(Math.random() * 40)
-        } else if (scenario === 'telemetry_anomaly_spikes') {
-          latencyBase = 180 + Math.floor(Math.random() * 30)
-          telemetryAnomalies = 48 + Math.floor(Math.random() * 10)
-          fallbackBase += 2
-        } else if (scenario === 'suspicious_activity') {
-          telemetryAnomalies = 4
+        // Isolate behaviors by Mode & Scenario
+        if (mode === 'live') {
+          // Live mode is very stable, low fluctuation
+          latencyBase = 42 + Math.floor(Math.sin(Date.now() / 15000) * 4)
+        } else if (mode === 'demo') {
+          // Demo mode is extremely deterministic and static
+          latencyBase = 45
+          telemetryAnomalies = 0
+        } else if (mode === 'simulation' || scenario !== 'none') {
+          // Simulation injects synthetic anomalies
+          if (scenario === 'degraded_rpc') {
+            latencyBase = 950 + Math.floor(Math.random() * 80)
+            telemetryAnomalies = 14 + Math.floor(Math.random() * 5)
+            fallbackBase += Math.random() > 0.8 ? 1 : 0
+          } else if (scenario === 'chain_congestion') {
+            latencyBase = 320 + Math.floor(Math.random() * 40)
+            telemetryAnomalies = 3
+          } else if (scenario === 'telemetry_anomaly_spikes') {
+            latencyBase = 180 + Math.floor(Math.random() * 30)
+            telemetryAnomalies = 48 + Math.floor(Math.random() * 10)
+            fallbackBase += 1
+          } else if (scenario === 'suspicious_activity') {
+            telemetryAnomalies = 6
+            latencyBase = 55
+          } else {
+            latencyBase = 65
+          }
+        } else if (mode === 'executive') {
+          // Executive mode optimizes performance numbers for clean presenting
+          latencyBase = 35
+          telemetryAnomalies = 0
+        } else if (mode === 'developer') {
+          // Developer mode shows higher detailed metrics and medium fluctuations
+          latencyBase = 48 + Math.floor(Math.random() * 12)
+          telemetryAnomalies = Math.random() > 0.9 ? 1 : 0
         }
 
         return {
           analytics: {
             ...prev.analytics,
-            aiRequestsProcessed: prev.analytics.aiRequestsProcessed + (Math.random() > 0.3 ? 1 : 0),
-            transactionsObserved: prev.analytics.transactionsObserved + (Math.random() > 0.5 ? 1 : 0),
-            averageLatency: Math.max(15, latencyBase + Math.floor(Math.sin(Date.now() / 10000) * 10)),
+            aiRequestsProcessed: prev.analytics.aiRequestsProcessed + (Math.random() > 0.4 ? 1 : 0),
+            transactionsObserved: prev.analytics.transactionsObserved + (Math.random() > 0.6 ? 1 : 0),
+            averageLatency: latencyBase,
             telemetryAnomalyCount: telemetryAnomalies,
             fallbackActivations: fallbackBase,
             chainActivityRates: {
-              'QIE Mainnet': Number((14.5 + Math.sin(Date.now() / 5000) * 1.5).toFixed(1)),
-              'Solana Devnet': Number((285.2 + Math.sin(Date.now() / 4000) * 20).toFixed(1)),
-              'Stellar Testnet': Number((84.8 + Math.sin(Date.now() / 6000) * 5).toFixed(1)),
-              'Arbitrum': Number((48.6 + Math.sin(Date.now() / 7000) * 3).toFixed(1)),
+              'QIE Mainnet': mode === 'demo' ? 14.5 : Number((14.5 + Math.sin(Date.now() / 5000) * 1.5).toFixed(1)),
+              'Solana Devnet': mode === 'demo' ? 285.2 : Number((285.2 + Math.sin(Date.now() / 4000) * 20).toFixed(1)),
+              'Stellar Testnet': mode === 'demo' ? 84.8 : Number((84.8 + Math.sin(Date.now() / 6000) * 5).toFixed(1)),
+              'Arbitrum': mode === 'demo' ? 48.6 : Number((48.6 + Math.sin(Date.now() / 7000) * 3).toFixed(1)),
             }
           }
         }
       })
-    }, 3000)
+    }, 4000)
 
     return () => clearInterval(interval)
   }, [])

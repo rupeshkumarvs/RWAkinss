@@ -24,6 +24,9 @@ export default function CommandPalette() {
 
   const commands: CommandItem[] = [
     { id: 'nav-dash', title: 'Open Dashboard Command Center', subtitle: 'View system health & stats', category: 'Navigation', action: () => router.push('/dashboard') },
+    { id: 'nav-integrations', title: 'Open Ecosystem Integration Hub', subtitle: 'View connected chains, wallets & AI metadata', category: 'Navigation', action: () => router.push('/integrations') },
+    { id: 'nav-analytics', title: 'Open Advanced Analytics Lab', subtitle: 'Rolling chain TPS & latency trends', category: 'Navigation', action: () => router.push('/analytics') },
+    { id: 'nav-performance', title: 'Open System Performance Center', subtitle: 'Uptime SLA, heap size & route loading speeds', category: 'Navigation', action: () => router.push('/performance') },
     { id: 'nav-architecture', title: 'Open Architecture View', subtitle: 'Interactive SVG system topology model', category: 'Navigation', action: () => router.push('/architecture') },
     { id: 'nav-developers', title: 'Open Developer Console', subtitle: 'Interactive REST API & SDK explorer', category: 'Navigation', action: () => router.push('/developers') },
     { id: 'nav-security', title: 'Open Security Command Center', subtitle: 'Simulate anomalies & verify trusted signing keys', category: 'Navigation', action: () => router.push('/security') },
