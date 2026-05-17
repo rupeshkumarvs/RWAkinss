@@ -56,6 +56,10 @@ export async function buildServer(options: BuildServerOptions = {}) {
     [
       "https://kubryx.vercel.app",
       env.FRONTEND_URL,
+      "http://localhost:3000",
+      "http://127.0.0.1:3000",
+      "http://localhost:5173",
+      "http://127.0.0.1:5173",
       process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null,
       process.env.VERCEL_BRANCH_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : null,
       process.env.VERCEL_PROJECT_PRODUCTION_URL

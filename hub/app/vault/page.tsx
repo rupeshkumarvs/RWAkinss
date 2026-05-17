@@ -72,12 +72,19 @@ export default function VaultPage() {
 
   async function requestJson<T>(path: string, options?: RequestInit): Promise<T> {
     if (!apiBase) throw new Error('NEXT_PUBLIC_CIPHER_API is not configured.')
-    const response = await fetch(`${apiBase}${path}`, {
-      ...options,
-      headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
-    })
-    if (!response.ok) throw new Error(`Request failed: ${response.status}`)
-    return response.json() as Promise<T>
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 10000)
+    try {
+      const response = await fetch(`${apiBase}${path}`, {
+        ...options,
+        signal: controller.signal,
+        headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
+      })
+      if (!response.ok) throw new Error(`Request failed: ${response.status}`)
+      return await response.json() as Promise<T>
+    } finally {
+      clearTimeout(timeout)
+    }
   }
 
   async function connectWallet() {

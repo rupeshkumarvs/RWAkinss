@@ -18,7 +18,13 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
   app.use(helmet());
   app.use(compression());
-  app.enableCors({ origin: 'https://kubryx.vercel.app' });
+  app.enableCors({ origin: [
+    'https://kubryx.vercel.app',
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:5173'
+  ] });
 
   const trpcRouter = app.get(TrpcRouter);
   

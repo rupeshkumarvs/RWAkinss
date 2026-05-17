@@ -29,11 +29,39 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 # LLM is initialized lazily when agent is actually used, not at module import
 def get_llm():
     """Get LLM instance - initialized only when needed."""
-    return LLM(
-        model="ollama/llama3",
-        base_url="http://localhost:11434",
-        temperature=0.6,  # More conservative for lending decisions
-    )
+    try:
+        # Check if Groq API key is present (Production)
+        groq_key = os.getenv("GROQ_API_KEY")
+        if groq_key:
+            model_name = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+            if not model_name.startswith("groq/"):
+                model_name = f"groq/{model_name}"
+            print(f"[LLM] Using Groq production LLM: {model_name}")
+            return LLM(
+                model=model_name,
+                api_key=groq_key,
+                temperature=0.6,
+            )
+
+        # Try to connect to Ollama first
+        import requests
+        ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        response = requests.get(f"{ollama_url}/api/tags", timeout=2)
+        if response.status_code == 200:
+            return LLM(
+                model="ollama/llama3",
+                base_url=ollama_url,
+                temperature=0.6,
+            )
+        else:
+            raise Exception("Ollama not responding")
+    except Exception as e:
+        print(f"[LLM] Ollama not available ({e}), using mock LLM")
+        return LLM(
+            model="gpt-3.5-turbo",
+            api_key="mock-key-for-development",
+            temperature=0.6,
+        )
 
 
 # ============================================================================

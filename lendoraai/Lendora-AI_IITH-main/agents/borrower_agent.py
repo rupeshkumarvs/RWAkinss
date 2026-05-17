@@ -47,6 +47,19 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 def get_llm():
     """Get LLM instance - initialized only when needed."""
     try:
+        # Check if Groq API key is present (Production)
+        groq_key = os.getenv("GROQ_API_KEY")
+        if groq_key:
+            model_name = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+            if not model_name.startswith("groq/"):
+                model_name = f"groq/{model_name}"
+            print(f"[LLM] Using Groq production LLM: {model_name}")
+            return LLM(
+                model=model_name,
+                api_key=groq_key,
+                temperature=0.7,
+            )
+
         # Try to connect to Ollama first
         import requests
         ollama_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
@@ -65,7 +78,6 @@ def get_llm():
         return LLM(
             model="gpt-3.5-turbo",
             api_key="mock-key-for-development",
-            base_url=ollama_url,  # This will fail gracefully
             temperature=0.7,
         )
 

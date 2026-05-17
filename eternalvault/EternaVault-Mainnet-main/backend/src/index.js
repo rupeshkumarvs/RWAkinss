@@ -58,7 +58,7 @@ function getVaultContract() {
 }
 
 const app = express();
-app.use(cors({ origin: 'https://kubryx.vercel.app' }));
+app.use(cors());
 app.use(express.json());
 
 app.get('/health', (_req, res) => {

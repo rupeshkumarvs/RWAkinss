@@ -163,31 +163,43 @@ export default function DashboardPage() {
     }
   }
 
-  async function checkOne(tool: typeof tools[number]): Promise<Health> {
+  async function checkOne(tool: typeof tools[number], retries = 2): Promise<Health> {
     if (!tool.env) return 'down'
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 5000)
-    try {
-      if (tool.rpc) {
-        const res = await fetch(tool.env, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jsonrpc: '2.0', id: Date.now(), method: 'getHealth', params: {} }),
-          signal: controller.signal,
-        })
-        if (!res.ok) return 'down'
-      } else {
-        const res = await fetch(`${tool.env}/health`, { signal: controller.signal })
-        if (!res.ok) return 'down'
-        const data = await res.json().catch(() => ({})) as { status?: string }
-        if (data.status && data.status !== 'ok' && data.status !== 'healthy') return 'down'
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 5000)
+      try {
+        if (tool.rpc) {
+          const res = await fetch(tool.env, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ jsonrpc: '2.0', id: Date.now(), method: 'getHealth', params: {} }),
+            signal: controller.signal,
+          })
+          if (res.ok) {
+            clearTimeout(timeout)
+            return 'ok'
+          }
+        } else {
+          const res = await fetch(`${tool.env}/health`, { signal: controller.signal })
+          if (res.ok) {
+            const data = await res.json().catch(() => ({})) as { status?: string; service?: string }
+            if (data.status === 'ok' || data.status === 'healthy') {
+              clearTimeout(timeout)
+              return 'ok'
+            }
+          }
+        }
+      } catch {
+        // Fallback to retry or fail on last attempt
+      } finally {
+        clearTimeout(timeout)
       }
-      return 'ok'
-    } catch {
-      return 'down'
-    } finally {
-      clearTimeout(timeout)
+      if (attempt < retries) {
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+      }
     }
+    return 'down'
   }
 
   async function loadHealth() {
@@ -284,6 +296,31 @@ export default function DashboardPage() {
   useEffect(() => {
     loadStats()
   }, [ethWallet, solWallet, stellarWallet])
+
+  // Warmup ping every 14 minutes (840,000 ms) to keep Render free-tier backends alive
+  useEffect(() => {
+    async function warmupAll() {
+      tools.forEach(async (tool) => {
+        if (!tool.env) return
+        try {
+          if (tool.rpc) {
+            fetch(tool.env, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ jsonrpc: '2.0', id: Date.now(), method: 'getHealth', params: {} }),
+            }).catch(() => null)
+          } else {
+            fetch(`${tool.env}/health`).catch(() => null)
+          }
+        } catch {
+          // ignore
+        }
+      })
+    }
+    warmupAll()
+    const interval = setInterval(warmupAll, 14 * 60 * 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   const navLinkStyle = (href: string) => ({
     color: pathname === href ? '#F5C518' : undefined,
