@@ -58,8 +58,22 @@ function getVaultContract() {
 }
 
 const app = express();
+const STATIC_ORIGINS = [
+  'https://kubryx.vercel.app',
+  'https://kubryx-2xclq5gjr-vsrupeshoffl-5415s-projects.vercel.app',
+  'http://localhost:3000',
+  'http://localhost:5173',
+];
+const VERCEL_PREVIEW_RE = /^https:\/\/kubryx-[a-z0-9-]+\.vercel\.app$/i;
 app.use(cors({
-  origin: ['https://kubryx.vercel.app', 'http://localhost:3000']
+  origin: (origin, cb) => {
+    if (!origin) return cb(null, true);
+    if (STATIC_ORIGINS.includes(origin)) return cb(null, true);
+    if (VERCEL_PREVIEW_RE.test(origin)) return cb(null, true);
+    return cb(null, false);
+  },
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json());
 

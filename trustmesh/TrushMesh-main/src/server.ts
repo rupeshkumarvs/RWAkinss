@@ -55,6 +55,7 @@ export async function buildServer(options: BuildServerOptions = {}) {
   const allowedOrigins = new Set(
     [
       "https://kubryx.vercel.app",
+      "https://kubryx-2xclq5gjr-vsrupeshoffl-5415s-projects.vercel.app",
       env.FRONTEND_URL,
       "http://localhost:3000",
       "http://127.0.0.1:3000",
@@ -67,15 +68,18 @@ export async function buildServer(options: BuildServerOptions = {}) {
         : null
     ].filter((origin): origin is string => Boolean(origin))
   );
+  const vercelPreviewRe = /^https:\/\/kubryx-[a-z0-9-]+\.vercel\.app$/i;
 
   await app.register(cors, {
     credentials: true,
     origin(origin, callback) {
-      if (!origin || allowedOrigins.has(origin)) {
+      if (!origin || allowedOrigins.has(origin) || vercelPreviewRe.test(origin)) {
         callback(null, true);
         return;
       }
-      callback(new Error("CORS origin not allowed"), false);
+      // Deny silently instead of throwing — throwing here turns into a 500
+      // response, which is worse than a plain CORS rejection from the browser.
+      callback(null, false);
     }
   });
 
