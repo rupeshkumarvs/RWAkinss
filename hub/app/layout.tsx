@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'sonner'
+import AppShell from './components/AppShell'
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -26,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${jakarta.variable} ${mono.variable}`} suppressHydrationWarning>
       <body style={{ fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif' }}>
-        {children}
+        <AppShell>{children}</AppShell>
         <Toaster
           position="bottom-right"
           toastOptions={{

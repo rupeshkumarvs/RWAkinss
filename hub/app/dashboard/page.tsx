@@ -1,1124 +1,429 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
-import ErrorBoundary from '../components/ErrorBoundary'
-import EmptyState from '../components/EmptyState'
-import { loadWallet, persistWallet } from '../../lib/wallet-utils'
-import { toast } from '../../lib/toast'
-import { logTelemetryError, getTelemetryErrors, clearTelemetryErrors, TelemetryError } from '../../lib/telemetry'
-import OnboardingTour from '../components/OnboardingTour'
-import { useCrossToolIntelligence, updateIntelligenceState, getRecommendedActions, recordOSEvent } from '../../lib/cross-tool-intelligence'
-import { usePlatformState, updatePlatformState, PLATFORM_MODES } from '../../lib/platform-engine'
-import { useOrgContext, updateOrgState, resolveAlert, recordTeamEvent } from '../../lib/org-context'
-import { useEventBus, fireEvent, toggleRule, resetRules } from '../../lib/event-bus'
-import ExecutiveWalkthrough from '../components/ExecutiveWalkthrough'
-import CommandPalette from '../components/CommandPalette'
+import { motion } from 'framer-motion'
 
-type EthereumProvider = {
-  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>
-}
+const GOLD = '#F5C518'
+const BG = '#080808'
+const CARD = 'rgba(255,255,255,0.03)'
+const BORDER = 'rgba(255,255,255,0.07)'
+const MONO = '"Fira Code","JetBrains Mono",monospace'
 
-type PhantomProvider = {
-  connect: () => Promise<{ publicKey: { toString: () => string } }>
-  signMessage?: (message: Uint8Array, encoding: string) => Promise<{ signature: Uint8Array }>
-}
-
-type FreighterProvider = {
-  isConnected?: () => Promise<boolean>
-  getAddress?: () => Promise<string>
-  getPublicKey?: () => Promise<string>
-  signTransaction?: (xdr: string, opts?: { networkPassphrase?: string }) => Promise<string>
-}
-
-declare global {
-  interface Window {
-    ethereum?: EthereumProvider
-    solana?: PhantomProvider & { isPhantom?: boolean }
-    freighter?: FreighterProvider
-  }
-}
-
-type Health = 'checking' | 'ok' | 'down'
-
-type ActivityItem = {
-  id?: string
-  timestamp?: string
-  tool: string
-  action: string
-  wallet?: string
-}
-
-const tools = [
-  { name: 'CreditBlocks', href: '/credit', chain: 'QIE Mainnet', env: process.env.NEXT_PUBLIC_CREDITBLOCKS_API || '' },
-  { name: 'Legacy Vault', href: '/legacy', chain: 'QIE Mainnet', env: process.env.NEXT_PUBLIC_ETERNALVAULT_API || '' },
-  { name: 'SyncSplit', href: '/split', chain: 'Stellar Testnet', env: process.env.NEXT_PUBLIC_STELLAR_RPC || '', rpc: true },
-  { name: 'AI Lending', href: '/lend', chain: 'Arbitrum', env: process.env.NEXT_PUBLIC_LENDORA_API || '' },
-  { name: 'Agent Mesh', href: '/agents', chain: 'Solana Devnet', env: process.env.NEXT_PUBLIC_TRUSTMESH_API || '' },
-  { name: 'Shadow OS', href: '/shadow', chain: 'Solana Devnet', env: process.env.NEXT_PUBLIC_SHADOW_API || '' },
-  { name: 'Treasury AI', href: '/treasury', chain: 'Solana Devnet', env: process.env.NEXT_PUBLIC_PALMFLOW_API || '' },
-  { name: 'Private Vault', href: '/vault', chain: 'Multi-chain', env: process.env.NEXT_PUBLIC_CIPHER_API || '' },
+/* ── Tool definitions ─────────────────────────────────── */
+const TOOLS = [
+  {
+    icon: '◈', name: 'NeuroCredit', tagline: 'AI Credit Scoring',
+    href: '/credit', color: '#06b6d4',
+    chain: 'QIE', chainColor: '#F5A623',
+    desc: 'Generate your on-chain credit score as a soulbound NFT. DeFi protocols read it with a single contract call.',
+    stat: '742', statLabel: 'Avg Score', badge: 'Identity',
+  },
+  {
+    icon: '⬟', name: 'EternaVault', tagline: 'Encrypted Inheritance',
+    href: '/legacy', color: '#f43f5e',
+    chain: 'QIE', chainColor: '#F5A623',
+    desc: 'Store critical files with AES-GCM encryption. Heirs unlock access on-chain after validator attestation.',
+    stat: '256-bit', statLabel: 'Encryption', badge: 'Security',
+  },
+  {
+    icon: '⬡', name: 'TrustMesh', tagline: 'AI Agent Coordination',
+    href: '/agents', color: '#6366f1',
+    chain: 'Solana', chainColor: '#9945FF',
+    desc: 'Deploy AI agents with verified on-chain identities. Every delegation is Ed25519 signed and logged.',
+    stat: '7', statLabel: 'Active Agents', badge: 'AI',
+  },
+  {
+    icon: '🔐', name: 'CipherVault', tagline: 'Cross-Chain Privacy',
+    href: '/vault', color: '#14b8a6',
+    chain: 'Multi', chainColor: '#06B6D4',
+    desc: 'Trade assets across chains with complete privacy. Zero transaction metadata exposed to observers.',
+    stat: '94%', statLabel: 'Privacy Score', badge: 'Privacy',
+  },
+  {
+    icon: '◆', name: 'SyncSplit', tagline: 'On-Chain Bill Splitting',
+    href: '/split', color: '#3b82f6',
+    chain: 'Stellar', chainColor: '#3B82F6',
+    desc: 'Split bills via Soroban smart contracts. Multi-wallet support with automatic settlement on full payment.',
+    stat: 'Soroban', statLabel: 'Protocol', badge: 'Payments',
+  },
+  {
+    icon: '◎', name: 'Lendora', tagline: 'DeFi Loan Negotiation',
+    href: '/lend', color: '#f59e0b',
+    chain: 'ETH L2', chainColor: '#6366F1',
+    desc: 'AI agents negotiate loan terms in natural language. Zero-knowledge credit verification, L2 settlement.',
+    stat: '4.2%', statLabel: 'Avg APR', badge: 'DeFi',
+  },
+  {
+    icon: '◇', name: 'PalmFlow AI', tagline: 'Autonomous Treasury',
+    href: '/treasury', color: '#10b981',
+    chain: 'Solana', chainColor: '#9945FF',
+    desc: 'AI agents manage your treasury, stream payroll per-second, enforce governance and optimize yield.',
+    stat: '$1.2M+', statLabel: 'Managed', badge: 'Treasury',
+  },
+  {
+    icon: '▲', name: 'ShadowLedger', tagline: 'Invisible Operations',
+    href: '/shadow', color: '#8b5cf6',
+    chain: 'Solana', chainColor: '#9945FF',
+    desc: 'Run your entire financial org invisibly on-chain. Seven specialized AI agents, fully autonomous.',
+    stat: '7', statLabel: 'AI Agents', badge: 'Enterprise',
+  },
 ]
 
-function shortAddress(address: string) {
-  return `${address.slice(0, 6)}...${address.slice(-4)}`
+/* ── Network stats ────────────────────────────────────── */
+const NET_STATS = [
+  { label: 'Tools', value: 8, suffix: '', color: GOLD },
+  { label: 'Chains', value: 4, suffix: '', color: '#06b6d4' },
+  { label: 'Agents Active', value: 14, suffix: '', color: '#6366f1' },
+  { label: 'Uptime', value: 99.9, suffix: '%', color: '#10b981' },
+]
+
+/* ── Activity pool ────────────────────────────────────── */
+const ACTIVITY_POOL = [
+  { tool: 'PalmFlow AI', icon: '◇', color: '#10b981', action: 'Treasury rebalanced', detail: '+$12,400 yield captured', time: 'just now' },
+  { tool: 'TrustMesh', icon: '⬡', color: '#6366f1', action: 'Agent "Sentinel" deployed', detail: 'Ed25519 identity registered on-chain', time: '1m ago' },
+  { tool: 'NeuroCredit', icon: '◈', color: '#06b6d4', action: 'Score minted as NFT', detail: 'Score: 742 → soulbound on QIE', time: '2m ago' },
+  { tool: 'SyncSplit', icon: '◆', color: '#3b82f6', action: 'Bill settled', detail: '3 participants · 100 XLM', time: '4m ago' },
+  { tool: 'Lendora', icon: '◎', color: '#f59e0b', action: 'Loan negotiated', detail: '$5,000 · 4.2% APR · 90 days', time: '6m ago' },
+  { tool: 'CipherVault', icon: '🔐', color: '#14b8a6', action: 'Private swap executed', detail: 'wBTC → USDC · privacy score 94', time: '8m ago' },
+  { tool: 'EternaVault', icon: '⬟', color: '#f43f5e', action: 'Vault encrypted', detail: 'AES-GCM · 4 heirs configured', time: '11m ago' },
+  { tool: 'ShadowLedger', icon: '▲', color: '#8b5cf6', action: 'CFO agent acted', detail: 'Risk: no anomalies detected', time: '13m ago' },
+  { tool: 'PalmFlow AI', icon: '◇', color: '#10b981', action: 'Payroll streamed', detail: '0.42 SOL/sec to 3 recipients', time: '15m ago' },
+  { tool: 'NeuroCredit', icon: '◈', color: '#06b6d4', action: 'Credit check passed', detail: 'Protocol Lendora approved 850', time: '18m ago' },
+]
+
+/* ── Feature highlights ────────────────────────────────── */
+const HIGHLIGHTS = [
+  { icon: '🤖', title: 'AI-Powered Everything', desc: 'From credit scoring to treasury management — AI runs every tool automatically.' },
+  { icon: '🔗', title: 'Four Chains, One Dashboard', desc: 'QIE · Solana · Stellar · ETH L2 accessible from a single unified interface.' },
+  { icon: '🔒', title: 'Zero-Knowledge Privacy', desc: 'Complete financial privacy without sacrificing auditability or compliance.' },
+  { icon: '⚡', title: 'Real-Time Settlement', desc: 'Payments stream per-second, swaps settle instantly, agents act autonomously.' },
+]
+
+/* ── Animated counter ─────────────────────────────────── */
+function useCountUp(target: number, active: boolean) {
+  const [v, setV] = useState(0)
+  useEffect(() => {
+    if (!active) return
+    let raf: number
+    const t0 = performance.now()
+    const dur = 1200
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / dur)
+      const eased = 1 - Math.pow(1 - p, 3)
+      setV(+(eased * target).toFixed(1))
+      if (p < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [active, target])
+  return v
 }
 
-function ChainBadge({ chain }: { chain: string }) {
-  return (
-    <span className="chain-badge">
-      <span className="chain-dot" />
-      {chain}
-    </span>
-  )
-}
+function StatCard({ stat }: { stat: typeof NET_STATS[0] }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState(false)
+  const val = useCountUp(stat.value, active)
 
-function StatCard({ label, value, live }: { label: string; value: string | number; live?: boolean }) {
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setActive(true) }, { threshold: 0.5 })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
   return (
-    <div className="card">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-        <p style={{ margin: 0, fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', opacity: 0.6 }}>{label}</p>
-        <span
-          title={live ? 'Live data' : 'Fallback / offline'}
-          style={{
-            width: 8, height: 8, borderRadius: '50%',
-            background: live ? '#22C55E' : 'rgba(255,255,255,0.25)',
-            boxShadow: live ? '0 0 8px rgba(34,197,94,0.6)' : 'none',
-          }}
-        />
+    <div ref={ref} style={{
+      background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 24px',
+      display: 'flex', flexDirection: 'column', gap: 6,
+    }}>
+      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: MONO }}>
+        {stat.label}
       </div>
-      <strong className="gold-text" style={{ fontSize: 28 }}>{value}</strong>
+      <div style={{ fontSize: 36, fontWeight: 900, color: stat.color, fontFamily: MONO, lineHeight: 1 }}>
+        {val}{stat.suffix}
+      </div>
     </div>
   )
 }
 
-async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, init)
-  if (!response.ok) throw new Error(`Request failed: ${response.status}`)
-  return response.json() as Promise<T>
-}
-
-export default function DashboardPage() {
-  const pathname = usePathname()
-  const intelligenceState = useCrossToolIntelligence()
-  const { currentMode, activeScenario, analytics } = usePlatformState()
-  const { currentOrgId, currentWorkspaceId, currentRole, organizations, teamActivity, operationalAlerts } = useOrgContext()
-  const { rules, logs: eventLogs } = useEventBus()
-
-  const activeOrg = useMemo(() => {
-    return organizations.find(o => o.id === currentOrgId) || organizations[0]
-  }, [organizations, currentOrgId])
-
-  const activeWorkspace = useMemo(() => {
-    return activeOrg.workspaces.find(w => w.id === currentWorkspaceId) || activeOrg.workspaces[0]
-  }, [activeOrg, currentWorkspaceId])
-
-  const filteredAlerts = useMemo(() => {
-    return operationalAlerts.filter(a => a.orgId === currentOrgId && !a.resolved)
-  }, [operationalAlerts, currentOrgId])
-
-  const filteredActivity = useMemo(() => {
-    return teamActivity.filter(act => act.orgId === currentOrgId && act.workspaceId === currentWorkspaceId)
-  }, [teamActivity, currentOrgId, currentWorkspaceId])
-
-  const [ethWallet, setEthWallet] = useState('')
-  const [solWallet, setSolWallet] = useState('')
-  const [stellarWallet, setStellarWallet] = useState('')
-  const [health, setHealth] = useState<Record<string, Health>>({})
-  const [creditScore, setCreditScore] = useState('0')
-  const [activeVaults, setActiveVaults] = useState(0)
-  const [activeAgents, setActiveAgents] = useState(0)
-  const [treasuryBalance, setTreasuryBalance] = useState('0 SOL')
-  const [activity, setActivity] = useState<ActivityItem[]>([])
-  const [liveSources, setLiveSources] = useState<Record<string, boolean>>({})
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [latencies, setLatencies] = useState<Record<string, number>>({})
-  const [telemetryLogs, setTelemetryLogs] = useState<TelemetryError[]>([])
-
-  const primaryWallet = useMemo(() => ethWallet || solWallet || stellarWallet, [ethWallet, solWallet, stellarWallet])
-
-  useEffect(() => {
-    setEthWallet(loadWallet('evm'))
-    setSolWallet(loadWallet('solana'))
-    setStellarWallet(loadWallet('stellar'))
-    
-    // Periodically fetch and sync telemetry error logs from localStorage
-    setTelemetryLogs(getTelemetryErrors())
-    const interval = setInterval(() => {
-      setTelemetryLogs(getTelemetryErrors())
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [])
-
-  async function connectMetaMask() {
-    try {
-      setError('')
-      if (!window.ethereum) throw new Error('MetaMask is not installed.')
-      const accounts = (await window.ethereum.request({ method: 'eth_requestAccounts' })) as string[]
-      const address = accounts[0] || ''
-      setEthWallet(address)
-      persistWallet('evm', address)
-      toast.success('MetaMask connected')
-    } catch (err: any) {
-      const msg = err instanceof Error ? err.message : 'Unable to connect MetaMask.'
-      setError(msg)
-      toast.error(msg)
-      logTelemetryError('WALLET_ERROR', 'MetaMask', msg, err)
-    }
-  }
-
-  async function connectPhantom() {
-    try {
-      setError('')
-      if (!window.solana?.isPhantom) throw new Error('Phantom is not installed.')
-      const result = await window.solana.connect()
-      const address = result.publicKey.toString()
-      setSolWallet(address)
-      persistWallet('solana', address)
-      toast.success('Phantom connected')
-    } catch (err: any) {
-      const msg = err instanceof Error ? err.message : 'Unable to connect Phantom.'
-      setError(msg)
-      toast.error(msg)
-      logTelemetryError('WALLET_ERROR', 'Phantom', msg, err)
-    }
-  }
-
-  async function connectFreighter() {
-    try {
-      setError('')
-      if (!window.freighter) throw new Error('Freighter is not installed.')
-      const connected = window.freighter.isConnected ? await window.freighter.isConnected() : true
-      if (!connected) throw new Error('Freighter is locked or not connected.')
-      const address = window.freighter.getAddress ? await window.freighter.getAddress() : await window.freighter.getPublicKey?.()
-      setStellarWallet(address || '')
-      persistWallet('stellar', address || '')
-      toast.success('Freighter connected')
-    } catch (err: any) {
-      const msg = err instanceof Error ? err.message : 'Unable to connect Freighter.'
-      setError(msg)
-      toast.error(msg)
-      logTelemetryError('WALLET_ERROR', 'Freighter', msg, err)
-    }
-  }
-
-  async function checkOne(tool: typeof tools[number], retries = 1): Promise<Health> {
-    if (!tool.env) return 'down'
-    for (let attempt = 0; attempt <= retries; attempt++) {
-      const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 6000)
-      const start = performance.now()
-      try {
-        let isOk = false
-        if (tool.rpc) {
-          const res = await fetch(tool.env, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ jsonrpc: '2.0', id: Date.now(), method: 'getHealth', params: {} }),
-            signal: controller.signal,
-          })
-          isOk = res.ok
-        } else {
-          const res = await fetch(`${tool.env}/health`, { signal: controller.signal })
-          if (res.ok) {
-            const data = await res.json().catch(() => ({})) as { status?: string; service?: string }
-            isOk = data.status === 'ok' || data.status === 'healthy'
-          }
-        }
-        
-        if (isOk) {
-          const lat = Math.round(performance.now() - start)
-          setLatencies((prev) => ({ ...prev, [tool.name]: lat }))
-          clearTimeout(timeout)
-          return 'ok'
-        }
-      } catch (err: any) {
-        if (attempt === retries) {
-          logTelemetryError('FETCH_ERROR', `Health Check [${tool.name}]`, err?.message || 'Connection timeout or offline', { env: tool.env, attempt })
-        }
-      } finally {
-        clearTimeout(timeout)
-      }
-      if (attempt < retries) {
-        await new Promise((resolve) => setTimeout(resolve, 800))
-      }
-    }
-    return 'down'
-  }
-
-  async function loadHealth() {
-    setHealth(Object.fromEntries(tools.map((t) => [t.name, 'checking' as Health])))
-    const entries = await Promise.all(tools.map(async (t) => [t.name, await checkOne(t)] as const))
-    setHealth(Object.fromEntries(entries))
-  }
-
-  async function retryOne(tool: typeof tools[number]) {
-    setHealth((prev) => ({ ...prev, [tool.name]: 'checking' }))
-    const status = await checkOne(tool)
-    setHealth((prev) => ({ ...prev, [tool.name]: status }))
-  }
-
-  async function loadStats() {
-    try {
-      setLoading(true)
-      setError('')
-      const feed: ActivityItem[] = []
-      const live: Record<string, boolean> = { credit: false, vaults: false, agents: false, treasury: false }
-
-      const C = process.env.NEXT_PUBLIC_CREDITBLOCKS_API || ''
-      const V = process.env.NEXT_PUBLIC_ETERNALVAULT_API || ''
-      const A = process.env.NEXT_PUBLIC_TRUSTMESH_API || ''
-      const P = process.env.NEXT_PUBLIC_PALMFLOW_API || ''
-
-      const [creditR, vaultR, agentR, treasuryR] = await Promise.allSettled([
-        C && ethWallet ? fetch(`${C}/api/score/${ethWallet}`)   : Promise.reject(new Error('no env/wallet')),
-        V && ethWallet ? fetch(`${V}/api/vaults/${ethWallet}`)  : Promise.reject(new Error('no env/wallet')),
-        A && solWallet ? fetch(`${A}/api/agents/${solWallet}`)  : Promise.reject(new Error('no env/wallet')),
-        P && solWallet ? fetch(`${P}/api/treasury/${solWallet}`): Promise.reject(new Error('no env/wallet')),
-      ])
-
-      if (creditR.status === 'fulfilled' && creditR.value.ok) {
-        const json = await creditR.value.json().catch(() => null) as { score?: string | number } | null
-        if (json?.score !== undefined) { setCreditScore(String(json.score)); live.credit = true }
-      }
-      if (vaultR.status === 'fulfilled' && vaultR.value.ok) {
-        const json = await vaultR.value.json().catch(() => null) as unknown
-        const vaults = Array.isArray(json) ? json : (json as { vaults?: unknown[] } | null)?.vaults || []
-        setActiveVaults(vaults.length); live.vaults = true
-        vaults.slice(0, 3).forEach((item, index) => feed.push({ tool: 'Legacy Vault', action: `Vault ${(item as { status?: string }).status || 'active'}`, wallet: ethWallet, id: `vault-${index}` }))
-      }
-      if (agentR.status === 'fulfilled' && agentR.value.ok) {
-        const json = await agentR.value.json().catch(() => null) as unknown
-        const agents = Array.isArray(json) ? json : (json as { agents?: unknown[] } | null)?.agents || []
-        setActiveAgents(agents.length); live.agents = true
-      }
-      if (treasuryR.status === 'fulfilled' && treasuryR.value.ok) {
-        const json = await treasuryR.value.json().catch(() => null) as { totalBalance?: string; balance?: string } | null
-        setTreasuryBalance(json?.totalBalance || json?.balance || '0 SOL'); live.treasury = true
-      }
-      setLiveSources(live)
-
-      const T_MESH_API = process.env.NEXT_PUBLIC_TRUSTMESH_API || ''
-      if (T_MESH_API && solWallet) {
-        const agentFeed = await fetchJson<unknown>(`${T_MESH_API}/api/activity/${solWallet}`).catch(() => null)
-        const items = Array.isArray(agentFeed) ? agentFeed : (agentFeed as { activity?: unknown[] } | null)?.activity || []
-        items.slice(0, 4).forEach((item, index) => feed.push({ tool: 'Agent Mesh', action: (item as { action?: string }).action || 'Agent action', wallet: solWallet, timestamp: (item as { timestamp?: string }).timestamp, id: `agent-${index}` }))
-      }
-
-      const activitySources = [
-        { tool: 'Shadow OS', url: process.env.NEXT_PUBLIC_SHADOW_API ? `${process.env.NEXT_PUBLIC_SHADOW_API}/api/activity` : '', wallet: solWallet },
-        { tool: 'Treasury AI', url: (process.env.NEXT_PUBLIC_PALMFLOW_API || '') && solWallet ? `${process.env.NEXT_PUBLIC_PALMFLOW_API}/api/payroll/${solWallet}` : '', wallet: solWallet },
-        { tool: 'Private Vault', url: (process.env.NEXT_PUBLIC_CIPHER_API || '') && solWallet ? `${process.env.NEXT_PUBLIC_CIPHER_API}/api/trades/${solWallet}` : '', wallet: solWallet },
-      ]
-
-      await Promise.all(activitySources.map(async (source) => {
-        if (!source.url) return
-        const data = await fetchJson<unknown>(source.url).catch(() => null)
-        const items = Array.isArray(data) ? data : (data as { activity?: unknown[]; streams?: unknown[]; trades?: unknown[] } | null)?.activity || (data as { streams?: unknown[] } | null)?.streams || (data as { trades?: unknown[] } | null)?.trades || []
-        items.slice(0, 3).forEach((item, index) => feed.push({
-          tool: source.tool,
-          action: (item as { action?: string; status?: string }).action || (item as { status?: string }).status || 'Activity recorded',
-          wallet: source.wallet,
-          timestamp: (item as { timestamp?: string; createdAt?: string }).timestamp || (item as { createdAt?: string }).createdAt,
-          id: `${source.tool}-${index}`,
-        }))
-      }))
-
-      setActivity(feed.sort((a, b) => String(b.timestamp || '').localeCompare(String(a.timestamp || ''))))
-
-      // Sync cross-tool global profile dynamically
-      updateIntelligenceState((prev) => ({
-        profile: {
-          ...prev.profile,
-          creditScore: creditScore || prev.profile.creditScore,
-          activeVaults: typeof activeVaults === 'number' ? activeVaults : prev.profile.activeVaults,
-          activeAgents: typeof activeAgents === 'number' ? activeAgents : prev.profile.activeAgents,
-          treasuryBalance: treasuryBalance || prev.profile.treasuryBalance,
-        },
-        activityFeed: feed.map(item => ({
-          id: item.id || `evt-${Date.now()}-${Math.random()}`,
-          tool: item.tool,
-          action: item.action,
-          wallet: item.wallet || '',
-          timestamp: item.timestamp || new Date().toISOString(),
-          chain: item.tool === 'Credit Passport' || item.tool === 'Legacy Vault' ? 'QIE Mainnet' : item.tool === 'SyncSplit' ? 'Stellar' : 'Solana',
-        }))
-      }))
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to load dashboard stats.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadHealth()
-    const i = setInterval(() => loadHealth(), 60000)
-    return () => clearInterval(i)
-  }, [])
-
-  useEffect(() => {
-    loadStats()
-  }, [ethWallet, solWallet, stellarWallet])
-
-  // Warmup ping every 14 minutes (840,000 ms) to keep Render free-tier backends alive
-  useEffect(() => {
-    async function warmupAll() {
-      tools.forEach(async (tool) => {
-        if (!tool.env) return
-        try {
-          if (tool.rpc) {
-            fetch(tool.env, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ jsonrpc: '2.0', id: Date.now(), method: 'getHealth', params: {} }),
-            }).catch(() => null)
-          } else {
-            fetch(`${tool.env}/health`).catch(() => null)
-          }
-        } catch {
-          // ignore
-        }
-      })
-    }
-    warmupAll()
-    const interval = setInterval(warmupAll, 14 * 60 * 1000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const navLinkStyle = (href: string) => ({
-    color: pathname === href ? '#F5C518' : undefined,
-    borderLeft: pathname === href ? '2px solid #F5C518' : '2px solid transparent',
-    paddingLeft: 10,
-    transition: 'all 0.15s',
-  })
+/* ── Tool card ────────────────────────────────────────── */
+function ToolCard({ tool }: { tool: typeof TOOLS[0] }) {
+  const [hovered, setHovered] = useState(false)
 
   return (
-    <main className="dashboard-layout">
-      <aside className="dashboard-sidebar">
-        <Link className="logo" href="/">Kubryx</Link>
+    <motion.div
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.18 }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <Link href={tool.href} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
+        <div style={{
+          background: CARD,
+          border: `1px solid ${hovered ? tool.color + '50' : BORDER}`,
+          borderRadius: 16,
+          padding: 20,
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 12,
+          cursor: 'pointer',
+          transition: 'border-color 0.2s',
+          position: 'relative',
+          overflow: 'hidden',
+        }}>
+          {/* Glow on hover */}
+          {hovered && (
+            <div style={{
+              position: 'absolute', top: -40, right: -40,
+              width: 120, height: 120, borderRadius: '50%',
+              background: `radial-gradient(circle, ${tool.color}20, transparent 70%)`,
+              pointerEvents: 'none',
+            }} />
+          )}
 
-        {/* Global Platform Operating Mode Selector */}
-        <div className="card" style={{ marginBottom: 12, padding: 12, borderColor: 'rgba(245, 197, 24, 0.25)' }}>
-          <h2 style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
-            Platform Mode
-          </h2>
-          <select 
-            value={currentMode}
-            onChange={(e) => {
-              const val = e.target.value as any
-              updatePlatformState(() => ({ currentMode: val }))
-              toast.success(`Platform Mode switched: ${val.toUpperCase()}`)
-            }}
-            style={{
-              width: '100%',
-              padding: '6px 8px',
-              borderRadius: 6,
-              background: '#040404',
-              border: '1px solid rgba(255,255,255,0.15)',
-              color: '#fff',
-              fontSize: 12,
-              outline: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            {PLATFORM_MODES.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.id === 'live' ? '🟢' : m.id === 'demo' ? '🟡' : m.id === 'simulation' ? '🟣' : m.id === 'executive' ? '🔵' : '💗'} {m.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Multi-User Organization Selector */}
-        <div className="card" style={{ marginBottom: 12, padding: 12 }}>
-          <h2 style={{ fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 6 }}>
-            Active Organization
-          </h2>
-          <select 
-            value={currentOrgId}
-            onChange={(e) => {
-              const nextId = e.target.value
-              updateOrgState(() => ({ currentOrgId: nextId }))
-              toast.success(`Organization switched to ${organizations.find(o => o.id === nextId)?.name}`)
-            }}
-            style={{
-              width: '100%',
-              padding: '6px 8px',
-              borderRadius: 6,
-              background: '#040404',
-              border: '1px solid rgba(255,255,255,0.15)',
-              color: '#fff',
-              fontSize: 12,
-              outline: 'none',
-              cursor: 'pointer',
-              marginBottom: 10
-            }}
-          >
-            {organizations.map((org) => (
-              <option key={org.id} value={org.id}>{org.name}</option>
-            ))}
-          </select>
-
-          {/* Active Workspaces List */}
-          <h2 style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
-            Workspaces
-          </h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 10 }}>
-            {activeOrg.workspaces.map((ws) => {
-              const isSelected = ws.id === currentWorkspaceId
-              return (
-                <button
-                  key={ws.id}
-                  onClick={() => {
-                    updateOrgState(() => ({ currentWorkspaceId: ws.id }))
-                    toast.success(`Workspace switched: ${ws.name}`)
-                  }}
-                  style={{
-                    textAlign: 'left',
-                    padding: '4px 6px',
-                    borderRadius: 4,
-                    fontSize: 11,
-                    background: isSelected ? 'rgba(245,197,24,0.06)' : 'transparent',
-                    border: 'none',
-                    color: isSelected ? '#F5C518' : '#aaa',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    transition: 'all 0.15s'
-                  }}
-                >
-                  <span style={{ fontSize: 8 }}>{isSelected ? '⬢' : '⬡'}</span>
-                  {ws.name}
-                </button>
-              )
-            })}
+          {/* Top row */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <div style={{
+              width: 44, height: 44, borderRadius: 12,
+              background: `${tool.color}20`,
+              display: 'grid', placeItems: 'center',
+              fontSize: 20, color: tool.color,
+            }}>{tool.icon}</div>
+            <span style={{
+              fontSize: 9, fontWeight: 700, letterSpacing: '0.12em',
+              textTransform: 'uppercase', padding: '3px 8px',
+              borderRadius: 999, background: `${tool.color}20`, color: tool.color,
+            }}>{tool.badge}</span>
           </div>
 
-          {/* User Role Selector */}
-          <h2 style={{ fontSize: 9, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
-            User Role Context
-          </h2>
-          <select 
-            value={currentRole}
-            onChange={(e) => {
-              const nextRole = e.target.value as any
-              updateOrgState(() => ({ currentRole: nextRole }))
-              recordTeamEvent('You', nextRole, `switched operational role to ${nextRole}`)
-              toast.success(`Switched role context: ${nextRole}`)
-            }}
-            style={{
-              width: '100%',
-              padding: '6px 8px',
-              borderRadius: 6,
-              background: '#040404',
-              border: '1px solid rgba(255,255,255,0.15)',
-              color: '#fff',
-              fontSize: 11,
-              outline: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            {['Admin', 'Treasury Manager', 'Risk Analyst', 'Operations', 'Auditor'].map((role) => (
-              <option key={role} value={role}>{role}</option>
-            ))}
-          </select>
-        </div>
-
-        <div className="card wallet-card" id="wallet-connector-section">
-          <h2>Wallets</h2>
-          
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <button 
-                className="btn-outline" 
-                onClick={connectMetaMask}
-                style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                aria-label="Connect MetaMask Wallet"
-              >
-                <span>🦊 {ethWallet ? shortAddress(ethWallet) : 'MetaMask'}</span>
-                {ethWallet && <span style={{ color: '#22C55E', fontSize: 10 }}>✔</span>}
-              </button>
-              {ethWallet && (
-                <span style={{ fontSize: 9, color: '#F5C518', opacity: 0.8, paddingLeft: 6 }}>
-                  • QIE Mainnet (1990)
-                </span>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <button 
-                className="btn-outline" 
-                onClick={connectPhantom}
-                style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                aria-label="Connect Phantom Wallet"
-              >
-                <span>👻 {solWallet ? shortAddress(solWallet) : 'Phantom'}</span>
-                {solWallet && <span style={{ color: '#22C55E', fontSize: 10 }}>✔</span>}
-              </button>
-              {solWallet && (
-                <span style={{ fontSize: 9, color: '#A855F7', opacity: 0.8, paddingLeft: 6 }}>
-                  • Solana Devnet
-                </span>
-              )}
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <button 
-                className="btn-outline" 
-                onClick={connectFreighter}
-                style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                aria-label="Connect Freighter Wallet"
-              >
-                <span>🚀 {stellarWallet ? shortAddress(stellarWallet) : 'Freighter'}</span>
-                {stellarWallet && <span style={{ color: '#22C55E', fontSize: 10 }}>✔</span>}
-              </button>
-              {stellarWallet && (
-                <span style={{ fontSize: 9, color: '#3B82F6', opacity: 0.8, paddingLeft: 6 }}>
-                  • Stellar Testnet
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-        <nav className="sidebar-nav">
-          {tools.map((tool) => (
-            <Link key={tool.name} href={tool.href} style={navLinkStyle(tool.href)} aria-label={`Open ${tool.name} tool`}>
-              {tool.name}
-            </Link>
-          ))}
-        </nav>
-      </aside>
-
-      <section className="dashboard-main">
-        <section className="dashboard-hero">
+          {/* Name + tagline */}
           <div>
-            <p className="eyebrow">Command Center</p>
-            <h1>Unified Dashboard</h1>
-            <p className="silver-text">One health, activity, and wallet view across all Kubryx tools.</p>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>{tool.name}</div>
+            <div style={{ fontSize: 11, color: tool.color, marginTop: 2, fontWeight: 600 }}>{tool.tagline}</div>
           </div>
-          <button className="btn-gold" onClick={loadStats} disabled={loading} aria-label="Refresh telemetry stats">{loading ? <span className="spinner" /> : 'Refresh'}</button>
-        </section>
 
-        {/* Institutional Trust and Signaling Ribbon */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }}>
-          <span style={{ fontSize: 10, background: 'rgba(245, 197, 24, 0.04)', border: '1px solid rgba(245, 197, 24, 0.2)', color: '#F5C518', padding: '3px 8px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 5, letterSpacing: '0.03em' }}>
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#F5C518' }} />
-            Connected to QIE Mainnet
-          </span>
-          <span style={{ fontSize: 10, background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', color: '#bbb', padding: '3px 8px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 5, letterSpacing: '0.03em' }}>
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22C55E' }} />
-            Secured via Solana Devnet
-          </span>
-          <span style={{ fontSize: 10, background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', color: '#bbb', padding: '3px 8px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 5, letterSpacing: '0.03em' }}>
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#3B82F6' }} />
-            Soroban Signed Transaction
-          </span>
-          <span style={{ fontSize: 10, background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', color: '#bbb', padding: '3px 8px', borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 5, letterSpacing: '0.03em' }}>
-            <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#A855F7' }} />
-            AI Response via Groq
-          </span>
+          {/* Desc */}
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.55, margin: 0, flex: 1 }}>
+            {tool.desc}
+          </p>
+
+          {/* Footer */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: 12, borderTop: `1px solid ${BORDER}` }}>
+            <div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: tool.color, fontFamily: MONO, lineHeight: 1 }}>{tool.stat}</div>
+              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 1, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{tool.statLabel}</div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{
+                padding: '3px 9px', borderRadius: 999, fontSize: 10, fontWeight: 700,
+                background: `${tool.chainColor}20`, color: tool.chainColor,
+                display: 'flex', alignItems: 'center', gap: 5,
+              }}>
+                <span style={{ width: 5, height: 5, borderRadius: '50%', background: tool.chainColor }} />
+                {tool.chain}
+              </span>
+              <span style={{ fontSize: 16, color: hovered ? tool.color : 'rgba(255,255,255,0.3)', transition: 'color 0.2s' }}>→</span>
+            </div>
+          </div>
         </div>
+      </Link>
+    </motion.div>
+  )
+}
 
-        {error && <div className="card error-card">{error}</div>}
-        {!primaryWallet && <div className="card" style={{ borderLeft: '3px solid #F5C518' }}>Connect at least one wallet in the left sidebar to populate your personalized stats, active contract states, and multi-chain activity logs.</div>}
-
-        <ErrorBoundary label="stats">
-          <section className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
-            <StatCard label="Credit Score"    value={creditScore}     live={liveSources.credit} />
-            <StatCard label="Active Vaults"   value={activeVaults}    live={liveSources.vaults} />
-            <StatCard label="Active Agents"   value={activeAgents}    live={liveSources.agents} />
-            <StatCard label="Treasury Balance" value={treasuryBalance} live={liveSources.treasury} />
-          </section>
-        </ErrorBoundary>
-
-        {/* ECOSYSTEM OPERATIONS & EVENT BUS CONTROL ROOM */}
-        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 20, marginTop: 20 }}>
-          
-          {/* Column 1: Organization Alert Desk & Team Coordination */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-            
-            {/* Shared Operational Alerts */}
-            <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: 15, margin: 0, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span>🔔</span> Shared Operational Alerts
-                </h3>
-                <span style={{ fontSize: 9, background: filteredAlerts.length > 0 ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)', color: filteredAlerts.length > 0 ? '#EF4444' : '#10B981', padding: '2px 8px', borderRadius: 10, fontWeight: 800 }}>
-                  {filteredAlerts.length} ACTIVE
-                </span>
+/* ── Activity feed ────────────────────────────────────── */
+function ActivityFeed({ items }: { items: typeof ACTIVITY_POOL }) {
+  return (
+    <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 16, overflow: 'hidden' }}>
+      <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Live Activity</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E', animation: 'pulse 2s infinite' }} />
+          <span style={{ fontSize: 10, color: '#86EFAC', fontFamily: MONO }}>real-time</span>
+        </div>
+      </div>
+      <div style={{ maxHeight: 360, overflowY: 'auto' }}>
+        {items.map((item, i) => (
+          <div key={i} style={{
+            display: 'flex', alignItems: 'flex-start', gap: 12,
+            padding: '12px 20px',
+            borderBottom: i < items.length - 1 ? `1px solid rgba(255,255,255,0.03)` : 'none',
+          }}>
+            <span style={{
+              width: 32, height: 32, borderRadius: 8,
+              background: `${item.color}20`, display: 'grid',
+              placeItems: 'center', fontSize: 14, color: item.color, flexShrink: 0,
+            }}>{item.icon}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: item.color }}>{item.tool}</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', fontFamily: MONO }}>{item.time}</span>
               </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
-                {filteredAlerts.length === 0 ? (
-                  <div style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column', padding: '30px 0', opacity: 0.6 }}>
-                    <span style={{ fontSize: 24, marginBottom: 6 }}>⬡</span>
-                    <p style={{ margin: 0, fontSize: 12 }}>All systems clear. No outstanding alerts.</p>
-                  </div>
-                ) : (
-                  filteredAlerts.map((alert) => {
-                    const badgeColor = alert.severity === 'critical' ? '#EF4444' : alert.severity === 'warning' ? '#F5C518' : '#3B82F6'
-                    return (
-                      <div 
-                        key={alert.id}
-                        style={{
-                          padding: '10px 12px',
-                          background: 'rgba(255,255,255,0.01)',
-                          border: `1px solid rgba(255,255,255,0.05)`,
-                          borderLeft: `3px solid ${badgeColor}`,
-                          borderRadius: '0 6px 6px 0',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'flex-start',
-                          gap: 12
-                        }}
-                      >
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 2 }}>
-                            <strong style={{ fontSize: 12, color: '#fff' }}>{alert.title}</strong>
-                            <span style={{ fontSize: 8, fontWeight: 800, color: badgeColor, textTransform: 'uppercase' }}>
-                              {alert.severity}
-                            </span>
-                          </div>
-                          <p style={{ margin: 0, fontSize: 11, color: '#ccc', lineHeight: 1.3 }}>{alert.description}</p>
-                          <span style={{ fontSize: 8, color: '#666', display: 'block', marginTop: 4 }}>
-                            {new Date(alert.timestamp).toLocaleTimeString()}
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => {
-                            resolveAlert(alert.id)
-                            toast.success('Alert resolved')
-                          }}
-                          className="btn-outline"
-                          style={{ padding: '3px 8px', fontSize: 10, height: 'auto', alignSelf: 'center' }}
-                        >
-                          Resolve
-                        </button>
-                      </div>
-                    )
-                  })
-                )}
-              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>{item.action}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{item.detail}</div>
             </div>
-
-            {/* Simulated Team Activity Feed */}
-            <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div>
-                <h3 style={{ fontSize: 15, margin: 0, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span>👥</span> Team Coordination Feed
-                </h3>
-                <span style={{ fontSize: 10, color: '#888', display: 'block', marginTop: 2 }}>
-                  Simulated multi-user logs inside {activeOrg.name} ({activeWorkspace.name})
-                </span>
-              </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: '220px', overflowY: 'auto' }}>
-                {filteredActivity.length === 0 ? (
-                  <p style={{ margin: 0, fontSize: 11, fontStyle: 'italic', color: '#666', textAlign: 'center', padding: '16px 0' }}>
-                    No workspace activity logged yet. Switch roles to trigger events.
-                  </p>
-                ) : (
-                  filteredActivity.map((act) => (
-                    <div 
-                      key={act.id}
-                      style={{ 
-                        padding: '6px 10px', 
-                        background: 'rgba(255,255,255,0.01)', 
-                        border: '1px solid rgba(255,255,255,0.03)', 
-                        borderRadius: 6,
-                        fontSize: 11
-                      }}
-                    >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, marginBottom: 2 }}>
-                        <span className="gold-text">
-                          {act.user} <span style={{ color: '#888' }}>({act.role})</span>
-                        </span>
-                        <span style={{ color: '#666' }}>{new Date(act.timestamp).toLocaleTimeString()}</span>
-                      </div>
-                      <p style={{ margin: 0, color: '#ccc' }}>{act.action}</p>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
           </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
-          {/* Column 2: Event Bus & Trigger Action Engine */}
-          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: 10 }}>
-              <div>
-                <h3 style={{ fontSize: 15, margin: 0, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span>🔌</span> Cross-Tool Event Bus
-                </h3>
-                <p style={{ margin: 0, fontSize: 11, color: '#888' }}>Trigger and simulate platform automation.</p>
-              </div>
-              <button 
-                onClick={resetRules}
-                className="btn-outline" 
-                style={{ fontSize: 10, padding: '3px 8px', height: 'auto' }}
-              >
-                Clear Stats
-              </button>
-            </div>
+/* ── Main page ────────────────────────────────────────── */
+export default function DashboardPage() {
+  const [activity, setActivity] = useState(ACTIVITY_POOL.slice(0, 6))
+  const [ticker, setTicker] = useState(847_234)
+  const poolIdx = useRef(6)
 
-            {/* Automation Rules */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {rules.map((rule) => (
-                <div 
-                  key={rule.id}
-                  style={{
-                    padding: 10,
-                    background: rule.active ? 'rgba(255,255,255,0.01)' : 'rgba(0,0,0,0.2)',
-                    border: `1px solid ${rule.active ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.02)'}`,
-                    borderRadius: 8,
-                    opacity: rule.active ? 1 : 0.6
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                    <strong style={{ fontSize: 12, color: rule.active ? '#fff' : '#888' }}>{rule.title}</strong>
-                    
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <span style={{ fontSize: 9, color: '#F5C518', background: 'rgba(245,197,24,0.06)', padding: '1px 5px', borderRadius: 4 }}>
-                        Runs: {rule.timesTriggered}
-                      </span>
-                      <input 
-                        type="checkbox"
-                        checked={rule.active}
-                        onChange={() => toggleRule(rule.id)}
-                        style={{ cursor: 'pointer', accentColor: '#F5C518' }}
-                      />
-                    </div>
-                  </div>
-                  <p style={{ margin: '0 0 8px', fontSize: 10, color: '#888', lineHeight: 1.3 }}>{rule.description}</p>
-                  
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#10B981' }}>
-                      {rule.trigger.slice(0, 16)}... → {rule.action.slice(0, 16)}...
-                    </span>
-                    <button
-                      onClick={() => {
-                        fireEvent(rule.trigger)
-                        recordTeamEvent('Automation Engine', currentRole || 'Admin', `processed event sweep: ${rule.title}`)
-                      }}
-                      disabled={!rule.active}
-                      className="btn-gold"
-                      style={{ padding: '3px 8px', fontSize: 10, height: 'auto' }}
-                    >
-                      ⚡ Sim Trigger
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
+  /* Live ticker */
+  useEffect(() => {
+    const id = setInterval(() => setTicker(v => v + Math.floor(Math.random() * 3)), 2800)
+    return () => clearInterval(id)
+  }, [])
 
-            {/* Event Propagation Logs */}
-            <div>
-              <h4 style={{ margin: '0 0 6px', fontSize: 11, color: '#F5C518', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                Real-Time Event Propagation Logs
-              </h4>
-              <div 
-                style={{ 
-                  height: 140, 
-                  overflowY: 'auto', 
-                  background: '#040404', 
-                  border: '1px solid rgba(255,255,255,0.06)', 
-                  borderRadius: 6,
-                  padding: 10,
-                  fontSize: 10,
-                  fontFamily: 'monospace',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 6
-                }}
-              >
-                {eventLogs.map((log) => (
-                  <div key={log.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', paddingBottom: 4 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: log.status === 'triggered' ? '#10B981' : log.status === 'skipped' ? '#EF4444' : '#888', marginBottom: 2 }}>
-                      <strong>[{log.status.toUpperCase()}] {log.eventName}</strong>
-                      <span>{new Date(log.timestamp).toLocaleTimeString()}</span>
-                    </div>
-                    <p style={{ margin: 0, color: '#ccc', fontSize: 9 }}>{log.details}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+  /* Auto-append activity */
+  useEffect(() => {
+    const id = setInterval(() => {
+      const next = ACTIVITY_POOL[poolIdx.current % ACTIVITY_POOL.length]
+      const fresh = { ...next, time: 'just now' }
+      setActivity(prev => [fresh, ...prev.slice(0, 9)])
+      poolIdx.current++
+    }, 5000)
+    return () => clearInterval(id)
+  }, [])
 
+  return (
+    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#fff', fontFamily: '"Inter",system-ui,sans-serif' }}>
+
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ fontSize: 10, color: GOLD, fontFamily: MONO, letterSpacing: '0.12em', marginBottom: 6 }}>
+          KUBRYX / DASHBOARD
+        </div>
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 900, letterSpacing: '-0.03em' }}>
+              Financial OS
+            </h1>
+            <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
+              Eight tools · Four chains · One platform
+            </p>
           </div>
-
-        </section>
-
-        <ErrorBoundary label="analytics">
-          <section className="card" style={{ marginTop: 20 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <div>
-                <p className="eyebrow" style={{ color: '#F5C518', fontSize: 10 }}>Operational Analytics</p>
-                <h2 style={{ fontSize: 18, margin: 0, fontWeight: 800 }}>⚡ Real-Time System Analytics</h2>
-              </div>
-              <div style={{ display: 'flex', gap: 6 }}>
-                <Link className="btn-outline" href="/architecture" style={{ fontSize: 10, padding: '4px 8px', height: 'auto' }}>OS Topology</Link>
-                <Link className="btn-outline" href="/security" style={{ fontSize: 10, padding: '4px 8px', height: 'auto' }}>Security Center</Link>
-                <Link className="btn-outline" href="/developers" style={{ fontSize: 10, padding: '4px 8px', height: 'auto' }}>Developers API</Link>
-                <Link className="btn-outline" href="/story" style={{ fontSize: 10, padding: '4px 8px', height: 'auto' }}>Our Narrative</Link>
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 16 }}>
-              <div style={{ padding: 12, background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8 }}>
-                <span style={{ fontSize: 10, color: '#888', textTransform: 'uppercase' }}>AI Requests</span>
-                <strong className="gold-text" style={{ display: 'block', fontSize: 22, marginTop: 4 }}>{analytics.aiRequestsProcessed}</strong>
-              </div>
-              <div style={{ padding: 12, background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8 }}>
-                <span style={{ fontSize: 10, color: '#888', textTransform: 'uppercase' }}>Tx Confirmed</span>
-                <strong className="gold-text" style={{ display: 'block', fontSize: 22, marginTop: 4 }}>{analytics.transactionsObserved}</strong>
-              </div>
-              <div style={{ padding: 12, background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8 }}>
-                <span style={{ fontSize: 10, color: '#888', textTransform: 'uppercase' }}>SLA Latency</span>
-                <strong style={{ display: 'block', fontSize: 22, marginTop: 4, color: activeScenario === 'degraded_rpc' ? '#EF4444' : '#10B981' }}>{analytics.averageLatency}ms</strong>
-              </div>
-              <div style={{ padding: 12, background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8 }}>
-                <span style={{ fontSize: 10, color: '#888', textTransform: 'uppercase' }}>Fallback Cache</span>
-                <strong style={{ display: 'block', fontSize: 22, marginTop: 4, color: '#fff' }}>{analytics.fallbackActivations} activations</strong>
-              </div>
-            </div>
-
+          {/* Live transaction counter */}
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '10px 16px', borderRadius: 12,
+            background: `${GOLD}12`, border: `1px solid ${GOLD}30`,
+          }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: GOLD }} />
             <div>
-              <h4 style={{ margin: '0 0 10px', fontSize: 12, color: '#F5C518', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Supported Chain Integrations</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
-                {Object.entries(analytics.chainActivityRates).map(([chainName, tps]) => {
-                  let status = 'nominal'
-                  let statusColor = '#10B981'
-                  if (activeScenario === 'chain_congestion' && chainName === 'QIE Mainnet') {
-                    status = 'congested'
-                    statusColor = '#F5C518'
-                  } else if (activeScenario === 'degraded_rpc') {
-                    status = 'degraded'
-                    statusColor = '#F5C518'
-                  }
-                  
-                  return (
-                    <div 
-                      key={chainName} 
-                      style={{ 
-                        padding: '10px 14px', 
-                        background: '#040404', 
-                        border: '1px solid rgba(255,255,255,0.04)', 
-                        borderRadius: 6,
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <div>
-                        <strong style={{ fontSize: 12, color: '#fff' }}>{chainName}</strong>
-                        <span style={{ display: 'block', fontSize: 10, color: '#888', marginTop: 2 }}>{tps} TPS activity</span>
-                      </div>
-                      <span style={{ fontSize: 9, background: 'rgba(255,255,255,0.03)', color: statusColor, border: `1px solid ${statusColor}`, padding: '2px 6px', borderRadius: 4, textTransform: 'uppercase', fontWeight: 800 }}>
-                        {status}
-                      </span>
-                    </div>
-                  )
-                })}
+              <div style={{ fontSize: 9, color: GOLD, fontFamily: MONO, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Platform Txns</div>
+              <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', fontFamily: MONO, lineHeight: 1 }}>
+                {ticker.toLocaleString()}
               </div>
             </div>
-          </section>
-        </ErrorBoundary>
-
-        <section className="tool-grid" id="command-tools-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12 }}>
-          {tools.map((tool) => {
-            const isLive = health[tool.name] === 'ok';
-            const latency = latencies[tool.name] ?? 45;
-            const isDegraded = isLive && latency > 350;
-            const statusLabel = isLive ? (isDegraded ? 'Degraded' : 'Live') : health[tool.name] === 'checking' ? 'Checking…' : 'Offline';
-            const statusClass = isLive ? (isDegraded ? 'is-checking' : 'is-live') : health[tool.name] === 'checking' ? 'is-checking' : 'is-down';
-            
-            return (
-              <ErrorBoundary key={tool.name} label={tool.name}>
-              <article className="card" style={{ position: 'relative' }}>
-                <div className="metric-row">
-                  <h2 style={{ fontSize: 16 }}>{tool.name}</h2>
-                  <span className={`health-badge ${statusClass}`} style={{ fontSize: 10, padding: '2px 6px' }}>
-                    <span className="chain-dot" />
-                    {statusLabel}
-                  </span>
-                </div>
-                <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginTop: 4 }}>
-                  <ChainBadge chain={tool.chain} />
-                  <span style={{ fontSize: 9, opacity: 0.6, background: 'rgba(255,255,255,0.04)', padding: '1px 4px', borderRadius: 2 }}>Verified contract</span>
-                </div>
-                
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontSize: 11, opacity: 0.8, borderTop: '1px solid rgba(255,255,255,0.03)', paddingTop: 8 }}>
-                  <span>Latency: <strong className="gold-text">{isLive ? `${latency}ms` : '—'}</strong></span>
-                  <span>Uptime: <strong className="gold-text">{isLive ? (isDegraded ? '98.42%' : '99.98%') : '0.00%'}</strong></span>
-                </div>
-
-                <div className="item-actions" style={{ marginTop: 12 }}>
-                  <Link className="btn-outline" href={tool.href} aria-label={`Open ${tool.name} Tool`}>Open tool</Link>
-                  <button className="btn-outline" onClick={() => retryOne(tool)} aria-label={`Retry ${tool.name} health check`}>↻</button>
-                </div>
-              </article>
-              </ErrorBoundary>
-            );
-          })}
-        </section>
-
-        {/* Phase 4 — AI Insights Engine / Recommended Actions */}
-        <section className="card" style={{ border: '1px solid rgba(245,197,24,0.3)', background: 'linear-gradient(180deg, rgba(245,197,24,0.03) 0%, rgba(0,0,0,0) 100%)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div>
-              <p className="eyebrow" style={{ color: '#F5C518', fontSize: 10 }}>AI Command Center</p>
-              <h2 style={{ fontSize: 20, margin: 0, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span>🧠</span> Cross-Tool Recommendations
-              </h2>
-            </div>
-            <span style={{ fontSize: 10, background: 'rgba(245, 197, 24, 0.1)', color: '#F5C518', border: '1px solid rgba(245, 197, 24, 0.3)', padding: '4px 10px', borderRadius: 20 }}>
-              AI Context Synchronized
-            </span>
           </div>
+        </div>
+      </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
-            {getRecommendedActions(intelligenceState).map((rec) => (
-              <div 
-                key={rec.id} 
-                className="mini-card"
-                style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'flex-start',
-                  padding: 16,
-                  background: rec.type === 'warning' ? 'rgba(239, 68, 68, 0.03)' : 'rgba(255,255,255,0.01)',
-                  borderColor: rec.type === 'warning' ? 'rgba(239, 68, 68, 0.3)' : rec.type === 'opportunity' ? 'rgba(245, 197, 24, 0.25)' : 'rgba(255,255,255,0.08)',
-                  borderWidth: 1,
-                  borderStyle: 'solid',
-                  borderRadius: 8,
-                  gap: 12
-                }}
-              >
-                <div>
-                  <span 
-                    style={{ 
-                      fontSize: 9, 
-                      fontWeight: 800, 
-                      textTransform: 'uppercase', 
-                      letterSpacing: '0.05em',
-                      color: rec.type === 'warning' ? '#EF4444' : rec.type === 'opportunity' ? '#F5C518' : '#3B82F6',
-                      background: rec.type === 'warning' ? 'rgba(239, 68, 68, 0.1)' : rec.type === 'opportunity' ? 'rgba(245, 197, 24, 0.1)' : 'rgba(59, 130, 246, 0.1)',
-                      padding: '2px 6px',
-                      borderRadius: 4,
-                      marginBottom: 8,
-                      display: 'inline-block'
-                    }}
-                  >
-                    {rec.type}
-                  </span>
-                  <h3 style={{ fontSize: 14, margin: 0, fontWeight: 700, color: '#fff' }}>{rec.title}</h3>
-                  <p style={{ margin: '6px 0 0', fontSize: 12, color: '#ccc', lineHeight: 1.4 }}>{rec.description}</p>
+      {/* Network stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 28 }}>
+        {NET_STATS.map(s => <StatCard key={s.label} stat={s} />)}
+      </div>
+
+      {/* Tool cards grid */}
+      <div style={{ marginBottom: 28 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 14, fontFamily: MONO }}>
+          All Tools
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
+          {TOOLS.map(tool => <ToolCard key={tool.href} tool={tool} />)}
+        </div>
+      </div>
+
+      {/* Activity + Highlights */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 16, alignItems: 'start' }}>
+
+        {/* Activity feed */}
+        <ActivityFeed items={activity} />
+
+        {/* Right column */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+          {/* Chain status */}
+          <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 14 }}>Chain Status</div>
+            {[
+              { name: 'QIE Mainnet', id: '1990', color: '#F5A623', tools: 'NeuroCredit · EternaVault' },
+              { name: 'Solana', id: 'Mainnet', color: '#9945FF', tools: 'TrustMesh · PalmFlow · Shadow' },
+              { name: 'Stellar', id: 'Soroban', color: '#3B82F6', tools: 'SyncSplit' },
+              { name: 'ETH L2', id: 'Arbitrum', color: '#6366F1', tools: 'CipherVault · Lendora' },
+            ].map(c => (
+              <div key={c.name} style={{
+                display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10,
+                padding: '10px 12px', borderRadius: 10,
+                background: 'rgba(255,255,255,0.02)', border: `1px solid rgba(255,255,255,0.04)`,
+              }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{c.name}</div>
+                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{c.tools}</div>
                 </div>
-                <Link 
-                  href={rec.actionHref}
-                  className="btn-outline"
-                  style={{ 
-                    alignSelf: 'stretch', 
-                    textAlign: 'center', 
-                    fontSize: 11, 
-                    padding: '6px 12px',
-                    borderColor: rec.type === 'warning' ? '#EF4444' : rec.type === 'opportunity' ? '#F5C518' : 'rgba(255,255,255,0.15)',
-                    color: rec.type === 'warning' ? '#EF4444' : rec.type === 'opportunity' ? '#F5C518' : '#fff'
-                  }}
-                  aria-label={rec.actionText}
-                >
-                  {rec.actionText}
-                </Link>
+                <span style={{ fontSize: 9, fontFamily: MONO, color: c.color, background: `${c.color}15`, padding: '2px 7px', borderRadius: 6 }}>{c.id}</span>
               </div>
             ))}
           </div>
-        </section>
 
-        {/* Phase 5 — Unified Activity Timeline */}
-        <section className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <h2>Unified Activity Timeline</h2>
-            <button className="btn-outline" onClick={loadStats} style={{ padding: '4px 8px', fontSize: 10, height: 'auto' }} aria-label="Refresh activity feed">
-              ↻ Refresh
-            </button>
-          </div>
-          {loading && <span className="spinner" />}
-          {!loading && intelligenceState.activityFeed.length === 0 && (
-            <EmptyState icon="📊" title="No activity yet" subtitle="Recent cross-chain events appear here dynamically as operations complete." />
-          )}
-          {intelligenceState.activityFeed.map((item) => (
-            <article key={item.id} className="mini-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px', gap: 12 }}>
-              <div>
-                <p className="gold-text" style={{ fontSize: 12, fontWeight: 700, margin: 0 }}>{item.tool}</p>
-                <p style={{ margin: '2px 0 0', fontSize: 13, color: '#fff' }}>{item.action}</p>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-                <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-                  <ChainBadge chain={item.chain} />
-                  {item.wallet && <span style={{ fontSize: 11, color: '#888' }}>{shortAddress(item.wallet)}</span>}
-                </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 10, color: '#aaa' }}>
-                  <span>{new Date(item.timestamp).toLocaleTimeString()}</span>
-                  {item.chain === 'QIE Mainnet' && item.wallet && (
-                    <a href={`https://mainnet.qie.info/address/${item.wallet}`} target="_blank" rel="noopener noreferrer" className="gold-text" style={{ fontSize: 10 }}>↗ Explorer</a>
-                  )}
-                  {item.chain === 'Solana' && item.wallet && (
-                    <a href={`https://explorer.solana.com/address/${item.wallet}?cluster=devnet`} target="_blank" rel="noopener noreferrer" className="gold-text" style={{ fontSize: 10 }}>↗ Explorer</a>
-                  )}
-                  {item.chain === 'Stellar' && item.wallet && (
-                    <a href={`https://stellar.expert/explorer/testnet/account/${item.wallet}`} target="_blank" rel="noopener noreferrer" className="gold-text" style={{ fontSize: 10 }}>↗ Explorer</a>
-                  )}
+          {/* Feature highlights */}
+          <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 14 }}>Platform Highlights</div>
+            {HIGHLIGHTS.map(h => (
+              <div key={h.title} style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
+                <span style={{
+                  width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+                  background: `${GOLD}18`, display: 'grid', placeItems: 'center',
+                  fontSize: 16,
+                }}>{h.icon}</span>
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 2 }}>{h.title}</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.45 }}>{h.desc}</div>
                 </div>
               </div>
-            </article>
-          ))}
-        </section>
-
-        <section className="card" id="telemetry-console-section" style={{ border: '1px dashed rgba(245, 197, 24, 0.2)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h2 style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: telemetryLogs.length > 0 ? '#EF4444' : '#22C55E' }} />
-              System Telemetry logs
-            </h2>
-            {telemetryLogs.length > 0 && (
-              <button 
-                className="btn-outline" 
-                onClick={() => { clearTelemetryErrors(); setTelemetryLogs([]) }} 
-                style={{ padding: '4px 8px', fontSize: 10, height: 'auto' }}
-                aria-label="Clear telemetry logs"
-              >
-                Clear logs
-              </button>
-            )}
+            ))}
           </div>
-          {telemetryLogs.length === 0 ? (
-            <p className="silver-text" style={{ fontSize: 13, margin: 0 }}>All client pipelines operating normally. No network anomalies or wallet rejections detected.</p>
-          ) : (
-            <div style={{ maxHeight: 200, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {telemetryLogs.map((log) => (
-                <div key={log.id} style={{ padding: '8px 12px', background: 'rgba(239,68,68,0.02)', border: '1px solid rgba(239,68,68,0.08)', borderRadius: 8 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 2 }}>
-                    <span style={{ fontWeight: 700, color: '#EF4444' }}>{log.type}</span>
-                    <span className="silver-text">{new Date(log.timestamp).toLocaleTimeString()}</span>
-                  </div>
-                  <p className="silver-text" style={{ fontSize: 12, margin: 0 }}>
-                    <strong>{log.source}</strong>: {log.message}
-                  </p>
-                </div>
+
+          {/* Quick launch */}
+          <div style={{ background: `${GOLD}10`, border: `1px solid ${GOLD}25`, borderRadius: 16, padding: 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: GOLD, marginBottom: 14 }}>Quick Launch</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                { label: 'Split a bill', href: '/split', icon: '◆', color: '#3b82f6' },
+                { label: 'Check credit score', href: '/credit', icon: '◈', color: '#06b6d4' },
+                { label: 'View treasury', href: '/treasury/dashboard', icon: '◇', color: '#10b981' },
+                { label: 'Deploy AI agent', href: '/agents', icon: '⬡', color: '#6366f1' },
+              ].map(q => (
+                <Link key={q.href} href={q.href} style={{
+                  textDecoration: 'none',
+                  display: 'flex', alignItems: 'center', gap: 10,
+                  padding: '9px 12px', borderRadius: 10,
+                  background: 'rgba(255,255,255,0.04)', border: `1px solid ${BORDER}`,
+                  transition: 'all 0.15s',
+                }}
+                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = q.color + '50'}
+                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = BORDER}
+                >
+                  <span style={{ fontSize: 14, color: q.color }}>{q.icon}</span>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', flex: 1 }}>{q.label}</span>
+                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>→</span>
+                </Link>
               ))}
             </div>
-          )}
-        </section>
-        
-        <OnboardingTour />
-        <ExecutiveWalkthrough />
-        <CommandPalette />
-      </section>
-    </main>
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
