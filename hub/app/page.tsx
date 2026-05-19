@@ -251,7 +251,7 @@ function Hero() {
           </motion.div>
           <motion.div variants={fadeUp} style={{ display: 'flex', flexWrap: 'wrap', gap: 12 }}>
             <GhostBtn href="#tools">Explore All Tools</GhostBtn>
-            <GradBtn href="/credit">Launch App <ArrowRight size={17} strokeWidth={2.2} /></GradBtn>
+            <GradBtn href="/dashboard">Launch App <ArrowRight size={17} strokeWidth={2.2} /></GradBtn>
           </motion.div>
         </motion.div>
 
@@ -789,7 +789,7 @@ function Pricing() {
             <div style={{ flex: 1 }}>
               {['All 8 tools included', 'All 4 blockchains', 'Real wallet connection', 'AI features enabled', 'Full dashboard access'].map(f => <Bullet key={f} text={f} />)}
             </div>
-            <GradBtn href="/credit">Launch App <ArrowRight size={17} strokeWidth={2.2} /></GradBtn>
+            <GradBtn href="/dashboard">Launch App <ArrowRight size={17} strokeWidth={2.2} /></GradBtn>
           </motion.div>
 
           {/* Enterprise */}
@@ -841,7 +841,7 @@ function FinalCTA() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: isMobile ? 'stretch' : 'flex-end' }}>
                 <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                  <Link href="/credit" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, borderRadius: 999, background: '#fff', color: '#0A0F2E', fontWeight: 700, padding: '16px 28px', fontSize: 15, textDecoration: 'none', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.25)' }}>
+                  <Link href="/dashboard" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, borderRadius: 999, background: '#fff', color: '#0A0F2E', fontWeight: 700, padding: '16px 28px', fontSize: 15, textDecoration: 'none', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.25)' }}>
                     <span className="gradient-text">Launch App</span>
                     <ArrowRight size={17} strokeWidth={2.4} color="#0A0F2E" />
                   </Link>
@@ -881,7 +881,7 @@ function Footer() {
             <span style={{ fontSize: 20, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Kubryx</span>
           </Link>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            <Link href="/credit" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontWeight: 600, padding: '10px 20px', fontSize: 14, textDecoration: 'none' }}>
+            <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontWeight: 600, padding: '10px 20px', fontSize: 14, textDecoration: 'none' }}>
               Launch App <ArrowRight size={15} strokeWidth={2.4} />
             </Link>
             <a href="https://github.com/Kubryx/kubryx" target="_blank" rel="noopener noreferrer" className="btn-gradient" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 999, padding: '10px 20px', fontSize: 14, fontWeight: 600, textDecoration: 'none', color: '#fff' }}>

@@ -5,8 +5,9 @@ import { useState, useEffect } from 'react'
 import KubrykSidebar from '../../components/KubrykSidebar'
 import TopBar from '../../components/TopBar'
 
-/* Paths that render inside the hub shell (sidebar + topbar) */
-const HUB_PREFIXES = ['/dashboard', '/split']
+/* Paths that render inside the hub shell (sidebar + topbar).
+   /dashboard is self-contained — it owns its own sidebar. */
+const HUB_PREFIXES = ['/split']
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()

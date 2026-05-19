@@ -2,428 +2,569 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { usePathname } from 'next/navigation'
+import {
+  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+} from 'recharts'
+import {
+  ACTIVITY_30D, ACTIVITY_7D, ACTIVITY_1D, ACTIVITY_ALL, DASH_STATS,
+} from '@/lib/dashboard-fallbacks'
+import type { ChartPoint } from '@/lib/dashboard-fallbacks'
 
-const GOLD = '#F5C518'
-const BG = '#080808'
-const CARD = 'rgba(255,255,255,0.03)'
-const BORDER = 'rgba(255,255,255,0.07)'
-const MONO = '"Fira Code","JetBrains Mono",monospace'
+/* ── Theme ──────────────────────────────────────────── */
+const BG      = '#0a0e27'
+const SIDE    = '#0c1232'
+const ACCENT  = '#6366f1'
+const PINK    = '#ec4899'
+const CYAN    = '#06b6d4'
+const GREEN   = '#10b981'
+const BORDER  = 'rgba(255,255,255,0.08)'
+const MONO    = '"Fira Code","JetBrains Mono",monospace'
+const MUTED   = 'rgba(255,255,255,0.6)'
+const MUTED2  = 'rgba(255,255,255,0.35)'
 
-/* ── Tool definitions ─────────────────────────────────── */
-const TOOLS = [
-  {
-    icon: '◈', name: 'NeuroCredit', tagline: 'AI Credit Scoring',
-    href: '/credit', color: '#06b6d4',
-    chain: 'QIE', chainColor: '#F5A623',
-    desc: 'Generate your on-chain credit score as a soulbound NFT. DeFi protocols read it with a single contract call.',
-    stat: '742', statLabel: 'Avg Score', badge: 'Identity',
-  },
-  {
-    icon: '⬟', name: 'EternaVault', tagline: 'Encrypted Inheritance',
-    href: '/legacy', color: '#f43f5e',
-    chain: 'QIE', chainColor: '#F5A623',
-    desc: 'Store critical files with AES-GCM encryption. Heirs unlock access on-chain after validator attestation.',
-    stat: '256-bit', statLabel: 'Encryption', badge: 'Security',
-  },
-  {
-    icon: '⬡', name: 'TrustMesh', tagline: 'AI Agent Coordination',
-    href: '/agents', color: '#6366f1',
-    chain: 'Solana', chainColor: '#9945FF',
-    desc: 'Deploy AI agents with verified on-chain identities. Every delegation is Ed25519 signed and logged.',
-    stat: '7', statLabel: 'Active Agents', badge: 'AI',
-  },
-  {
-    icon: '🔐', name: 'CipherVault', tagline: 'Cross-Chain Privacy',
-    href: '/vault', color: '#14b8a6',
-    chain: 'Multi', chainColor: '#06B6D4',
-    desc: 'Trade assets across chains with complete privacy. Zero transaction metadata exposed to observers.',
-    stat: '94%', statLabel: 'Privacy Score', badge: 'Privacy',
-  },
-  {
-    icon: '◆', name: 'SyncSplit', tagline: 'On-Chain Bill Splitting',
-    href: '/split', color: '#3b82f6',
-    chain: 'Stellar', chainColor: '#3B82F6',
-    desc: 'Split bills via Soroban smart contracts. Multi-wallet support with automatic settlement on full payment.',
-    stat: 'Soroban', statLabel: 'Protocol', badge: 'Payments',
-  },
-  {
-    icon: '◎', name: 'Lendora', tagline: 'DeFi Loan Negotiation',
-    href: '/lend', color: '#f59e0b',
-    chain: 'ETH L2', chainColor: '#6366F1',
-    desc: 'AI agents negotiate loan terms in natural language. Zero-knowledge credit verification, L2 settlement.',
-    stat: '4.2%', statLabel: 'Avg APR', badge: 'DeFi',
-  },
-  {
-    icon: '◇', name: 'PalmFlow AI', tagline: 'Autonomous Treasury',
-    href: '/treasury', color: '#10b981',
-    chain: 'Solana', chainColor: '#9945FF',
-    desc: 'AI agents manage your treasury, stream payroll per-second, enforce governance and optimize yield.',
-    stat: '$1.2M+', statLabel: 'Managed', badge: 'Treasury',
-  },
-  {
-    icon: '▲', name: 'ShadowLedger', tagline: 'Invisible Operations',
-    href: '/shadow', color: '#8b5cf6',
-    chain: 'Solana', chainColor: '#9945FF',
-    desc: 'Run your entire financial org invisibly on-chain. Seven specialized AI agents, fully autonomous.',
-    stat: '7', statLabel: 'AI Agents', badge: 'Enterprise',
-  },
+/* ── Navigation items ───────────────────────────────── */
+const NAV = [
+  { icon: '◉', label: 'Overview',        href: '/dashboard' },
+  { icon: '◈', label: 'Credit Passport', href: '/credit'    },
+  { icon: '⬟', label: 'Legacy Vault',    href: '/legacy'    },
+  { icon: '⬡', label: 'Agent Mesh',      href: '/agents'    },
+  { icon: '🔐', label: 'Private Vault',   href: '/vault'     },
+  { icon: '◆', label: 'SyncSplit',       href: '/split'     },
+  { icon: '◎', label: 'AI Lending',      href: '/lend'      },
+  { icon: '◇', label: 'Treasury AI',     href: '/treasury'  },
+  { icon: '▲', label: 'Shadow OS',       href: '/shadow'    },
 ]
 
-/* ── Network stats ────────────────────────────────────── */
-const NET_STATS = [
-  { label: 'Tools', value: 8, suffix: '', color: GOLD },
-  { label: 'Chains', value: 4, suffix: '', color: '#06b6d4' },
-  { label: 'Agents Active', value: 14, suffix: '', color: '#6366f1' },
-  { label: 'Uptime', value: 99.9, suffix: '%', color: '#10b981' },
-]
+type TimeRange = '1D' | '7D' | '30D' | 'All'
 
-/* ── Activity pool ────────────────────────────────────── */
-const ACTIVITY_POOL = [
-  { tool: 'PalmFlow AI', icon: '◇', color: '#10b981', action: 'Treasury rebalanced', detail: '+$12,400 yield captured', time: 'just now' },
-  { tool: 'TrustMesh', icon: '⬡', color: '#6366f1', action: 'Agent "Sentinel" deployed', detail: 'Ed25519 identity registered on-chain', time: '1m ago' },
-  { tool: 'NeuroCredit', icon: '◈', color: '#06b6d4', action: 'Score minted as NFT', detail: 'Score: 742 → soulbound on QIE', time: '2m ago' },
-  { tool: 'SyncSplit', icon: '◆', color: '#3b82f6', action: 'Bill settled', detail: '3 participants · 100 XLM', time: '4m ago' },
-  { tool: 'Lendora', icon: '◎', color: '#f59e0b', action: 'Loan negotiated', detail: '$5,000 · 4.2% APR · 90 days', time: '6m ago' },
-  { tool: 'CipherVault', icon: '🔐', color: '#14b8a6', action: 'Private swap executed', detail: 'wBTC → USDC · privacy score 94', time: '8m ago' },
-  { tool: 'EternaVault', icon: '⬟', color: '#f43f5e', action: 'Vault encrypted', detail: 'AES-GCM · 4 heirs configured', time: '11m ago' },
-  { tool: 'ShadowLedger', icon: '▲', color: '#8b5cf6', action: 'CFO agent acted', detail: 'Risk: no anomalies detected', time: '13m ago' },
-  { tool: 'PalmFlow AI', icon: '◇', color: '#10b981', action: 'Payroll streamed', detail: '0.42 SOL/sec to 3 recipients', time: '15m ago' },
-  { tool: 'NeuroCredit', icon: '◈', color: '#06b6d4', action: 'Credit check passed', detail: 'Protocol Lendora approved 850', time: '18m ago' },
-]
-
-/* ── Feature highlights ────────────────────────────────── */
-const HIGHLIGHTS = [
-  { icon: '🤖', title: 'AI-Powered Everything', desc: 'From credit scoring to treasury management — AI runs every tool automatically.' },
-  { icon: '🔗', title: 'Four Chains, One Dashboard', desc: 'QIE · Solana · Stellar · ETH L2 accessible from a single unified interface.' },
-  { icon: '🔒', title: 'Zero-Knowledge Privacy', desc: 'Complete financial privacy without sacrificing auditability or compliance.' },
-  { icon: '⚡', title: 'Real-Time Settlement', desc: 'Payments stream per-second, swaps settle instantly, agents act autonomously.' },
-]
-
-/* ── Animated counter ─────────────────────────────────── */
-function useCountUp(target: number, active: boolean) {
-  const [v, setV] = useState(0)
-  useEffect(() => {
-    if (!active) return
-    let raf: number
-    const t0 = performance.now()
-    const dur = 1200
-    const tick = (t: number) => {
-      const p = Math.min(1, (t - t0) / dur)
-      const eased = 1 - Math.pow(1 - p, 3)
-      setV(+(eased * target).toFixed(1))
-      if (p < 1) raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [active, target])
-  return v
+function getGreeting() {
+  const h = new Date().getHours()
+  if (h >= 5  && h < 12) return 'Good morning'
+  if (h >= 12 && h < 17) return 'Good afternoon'
+  if (h >= 17 && h < 21) return 'Good evening'
+  return 'Good night'
 }
 
-function StatCard({ stat }: { stat: typeof NET_STATS[0] }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [active, setActive] = useState(false)
-  const val = useCountUp(stat.value, active)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setActive(true) }, { threshold: 0.5 })
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [])
-
-  return (
-    <div ref={ref} style={{
-      background: CARD, border: `1px solid ${BORDER}`, borderRadius: 14, padding: '20px 24px',
-      display: 'flex', flexDirection: 'column', gap: 6,
-    }}>
-      <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: MONO }}>
-        {stat.label}
-      </div>
-      <div style={{ fontSize: 36, fontWeight: 900, color: stat.color, fontFamily: MONO, lineHeight: 1 }}>
-        {val}{stat.suffix}
-      </div>
-    </div>
-  )
+function chartDataForRange(range: TimeRange): ChartPoint[] {
+  if (range === '1D')  return ACTIVITY_1D
+  if (range === '7D')  return ACTIVITY_7D
+  if (range === 'All') return ACTIVITY_ALL
+  return ACTIVITY_30D
 }
 
-/* ── Tool card ────────────────────────────────────────── */
-function ToolCard({ tool }: { tool: typeof TOOLS[0] }) {
-  const [hovered, setHovered] = useState(false)
+/* ── Sidebar ────────────────────────────────────────── */
+function DashSidebar({
+  mobileOpen, onMobileClose, wallet, onDisconnect, isMobile,
+}: {
+  mobileOpen: boolean
+  onMobileClose: () => void
+  wallet: string
+  onDisconnect: () => void
+  isMobile: boolean
+}) {
+  const pathname = usePathname()
+
+  const transform = isMobile
+    ? (mobileOpen ? 'translateX(0)' : 'translateX(-100%)')
+    : 'translateX(0)'
 
   return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.18 }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <Link href={tool.href} style={{ textDecoration: 'none', display: 'block', height: '100%' }}>
+    <>
+      {isMobile && mobileOpen && (
+        <div
+          onClick={onMobileClose}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 49 }}
+        />
+      )}
+      <aside style={{
+        position: isMobile ? 'fixed' : 'relative',
+        top: 0, left: 0, bottom: 0,
+        width: 250,
+        background: SIDE,
+        borderRight: `1px solid ${BORDER}`,
+        display: 'flex',
+        flexDirection: 'column',
+        zIndex: 50,
+        flexShrink: 0,
+        transform,
+        transition: 'transform 0.22s ease',
+        height: isMobile ? '100vh' : '100%',
+        overflow: 'hidden',
+      }}>
+
+        {/* Logo */}
         <div style={{
-          background: CARD,
-          border: `1px solid ${hovered ? tool.color + '50' : BORDER}`,
-          borderRadius: 16,
-          padding: 20,
-          height: '100%',
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '20px 16px 16px',
+          borderBottom: `1px solid ${BORDER}`,
+        }}>
+          <div style={{
+            width: 28, height: 28, borderRadius: 8, flexShrink: 0,
+            background: `linear-gradient(135deg, ${ACCENT}, #8B5CF6)`,
+            display: 'grid', placeItems: 'center',
+            fontSize: 14, fontWeight: 900, color: '#fff',
+          }}>K</div>
+          <span style={{ fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Kubryx</span>
+        </div>
+
+        {/* Nav items */}
+        <nav style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '10px 8px',
           display: 'flex',
           flexDirection: 'column',
-          gap: 12,
-          cursor: 'pointer',
-          transition: 'border-color 0.2s',
-          position: 'relative',
-          overflow: 'hidden',
+          gap: 2,
         }}>
-          {/* Glow on hover */}
-          {hovered && (
-            <div style={{
-              position: 'absolute', top: -40, right: -40,
-              width: 120, height: 120, borderRadius: '50%',
-              background: `radial-gradient(circle, ${tool.color}20, transparent 70%)`,
-              pointerEvents: 'none',
-            }} />
-          )}
+          {NAV.map(item => {
+            const active = pathname === item.href || pathname.startsWith(item.href + '/')
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={isMobile ? onMobileClose : undefined}
+                style={{
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  padding: '9px 12px',
+                  borderRadius: 8,
+                  fontSize: 14,
+                  fontWeight: active ? 600 : 400,
+                  color: active ? '#fff' : MUTED,
+                  background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  transition: 'all 0.15s',
+                }}
+                onMouseEnter={e => {
+                  if (!active) (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'
+                  if (!active) (e.currentTarget as HTMLElement).style.color = '#fff'
+                }}
+                onMouseLeave={e => {
+                  if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent'
+                  if (!active) (e.currentTarget as HTMLElement).style.color = MUTED
+                }}
+              >
+                <span style={{ width: 18, textAlign: 'center', fontSize: 14 }}>{item.icon}</span>
+                {item.label}
+              </Link>
+            )
+          })}
+        </nav>
 
-          {/* Top row */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-            <div style={{
-              width: 44, height: 44, borderRadius: 12,
-              background: `${tool.color}20`,
-              display: 'grid', placeItems: 'center',
-              fontSize: 20, color: tool.color,
-            }}>{tool.icon}</div>
-            <span style={{
-              fontSize: 9, fontWeight: 700, letterSpacing: '0.12em',
-              textTransform: 'uppercase', padding: '3px 8px',
-              borderRadius: 999, background: `${tool.color}20`, color: tool.color,
-            }}>{tool.badge}</span>
-          </div>
-
-          {/* Name + tagline */}
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>{tool.name}</div>
-            <div style={{ fontSize: 11, color: tool.color, marginTop: 2, fontWeight: 600 }}>{tool.tagline}</div>
-          </div>
-
-          {/* Desc */}
-          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.55, margin: 0, flex: 1 }}>
-            {tool.desc}
-          </p>
-
-          {/* Footer */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: 12, borderTop: `1px solid ${BORDER}` }}>
-            <div>
-              <div style={{ fontSize: 18, fontWeight: 900, color: tool.color, fontFamily: MONO, lineHeight: 1 }}>{tool.stat}</div>
-              <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', marginTop: 1, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{tool.statLabel}</div>
+        {/* Wallet card */}
+        <div style={{ padding: 16 }}>
+          <div style={{
+            background: 'rgba(139,92,246,0.2)',
+            border: '1px solid rgba(139,92,246,0.4)',
+            borderRadius: 8,
+            padding: 12,
+          }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(139,92,246,0.85)', letterSpacing: '0.14em', marginBottom: 6 }}>
+              WALLET
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{
-                padding: '3px 9px', borderRadius: 999, fontSize: 10, fontWeight: 700,
-                background: `${tool.chainColor}20`, color: tool.chainColor,
-                display: 'flex', alignItems: 'center', gap: 5,
-              }}>
-                <span style={{ width: 5, height: 5, borderRadius: '50%', background: tool.chainColor }} />
-                {tool.chain}
-              </span>
-              <span style={{ fontSize: 16, color: hovered ? tool.color : 'rgba(255,255,255,0.3)', transition: 'color 0.2s' }}>→</span>
+            <div style={{ fontFamily: MONO, fontSize: 13, color: '#fff', marginBottom: 4 }}>
+              {wallet
+                ? `${wallet.slice(0, 6)}…${wallet.slice(-4)}`
+                : '0x9F3C…E3A1'}
             </div>
+            <div style={{ fontSize: 11, color: MUTED2, marginBottom: 10 }}>
+              QIE • Solana • Stellar • ETH
+            </div>
+            <button
+              onClick={onDisconnect}
+              style={{
+                background: 'transparent', border: 'none',
+                color: MUTED2, fontSize: 11, cursor: 'pointer', padding: 0,
+                transition: 'color 0.15s',
+              }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
+              onMouseLeave={e => (e.currentTarget.style.color = MUTED2)}
+            >
+              Disconnect
+            </button>
           </div>
+
+          {/* Subtle footer glow */}
+          <div style={{
+            marginTop: 16,
+            height: 1,
+            background: `linear-gradient(90deg, transparent, ${ACCENT}55, transparent)`,
+          }} />
         </div>
-      </Link>
-    </motion.div>
+      </aside>
+    </>
   )
 }
 
-/* ── Activity feed ────────────────────────────────────── */
-function ActivityFeed({ items }: { items: typeof ACTIVITY_POOL }) {
+/* ── Stat card ──────────────────────────────────────── */
+const STAT_CARDS = [
+  { label: 'Tools',     value: DASH_STATS.tools.toString(),  sub: DASH_STATS.toolsSub,    bg: 'rgba(99,102,241,0.1)',   border: 'rgba(99,102,241,0.25)',  subColor: '#A5B4FC' },
+  { label: 'Chains',    value: DASH_STATS.chains.toString(), sub: DASH_STATS.chainsSub,   bg: 'rgba(6,182,212,0.1)',    border: 'rgba(6,182,212,0.25)',   subColor: '#67E8F9' },
+  { label: 'Mock Data', value: DASH_STATS.mockData,          sub: DASH_STATS.mockDataSub, bg: 'rgba(16,185,129,0.1)',   border: 'rgba(16,185,129,0.25)',  subColor: '#6EE7B7' },
+  { label: 'Uptime',    value: DASH_STATS.uptime,            sub: DASH_STATS.uptimeSub,   bg: 'rgba(249,115,22,0.1)',   border: 'rgba(249,115,22,0.25)',  subColor: '#FDBA74' },
+]
+
+function StatCard({ card }: { card: typeof STAT_CARDS[0] }) {
+  const [hov, setHov] = useState(false)
   return (
-    <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 16, overflow: 'hidden' }}>
-      <div style={{ padding: '16px 20px', borderBottom: `1px solid ${BORDER}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Live Activity</div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22C55E', animation: 'pulse 2s infinite' }} />
-          <span style={{ fontSize: 10, color: '#86EFAC', fontFamily: MONO }}>real-time</span>
-        </div>
+    <div
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: hov ? card.bg : 'rgba(255,255,255,0.04)',
+        border: `1px solid ${hov ? card.border : BORDER}`,
+        borderRadius: 10,
+        padding: '16px 18px',
+        transform: hov ? 'scale(1.025)' : 'scale(1)',
+        transition: 'all 0.2s ease',
+        cursor: 'default',
+      }}
+    >
+      <div style={{ fontSize: 10, fontWeight: 700, color: MUTED2, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>
+        {card.label}
       </div>
-      <div style={{ maxHeight: 360, overflowY: 'auto' }}>
-        {items.map((item, i) => (
-          <div key={i} style={{
-            display: 'flex', alignItems: 'flex-start', gap: 12,
-            padding: '12px 20px',
-            borderBottom: i < items.length - 1 ? `1px solid rgba(255,255,255,0.03)` : 'none',
-          }}>
-            <span style={{
-              width: 32, height: 32, borderRadius: 8,
-              background: `${item.color}20`, display: 'grid',
-              placeItems: 'center', fontSize: 14, color: item.color, flexShrink: 0,
-            }}>{item.icon}</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, color: item.color }}>{item.tool}</span>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', fontFamily: MONO }}>{item.time}</span>
-              </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>{item.action}</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{item.detail}</div>
-            </div>
-          </div>
-        ))}
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+        <span style={{ fontSize: 32, fontWeight: 900, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1 }}>
+          {card.value}
+        </span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: card.subColor }}>
+          {card.sub}
+        </span>
       </div>
     </div>
   )
 }
 
-/* ── Main page ────────────────────────────────────────── */
-export default function DashboardPage() {
-  const [activity, setActivity] = useState(ACTIVITY_POOL.slice(0, 6))
-  const [ticker, setTicker] = useState(847_234)
-  const poolIdx = useRef(6)
+/* ── Protocol Activity (chart + controls) ───────────── */
+const TOOLTIP_STYLE = {
+  contentStyle: { background: '#0f1430', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, fontSize: 12 },
+  labelStyle: { color: MUTED2 },
+  itemStyle: { color: '#fff' },
+}
 
-  /* Live ticker */
-  useEffect(() => {
-    const id = setInterval(() => setTicker(v => v + Math.floor(Math.random() * 3)), 2800)
-    return () => clearInterval(id)
-  }, [])
+function ProtocolActivity() {
+  const [range, setRange] = useState<TimeRange>('30D')
+  const [data, setData] = useState<ChartPoint[]>(ACTIVITY_30D)
+  const [mounted, setMounted] = useState(false)
+  const [fadeKey, setFadeKey] = useState(0)
 
-  /* Auto-append activity */
+  useEffect(() => { setMounted(true) }, [])
+
+  function changeRange(r: TimeRange) {
+    setRange(r)
+    setFadeKey(k => k + 1)
+    setData(chartDataForRange(r))
+  }
+
+  return (
+    <div style={{ margin: '24px', marginTop: 0 }}>
+      {/* Section header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: MUTED2 }}>
+            Protocol Activity
+          </div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginTop: 2 }}>
+            Last {range === '1D' ? '24 hours' : range === '7D' ? '7 days' : range === '30D' ? '30 days' : 'all time'}
+          </div>
+        </div>
+        {/* Time range buttons */}
+        <div style={{ display: 'flex', gap: 4 }}>
+          {(['1D', '7D', '30D', 'All'] as TimeRange[]).map(r => (
+            <button
+              key={r}
+              onClick={() => changeRange(r)}
+              style={{
+                padding: '4px 10px',
+                borderRadius: 6,
+                border: `1px solid ${range === r ? ACCENT : BORDER}`,
+                background: range === r ? `${ACCENT}25` : 'transparent',
+                color: range === r ? '#fff' : MUTED2,
+                fontSize: 12, fontWeight: range === r ? 700 : 400,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              {r}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Chart container */}
+      <div key={fadeKey} style={{
+        background: 'rgba(255,255,255,0.02)',
+        border: `1px solid ${BORDER}`,
+        borderRadius: 10,
+        padding: '20px 16px 12px',
+        marginTop: 12,
+        animation: 'fadein 0.3s ease',
+      }}>
+        {mounted ? (
+          <ResponsiveContainer width="100%" height={240}>
+            <AreaChart data={data} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="pinkGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor={PINK} stopOpacity={0.35} />
+                  <stop offset="95%" stopColor={PINK} stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="cyanGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor={CYAN} stopOpacity={0.18} />
+                  <stop offset="95%" stopColor={CYAN} stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" vertical={false} />
+              <XAxis
+                dataKey="date"
+                tick={{ fill: MUTED2, fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+                interval="preserveStartEnd"
+              />
+              <YAxis
+                tick={{ fill: MUTED2, fontSize: 10 }}
+                axisLine={false}
+                tickLine={false}
+                tickFormatter={v => `${v}`}
+              />
+              <Tooltip {...TOOLTIP_STYLE} />
+              <Area
+                type="monotone"
+                dataKey="operations"
+                name="Operations"
+                stroke={PINK}
+                strokeWidth={2}
+                fill="url(#pinkGrad)"
+                dot={false}
+                activeDot={{ r: 4, fill: PINK }}
+              />
+              <Area
+                type="monotone"
+                dataKey="transactions"
+                name="Transactions"
+                stroke={CYAN}
+                strokeWidth={2}
+                strokeDasharray="5 5"
+                fill="url(#cyanGrad)"
+                dot={false}
+                activeDot={{ r: 4, fill: CYAN }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        ) : (
+          <div style={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center', color: MUTED2, fontSize: 12 }}>
+            Loading chart…
+          </div>
+        )}
+
+        {/* Legend */}
+        <div style={{ display: 'flex', gap: 24, marginTop: 12, justifyContent: 'center' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: MUTED }}>
+            <span style={{ width: 20, height: 2, background: PINK, display: 'inline-block' }} />
+            Operations
+          </span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: MUTED }}>
+            <span style={{ width: 20, height: 2, background: CYAN, display: 'inline-block', borderTop: `2px dashed ${CYAN}` }} />
+            Transactions
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Search ─────────────────────────────────────────── */
+function SearchBar() {
+  const [q, setQ] = useState('')
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  const results = q.trim()
+    ? NAV.filter(n => n.label.toLowerCase().includes(q.toLowerCase()))
+    : []
+
   useEffect(() => {
-    const id = setInterval(() => {
-      const next = ACTIVITY_POOL[poolIdx.current % ACTIVITY_POOL.length]
-      const fresh = { ...next, time: 'just now' }
-      setActivity(prev => [fresh, ...prev.slice(0, 9)])
-      poolIdx.current++
-    }, 5000)
-    return () => clearInterval(id)
+    function outside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', outside)
+    return () => document.removeEventListener('mousedown', outside)
   }, [])
 
   return (
-    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#fff', fontFamily: '"Inter",system-ui,sans-serif' }}>
-
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 10, color: GOLD, fontFamily: MONO, letterSpacing: '0.12em', marginBottom: 6 }}>
-          KUBRYX / DASHBOARD
+    <div ref={ref} style={{ position: 'relative' }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 6,
+        background: 'rgba(255,255,255,0.08)',
+        border: `1px solid ${open ? 'rgba(99,102,241,0.5)' : BORDER}`,
+        borderRadius: 8, padding: '7px 12px',
+        transition: 'border-color 0.15s',
+      }}>
+        <span style={{ fontSize: 13, color: MUTED2 }}>🔍</span>
+        <input
+          value={q}
+          onChange={e => { setQ(e.target.value); setOpen(true) }}
+          onFocus={() => setOpen(true)}
+          onKeyDown={e => e.key === 'Escape' && setOpen(false)}
+          placeholder="search tools"
+          style={{
+            background: 'transparent', border: 'none', outline: 'none',
+            color: '#fff', fontSize: 13, width: 160,
+          }}
+        />
+      </div>
+      {open && results.length > 0 && (
+        <div style={{
+          position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4,
+          background: '#0f1430', border: `1px solid ${BORDER}`,
+          borderRadius: 8, overflow: 'hidden', zIndex: 100,
+          boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+        }}>
+          {results.map(item => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => { setOpen(false); setQ('') }}
+              style={{
+                textDecoration: 'none',
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '10px 14px', fontSize: 13, color: MUTED,
+                borderBottom: `1px solid rgba(255,255,255,0.04)`,
+                transition: 'all 0.1s',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.06)'
+                ;(e.currentTarget as HTMLElement).style.color = '#fff'
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLElement).style.background = 'transparent'
+                ;(e.currentTarget as HTMLElement).style.color = MUTED
+              }}
+            >
+              <span style={{ fontSize: 14 }}>{item.icon}</span>
+              {item.label}
+            </Link>
+          ))}
         </div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-          <div>
-            <h1 style={{ margin: 0, fontSize: 28, fontWeight: 900, letterSpacing: '-0.03em' }}>
-              Financial OS
-            </h1>
-            <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
-              Eight tools · Four chains · One platform
-            </p>
-          </div>
-          {/* Live transaction counter */}
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            padding: '10px 16px', borderRadius: 12,
-            background: `${GOLD}12`, border: `1px solid ${GOLD}30`,
-          }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: GOLD }} />
+      )}
+    </div>
+  )
+}
+
+/* ── Main page ──────────────────────────────────────── */
+export default function DashboardPage() {
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+  const [wallet, setWallet] = useState('0x9F3CE3A1')
+  const [greeting] = useState(getGreeting)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  function handleDisconnect() {
+    setWallet('')
+  }
+
+  return (
+    <div style={{
+      display: 'flex',
+      height: '100vh',
+      width: '100vw',
+      background: BG,
+      color: '#fff',
+      fontFamily: '"Inter",system-ui,sans-serif',
+      overflow: 'hidden',
+    }}>
+      {/* Sidebar */}
+      <DashSidebar
+        mobileOpen={mobileOpen}
+        onMobileClose={() => setMobileOpen(false)}
+        wallet={wallet}
+        onDisconnect={handleDisconnect}
+        isMobile={isMobile}
+      />
+
+      {/* Main panel */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+
+        {/* Header */}
+        <header style={{
+          flexShrink: 0,
+          height: 60,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px',
+          borderBottom: `1px solid ${BORDER}`,
+          background: BG,
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          gap: 12,
+        }}>
+          {/* Left — mobile hamburger + greeting */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            {isMobile && (
+              <button onClick={() => setMobileOpen(v => !v)} style={{
+                background: 'none', border: `1px solid ${BORDER}`, color: MUTED,
+                borderRadius: 8, width: 36, height: 36, display: 'grid', placeItems: 'center',
+                cursor: 'pointer', fontSize: 16, flexShrink: 0,
+              }}>☰</button>
+            )}
             <div>
-              <div style={{ fontSize: 9, color: GOLD, fontFamily: MONO, letterSpacing: '0.1em', textTransform: 'uppercase' }}>Platform Txns</div>
-              <div style={{ fontSize: 18, fontWeight: 900, color: '#fff', fontFamily: MONO, lineHeight: 1 }}>
-                {ticker.toLocaleString()}
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: MUTED2, marginBottom: 2 }}>
+                Overview
+              </div>
+              <div style={{ fontSize: isMobile ? 16 : 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                {greeting}, Alex.
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Network stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 28 }}>
-        {NET_STATS.map(s => <StatCard key={s.label} stat={s} />)}
-      </div>
-
-      {/* Tool cards grid */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 14, fontFamily: MONO }}>
-          All Tools
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14 }}>
-          {TOOLS.map(tool => <ToolCard key={tool.href} tool={tool} />)}
-        </div>
-      </div>
-
-      {/* Activity + Highlights */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 16, alignItems: 'start' }}>
-
-        {/* Activity feed */}
-        <ActivityFeed items={activity} />
-
-        {/* Right column */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-          {/* Chain status */}
-          <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 14 }}>Chain Status</div>
-            {[
-              { name: 'QIE Mainnet', id: '1990', color: '#F5A623', tools: 'NeuroCredit · EternaVault' },
-              { name: 'Solana', id: 'Mainnet', color: '#9945FF', tools: 'TrustMesh · PalmFlow · Shadow' },
-              { name: 'Stellar', id: 'Soroban', color: '#3B82F6', tools: 'SyncSplit' },
-              { name: 'ETH L2', id: 'Arbitrum', color: '#6366F1', tools: 'CipherVault · Lendora' },
-            ].map(c => (
-              <div key={c.name} style={{
-                display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10,
-                padding: '10px 12px', borderRadius: 10,
-                background: 'rgba(255,255,255,0.02)', border: `1px solid rgba(255,255,255,0.04)`,
-              }}>
-                <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#fff' }}>{c.name}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{c.tools}</div>
-                </div>
-                <span style={{ fontSize: 9, fontFamily: MONO, color: c.color, background: `${c.color}15`, padding: '2px 7px', borderRadius: 6 }}>{c.id}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Feature highlights */}
-          <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 16, padding: 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 14 }}>Platform Highlights</div>
-            {HIGHLIGHTS.map(h => (
-              <div key={h.title} style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
-                <span style={{
-                  width: 34, height: 34, borderRadius: 10, flexShrink: 0,
-                  background: `${GOLD}18`, display: 'grid', placeItems: 'center',
-                  fontSize: 16,
-                }}>{h.icon}</span>
-                <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 2 }}>{h.title}</div>
-                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.45 }}>{h.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Quick launch */}
-          <div style={{ background: `${GOLD}10`, border: `1px solid ${GOLD}25`, borderRadius: 16, padding: 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: GOLD, marginBottom: 14 }}>Quick Launch</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {[
-                { label: 'Split a bill', href: '/split', icon: '◆', color: '#3b82f6' },
-                { label: 'Check credit score', href: '/credit', icon: '◈', color: '#06b6d4' },
-                { label: 'View treasury', href: '/treasury/dashboard', icon: '◇', color: '#10b981' },
-                { label: 'Deploy AI agent', href: '/agents', icon: '⬡', color: '#6366f1' },
-              ].map(q => (
-                <Link key={q.href} href={q.href} style={{
-                  textDecoration: 'none',
-                  display: 'flex', alignItems: 'center', gap: 10,
-                  padding: '9px 12px', borderRadius: 10,
-                  background: 'rgba(255,255,255,0.04)', border: `1px solid ${BORDER}`,
-                  transition: 'all 0.15s',
-                }}
-                  onMouseEnter={e => (e.currentTarget as HTMLElement).style.borderColor = q.color + '50'}
-                  onMouseLeave={e => (e.currentTarget as HTMLElement).style.borderColor = BORDER}
-                >
-                  <span style={{ fontSize: 14, color: q.color }}>{q.icon}</span>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.7)', flex: 1 }}>{q.label}</span>
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)' }}>→</span>
-                </Link>
-              ))}
+          {/* Right — search + status */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {!isMobile && <SearchBar />}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '6px 12px', borderRadius: 20,
+              background: `${GREEN}1a`, border: `1px solid ${GREEN}40`,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: GREEN, flexShrink: 0 }} />
+              <span style={{ fontSize: 12, fontWeight: 600, color: GREEN, whiteSpace: 'nowrap' }}>
+                {isMobile ? 'Live' : 'All systems live'}
+              </span>
             </div>
           </div>
+        </header>
+
+        {/* Body — scrollable */}
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+
+          {/* Stats row */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)',
+            gap: 12,
+            padding: '20px 24px 0',
+          }}>
+            {STAT_CARDS.map(card => <StatCard key={card.label} card={card} />)}
+          </div>
+
+          {/* Protocol activity chart */}
+          <ProtocolActivity />
         </div>
       </div>
+
+      {/* Fade-in keyframe (inline) */}
+      <style>{`
+        @keyframes fadein { from { opacity:0; transform:translateY(4px) } to { opacity:1; transform:translateY(0) } }
+      `}</style>
     </div>
   )
 }
