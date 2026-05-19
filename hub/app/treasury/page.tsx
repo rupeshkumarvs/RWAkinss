@@ -2,375 +2,312 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { loadWallet, persistWallet } from '@/lib/wallet-utils'
-import {
-  fetchTreasury, fetchAgents, askAdvisor,
-  type TreasuryData,
-} from '@/lib/palmflow-api'
-import { PF_ACTIVITY_POOL, type PFAgent } from '@/lib/palmflow-fallbacks'
 
-type PhantomProvider = {
-  isPhantom?: boolean
-  connect: () => Promise<{ publicKey: { toString: () => string } }>
-}
-
-type FeedItem = { id: string; agent: string; action: string; timestamp: string }
+type PhantomProvider = { isPhantom?: boolean; connect: () => Promise<{ publicKey: { toString: () => string } }> }
 
 const TEAL = '#00E5CC'
-const BG = '#080810'
-const CARD = 'rgba(255,255,255,0.03)'
-const BDR = 'rgba(255,255,255,0.07)'
+const BG = '#06060e'
 const MONO = '"JetBrains Mono","Fira Code",monospace'
 
-function ts() {
-  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-}
+const FEATURES = [
+  {
+    icon: '🤖',
+    title: 'AI Payment Routing',
+    desc: '7 specialized AI agents optimize every transaction for cost, speed, and privacy.',
+    detail: 'Automatic multi-hop routing, slippage protection, 23% avg gas savings',
+    color: '#A855F7',
+    gradient: 'rgba(168,85,247,0.08)',
+  },
+  {
+    icon: '💼',
+    title: 'Treasury Management',
+    desc: 'Real-time portfolio view across all blockchains and wallets.',
+    detail: 'Asset allocation, yield tracking, risk analysis, predictive simulations',
+    color: '#00E5CC',
+    gradient: 'rgba(0,229,204,0.08)',
+  },
+  {
+    icon: '🔄',
+    title: 'Seamless Swaps',
+    desc: 'Multi-chain DEX integration with intelligent route optimization.',
+    detail: 'Raydium, Jupiter, Orca, Uniswap — instant price quotes',
+    color: '#60A5FA',
+    gradient: 'rgba(96,165,250,0.08)',
+  },
+  {
+    icon: '⚡',
+    title: 'Automated Payments',
+    desc: 'Recurring payments, payroll, and scheduled transfers on autopilot.',
+    detail: 'Daily/weekly/monthly schedules, batch payments, multi-recipient',
+    color: '#22C55E',
+    gradient: 'rgba(34,197,94,0.08)',
+  },
+]
+
+const STATS = [
+  { label: 'Treasury Managed', value: '$1.2M+' },
+  { label: 'AI Agents Online', value: '7' },
+  { label: 'Chains Supported', value: '8+' },
+  { label: 'Gas Saved (Avg)', value: '23%' },
+]
+
+const SUPPORTED = [
+  { name:'Solana',   symbol:'SOL',   color:'#A855F7' },
+  { name:'Ethereum', symbol:'ETH',   color:'#60A5FA' },
+  { name:'Arbitrum', symbol:'ARB',   color:'#06B6D4' },
+  { name:'Polygon',  symbol:'MATIC', color:'#8B5CF6' },
+  { name:'Base',     symbol:'BASE',  color:'#3B82F6' },
+  { name:'Optimism', symbol:'OP',    color:'#EF4444' },
+]
 
 function short(addr: string) {
   return addr.length > 10 ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : addr
 }
 
-const SVG_W = 600, SVG_H = 120, PAD = 10
-function buildPath(data: number[]) {
-  if (!data.length) return ''
-  const mn = Math.min(...data), mx = Math.max(...data)
-  const range = mx - mn || 1
-  const pts = data.map((v, i) => {
-    const x = PAD + (i / (data.length - 1)) * (SVG_W - PAD * 2)
-    const y = SVG_H - PAD - ((v - mn) / range) * (SVG_H - PAD * 2)
-    return `${x.toFixed(1)},${y.toFixed(1)}`
-  })
-  return `M${pts.join('L')}`
-}
-
-export default function TreasuryDashboard() {
+export default function TreasuryLanding() {
   const [wallet, setWallet] = useState('')
-  const [treasury, setTreasury] = useState<TreasuryData | null>(null)
-  const [agents, setAgents] = useState<PFAgent[]>([])
-  const [activity, setActivity] = useState<FeedItem[]>([])
-  const [isDemo, setIsDemo] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [chatInput, setChatInput] = useState('')
-  const [chatHistory, setChatHistory] = useState<{ role: 'user' | 'ai'; text: string }[]>([])
-  const [chatLoading, setChatLoading] = useState(false)
-  const poolIdx = useRef(0)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const saved = loadWallet('solana')
     if (saved) setWallet(saved)
   }, [])
 
+  /* particle canvas background */
   useEffect(() => {
-    if (!wallet) return
-    setLoading(true)
-    Promise.all([fetchTreasury(wallet), fetchAgents()])
-      .then(([t, a]) => {
-        setTreasury(t)
-        setAgents(a)
-        setIsDemo(false)
-        setActivity(
-          PF_ACTIVITY_POOL.slice(0, 6).map((p, i) => ({
-            ...p, id: `i${i}`, timestamp: ts(),
-          }))
-        )
-      })
-      .catch(() => setIsDemo(true))
-      .finally(() => setLoading(false))
-  }, [wallet])
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    canvas.width = canvas.offsetWidth
+    canvas.height = canvas.offsetHeight
 
-  /* auto-append activity in demo mode */
-  useEffect(() => {
-    if (!isDemo && !treasury) return
-    if (!treasury) {
-      import('@/lib/palmflow-api').then(m => m.fetchTreasury('demo')).then(t => {
-        setTreasury(t)
-        setAgents([])
-        setIsDemo(true)
-        setActivity(
-          PF_ACTIVITY_POOL.slice(0, 6).map((p, i) => ({ ...p, id: `d${i}`, timestamp: ts() }))
-        )
+    type Particle = { x: number; y: number; vx: number; vy: number; r: number; alpha: number }
+    const particles: Particle[] = Array.from({ length: 60 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      r: Math.random() * 2 + 0.5,
+      alpha: Math.random() * 0.5 + 0.1,
+    }))
+
+    let raf: number
+    function draw() {
+      if (!ctx || !canvas) return
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      particles.forEach(p => {
+        p.x += p.vx; p.y += p.vy
+        if (p.x < 0) p.x = canvas.width
+        if (p.x > canvas.width) p.x = 0
+        if (p.y < 0) p.y = canvas.height
+        if (p.y > canvas.height) p.y = 0
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(0,229,204,${p.alpha})`
+        ctx.fill()
       })
+      /* draw connections */
+      particles.forEach((a, i) => {
+        particles.slice(i + 1).forEach(b => {
+          const dx = a.x - b.x, dy = a.y - b.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < 120) {
+            ctx.beginPath()
+            ctx.moveTo(a.x, a.y)
+            ctx.lineTo(b.x, b.y)
+            ctx.strokeStyle = `rgba(0,229,204,${0.08 * (1 - dist / 120)})`
+            ctx.lineWidth = 0.5
+            ctx.stroke()
+          }
+        })
+      })
+      raf = requestAnimationFrame(draw)
     }
-  }, [])
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      const item = PF_ACTIVITY_POOL[poolIdx.current % PF_ACTIVITY_POOL.length]
-      poolIdx.current++
-      setActivity(p => [{ ...item, id: `a${Date.now()}`, timestamp: ts() }, ...p.slice(0, 19)])
-    }, 5000)
-    return () => clearInterval(id)
+    draw()
+    return () => cancelAnimationFrame(raf)
   }, [])
 
   async function connectWallet() {
     try {
       const phantom = (window as any).solana as PhantomProvider | undefined
-      if (!phantom?.isPhantom) throw new Error('Phantom wallet not installed.')
-      const res = await phantom.connect()
-      const addr = res.publicKey.toString()
-      setWallet(addr)
-      persistWallet('solana', addr)
-      toast.success('Phantom connected')
+      if (phantom?.isPhantom) {
+        const res = await phantom.connect()
+        const addr = res.publicKey.toString()
+        setWallet(addr)
+        persistWallet('solana', addr)
+        toast.success('Phantom connected')
+        return
+      }
+      const metamask = (window as any).ethereum
+      if (metamask) {
+        const accounts: string[] = await metamask.request({ method: 'eth_requestAccounts' })
+        if (accounts[0]) {
+          setWallet(accounts[0])
+          persistWallet('solana', accounts[0])
+          toast.success('MetaMask connected')
+          return
+        }
+      }
+      toast.error('No wallet detected. Install Phantom or MetaMask.')
     } catch (e: any) {
       toast.error(e?.message || 'Wallet connection failed')
     }
   }
 
-  async function sendChat(e: React.FormEvent) {
-    e.preventDefault()
-    if (!chatInput.trim()) return
-    const question = chatInput.trim()
-    setChatInput('')
-    setChatHistory(h => [...h, { role: 'user', text: question }])
-    setChatLoading(true)
-    const reply = await askAdvisor(question, treasury)
-    setChatHistory(h => [...h, { role: 'ai', text: reply }])
-    setChatLoading(false)
-  }
-
-  const t = treasury
-  const chartPath = t ? buildPath(t.chartData) : ''
-  const chartFill = t ? `${chartPath}L${SVG_W - PAD},${SVG_H - PAD}L${PAD},${SVG_H - PAD}Z` : ''
-
-  const kpis = [
-    { label: 'Total Liquidity',  value: t ? `${t.totalLiquidity.toLocaleString()} PUSD` : '—', icon: '💎', color: TEAL },
-    { label: 'Network Flow',     value: t ? `$${t.networkFlow.toLocaleString()}` : '—',          icon: '🔁', color: '#A855F7' },
-    { label: 'Protocol Yield',   value: t ? `$${t.protocolYield.toLocaleString()}` : '—',        icon: '📈', color: '#22C55E' },
-    { label: 'Active Agents',    value: t ? String(t.activeAgents) : '—',                        icon: '🤖', color: '#F59E0B' },
-  ]
-
   return (
-    <div style={{ background: BG, minHeight: '100vh', padding: '24px', fontFamily: '"Inter",system-ui,sans-serif', color: '#fff' }}>
+    <div style={{ background: BG, minHeight: '100vh', color: '#fff', fontFamily: '"Inter",system-ui,sans-serif', position: 'relative', overflow: 'hidden' }}>
 
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>
-            PALMFLOW AI / NEURAL TREASURY OS
-          </div>
-          <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700 }}>Treasury Dashboard</h1>
-          <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>
-            Autonomous treasury & neural workforce management on Solana
-          </p>
-        </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 10, padding: '4px 10px', borderRadius: 20, border: `1px solid ${isDemo ? 'rgba(255,255,255,0.15)' : 'rgba(0,229,204,0.4)'}`, color: isDemo ? 'rgba(255,255,255,0.4)' : TEAL, display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: isDemo ? '#666' : TEAL }} />
-            {isDemo ? 'Demo Mode' : 'Live'}
-          </span>
-          <span style={{ fontSize: 10, padding: '4px 10px', borderRadius: 20, border: '1px solid rgba(168,85,247,0.3)', color: '#C084FC', display: 'flex', alignItems: 'center', gap: 5 }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#A855F7' }} />
-            Solana Devnet
-          </span>
-          <button
-            onClick={connectWallet}
-            style={{ padding: '7px 16px', borderRadius: 8, border: `1px solid ${TEAL}`, background: wallet ? 'rgba(0,229,204,0.1)' : 'transparent', color: TEAL, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}
-          >
-            {wallet ? short(wallet) : 'Connect Phantom'}
-          </button>
-        </div>
-      </div>
+      {/* Animated particle canvas */}
+      <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 0 }} />
 
-      {/* KPI Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12, marginBottom: 20 }}>
-        {kpis.map(k => (
-          <div key={k.label} style={{ background: CARD, border: `1px solid ${BDR}`, borderRadius: 12, padding: '18px 20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 8 }}>{k.label}</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: k.color, fontFamily: MONO }}>
-                  {loading ? <span style={{ opacity: 0.3 }}>——</span> : k.value}
-                </div>
-              </div>
-              <span style={{ fontSize: 22 }}>{k.icon}</span>
+      {/* Gradient blobs */}
+      <div style={{ position: 'absolute', top: -200, left: -200, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle, rgba(0,229,204,0.05) 0%, transparent 70%)', pointerEvents:'none', zIndex: 0 }} />
+      <div style={{ position: 'absolute', top: 100, right: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.06) 0%, transparent 70%)', pointerEvents:'none', zIndex: 0 }} />
+
+      <div style={{ position: 'relative', zIndex: 1 }}>
+
+        {/* Hero */}
+        <section style={{ maxWidth: 1100, margin: '0 auto', padding: '80px 24px 60px', textAlign: 'center' }}>
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 16px', borderRadius: 20, border: '1px solid rgba(0,229,204,0.3)', background: 'rgba(0,229,204,0.06)', marginBottom: 28 }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: TEAL, display: 'inline-block' }} />
+              <span style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.08em' }}>7 AI AGENTS ONLINE · MULTI-CHAIN READY</span>
             </div>
+
+            <h1 style={{ fontSize: 'clamp(32px,5vw,62px)', fontWeight: 900, lineHeight: 1.1, marginBottom: 20, letterSpacing: '-0.02em' }}>
+              Run Your Organization's<br />
+              <span style={{ background: `linear-gradient(135deg, ${TEAL}, #A855F7)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                Finances Invisibly On-Chain
+              </span>
+            </h1>
+
+            <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.55)', maxWidth: 600, margin: '0 auto 40px', lineHeight: 1.7 }}>
+              AI agents manage payments, optimize routing, and execute treasury operations autonomously.
+              PalmFlow AI — the Autonomous Financial Operating System for DAOs and enterprises.
+            </p>
+
+            {/* CTAs */}
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={connectWallet}
+                style={{ padding: '14px 28px', borderRadius: 12, border: `1px solid ${TEAL}`, background: `linear-gradient(135deg, rgba(0,229,204,0.2), rgba(0,229,204,0.06))`, color: TEAL, fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+              >
+                🔌 {wallet ? short(wallet) : 'Connect Wallet'}
+              </motion.button>
+              <Link href="/treasury/dashboard">
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
+                  style={{ padding: '14px 28px', borderRadius: 12, border: '1px solid rgba(245,197,24,0.4)', background: 'rgba(245,197,24,0.06)', color: '#F5C518', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+                >
+                  📊 View Dashboard
+                </motion.button>
+              </Link>
+              <Link href="/treasury/dashboard">
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
+                  style={{ padding: '14px 28px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.1)', background: 'transparent', color: 'rgba(255,255,255,0.6)', fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
+                >
+                  🎯 Try Demo
+                </motion.button>
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* Stats bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            style={{ display: 'flex', justifyContent: 'center', gap: 40, marginTop: 56, flexWrap: 'wrap' }}
+          >
+            {STATS.map(s => (
+              <div key={s.label} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 28, fontWeight: 800, color: TEAL, fontFamily: MONO }}>{s.value}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>{s.label}</div>
+              </div>
+            ))}
+          </motion.div>
+        </section>
+
+        {/* Feature Cards */}
+        <section style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px 60px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 16 }}>
+            {FEATURES.map((f, i) => (
+              <motion.div
+                key={f.title}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 * i + 0.4, duration: 0.5 }}
+                style={{ background: f.gradient, border: `1px solid ${f.color}22`, borderRadius: 16, padding: '24px', cursor: 'default' }}
+              >
+                <div style={{ fontSize: 32, marginBottom: 14 }}>{f.icon}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: f.color, marginBottom: 8 }}>{f.title}</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.6, marginBottom: 10 }}>{f.desc}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', lineHeight: 1.5 }}>{f.detail}</div>
+              </motion.div>
+            ))}
           </div>
-        ))}
-      </div>
+        </section>
 
-      {/* Chart + Sentinel row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 12, marginBottom: 20 }}>
+        {/* Supported Chains */}
+        <section style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px 60px' }}>
+          <div style={{ textAlign: 'center', marginBottom: 24 }}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Multi-Chain Support</div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
+            {SUPPORTED.map(c => (
+              <div key={c.name} style={{ padding: '8px 18px', borderRadius: 20, border: `1px solid ${c.color}33`, background: `${c.color}0a`, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: c.color, display: 'inline-block' }} />
+                <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>{c.name}</span>
+                <span style={{ fontSize: 10, color: c.color, fontFamily: MONO }}>{c.symbol}</span>
+              </div>
+            ))}
+          </div>
+        </section>
 
-        {/* SVG Chart */}
-        <div style={{ background: CARD, border: `1px solid ${BDR}`, borderRadius: 12, padding: '20px 24px' }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Treasury Analytics</div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 16 }}>7-day balance history (PUSD)</div>
-          <svg width="100%" viewBox={`0 0 ${SVG_W} ${SVG_H}`} style={{ overflow: 'visible' }}>
-            <defs>
-              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={TEAL} stopOpacity="0.3" />
-                <stop offset="100%" stopColor={TEAL} stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            {chartFill && <path d={chartFill} fill="url(#chartGrad)" />}
-            {chartPath && <path d={chartPath} fill="none" stroke={TEAL} strokeWidth="2" />}
-          </svg>
-          {t && (
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-              {t.chartLabels.map(l => (
-                <span key={l} style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{l}</span>
+        {/* Quick Actions */}
+        <section style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px 80px' }}>
+          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 20, padding: '40px', textAlign: 'center' }}>
+            <div style={{ fontSize: 13, color: TEAL, fontFamily: MONO, letterSpacing: '0.08em', marginBottom: 12 }}>GET STARTED</div>
+            <h2 style={{ fontSize: 28, fontWeight: 800, marginBottom: 10 }}>Ready to automate your treasury?</h2>
+            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', marginBottom: 32 }}>
+              Connect your wallet and let AI agents manage your finances autonomously.
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {[
+                { href:'/treasury/dashboard', label:'📊 Dashboard',  color: TEAL },
+                { href:'/treasury/send',      label:'💸 Send',       color:'#22C55E' },
+                { href:'/treasury/receive',   label:'📥 Receive',    color:'#60A5FA' },
+                { href:'/treasury/swap',      label:'🔄 Swap',       color:'#A855F7' },
+                { href:'/treasury/analytics', label:'📉 Analytics',  color:'#F59E0B' },
+              ].map(a => (
+                <Link key={a.href} href={a.href}>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    style={{ padding: '10px 20px', borderRadius: 10, border: `1px solid ${a.color}44`, background: `${a.color}0f`, color: a.color, fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                  >
+                    {a.label}
+                  </motion.button>
+                </Link>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        </section>
 
-        {/* Neural Sentinel */}
-        <div style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: 12, padding: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-            <span style={{ fontSize: 18 }}>🛡</span>
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 700 }}>Neural Sentinel</div>
-              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Security Guardian</div>
-            </div>
-            <span style={{ marginLeft: 'auto', fontSize: 10, padding: '3px 9px', borderRadius: 20, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#EF4444' }}>
-              🔒 LOCK ACTIVE
-            </span>
-          </div>
-          <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '10px 12px', marginBottom: 14, fontSize: 11, color: '#FCA5A5' }}>
-            Emergency Lock: Abnormal spending velocity detected.
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
-            {[
-              { label: 'Transactions Blocked', value: '3', color: '#EF4444' },
-              { label: 'Policy Checks', value: '100%', color: '#22C55E' },
-              { label: 'Risk Score', value: 'LOW', color: '#22C55E' },
-            ].map(r => (
-              <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12 }}>
-                <span style={{ color: 'rgba(255,255,255,0.5)' }}>{r.label}</span>
-                <span style={{ color: r.color, fontWeight: 700, fontFamily: MONO }}>{r.value}</span>
-              </div>
-            ))}
-          </div>
-          <Link href="/treasury/policy">
-            <button style={{ width: '100%', padding: '9px', borderRadius: 8, border: '1px solid rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.1)', color: '#FCA5A5', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-              Security Audit →
-            </button>
-          </Link>
+        {/* Footer note */}
+        <div style={{ textAlign: 'center', padding: '0 24px 40px', fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>
+          PalmFlow AI is a production-ready financial OS. Connect your wallet to start managing treasury operations.
+          All operations are non-custodial — your keys, your funds.
         </div>
       </div>
-
-      {/* Workforce + Activity + Advisor */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 360px', gap: 12, marginBottom: 20 }}>
-
-        {/* Active Workforce */}
-        <div style={{ background: CARD, border: `1px solid ${BDR}`, borderRadius: 12, padding: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-            <div style={{ fontSize: 13, fontWeight: 600 }}>Active Workforce</div>
-            <Link href="/treasury/agents" style={{ fontSize: 11, color: TEAL, textDecoration: 'none' }}>View all →</Link>
-          </div>
-          {(agents.length ? agents.slice(0, 4) : [
-            { id:'a1', name:'Arbitrage Hunter', type:'DeFi Specialist', status:'active' as const, efficiency:100, allocation:500, resourceUsed:0, lastAction:'Arbitrage cycle on Solana DEXs', rating:4.9, tasks:24 },
-            { id:'a2', name:'Atlas', type:'Product AI', status:'active' as const, efficiency:100, allocation:1000, resourceUsed:0, lastAction:'Product roadmap analysis complete', rating:5.0, tasks:12 },
-            { id:'a5', name:'Risk Manager', type:'Risk Manager', status:'active' as const, efficiency:100, allocation:5000, resourceUsed:10, lastAction:'Emergency lock engaged', rating:5.0, tasks:8 },
-            { id:'a7', name:'Marketing AI', type:'Ad Buying & Growth', status:'idle' as const, efficiency:100, allocation:25000, resourceUsed:18200, lastAction:'Ad campaigns paused', rating:4.8, tasks:45 },
-          ]).map(a => (
-            <div key={a.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: `1px solid ${BDR}` }}>
-              <div>
-                <div style={{ fontSize: 12, fontWeight: 600 }}>{a.name}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{a.type}</div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 10, color: a.status === 'active' ? '#22C55E' : '#F59E0B' }}>
-                  ● {a.status}
-                </div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: MONO }}>{a.efficiency}% eff.</div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Neural Activity Feed */}
-        <div style={{ background: CARD, border: `1px solid ${BDR}`, borderRadius: 12, padding: '20px' }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: TEAL, display: 'inline-block', animation: 'pulse 2s infinite' }} />
-            Neural Activity Feed
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 280, overflowY: 'auto' }}>
-            {activity.map(a => (
-              <div key={a.id} style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.02)', borderRadius: 6, borderLeft: `2px solid ${TEAL}` }}>
-                <div style={{ fontSize: 10, color: TEAL, fontFamily: MONO, marginBottom: 2 }}>{a.agent}</div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{a.action}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.25)', marginTop: 2 }}>{a.timestamp}</div>
-              </div>
-            ))}
-            {activity.length === 0 && (
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: '20px 0' }}>
-                Connect wallet to load activity
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Neural Advisor */}
-        <div style={{ background: CARD, border: `1px solid rgba(0,229,204,0.12)`, borderRadius: 12, padding: '20px', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: TEAL }}>⚡ Neural Advisor</div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', marginBottom: 14 }}>AI-powered treasury intelligence</div>
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 220, overflowY: 'auto', marginBottom: 12 }}>
-            {chatHistory.length === 0 && (
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.25)', fontStyle: 'italic' }}>
-                Ask about treasury balance, agent performance, yield strategy, or risk...
-              </div>
-            )}
-            {chatHistory.map((m, i) => (
-              <div key={i} style={{
-                padding: '8px 10px', borderRadius: 8, fontSize: 12,
-                background: m.role === 'user' ? 'rgba(0,229,204,0.08)' : 'rgba(255,255,255,0.04)',
-                color: m.role === 'user' ? TEAL : 'rgba(255,255,255,0.8)',
-                alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
-                maxWidth: '90%',
-              }}>
-                {m.text}
-              </div>
-            ))}
-            {chatLoading && (
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', fontStyle: 'italic' }}>Thinking...</div>
-            )}
-          </div>
-          <form onSubmit={sendChat} style={{ display: 'flex', gap: 6 }}>
-            <input
-              value={chatInput}
-              onChange={e => setChatInput(e.target.value)}
-              placeholder="Ask the advisor..."
-              style={{ flex: 1, padding: '8px 10px', borderRadius: 8, border: `1px solid ${BDR}`, background: 'rgba(255,255,255,0.03)', color: '#fff', fontSize: 12, outline: 'none' }}
-            />
-            <button
-              type="submit"
-              disabled={chatLoading || !chatInput.trim()}
-              style={{ padding: '8px 14px', borderRadius: 8, border: `1px solid ${TEAL}`, background: chatLoading ? 'transparent' : 'rgba(0,229,204,0.1)', color: TEAL, fontSize: 12, cursor: 'pointer' }}
-            >
-              →
-            </button>
-          </form>
-        </div>
-      </div>
-
-      {/* Asset Allocation */}
-      <div style={{ background: CARD, border: `1px solid ${BDR}`, borderRadius: 12, padding: '20px 24px' }}>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>Asset Allocation</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: 12 }}>
-          {[
-            { symbol: 'SOL',  name: 'Solana',           amount: '0.984',     pct: 0,  color: '#A855F7' },
-            { symbol: 'PUSD', name: 'PalmFlow USD',      amount: '999,945',   pct: 100, color: TEAL },
-            { symbol: 'KMN',  name: 'Kamino (Yield)',    amount: '3,500',     pct: 35,  color: '#22C55E' },
-            { symbol: 'RYD',  name: 'Raydium (Yield)',   amount: '2,800',     pct: 28,  color: '#60A5FA' },
-            { symbol: 'JITO', name: 'Jito (Yield)',      amount: '2,000',     pct: 20,  color: '#F59E0B' },
-          ].map(a => (
-            <div key={a.symbol} style={{ padding: '14px', background: 'rgba(255,255,255,0.02)', borderRadius: 10, border: `1px solid rgba(255,255,255,0.05)` }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                <span style={{ fontWeight: 700, fontSize: 13, color: a.color, fontFamily: MONO }}>{a.symbol}</span>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{a.pct}%</span>
-              </div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}>{a.name}</div>
-              <div style={{ fontSize: 14, fontWeight: 700, marginTop: 4, fontFamily: MONO }}>{a.amount}</div>
-              <div style={{ height: 3, borderRadius: 2, background: 'rgba(255,255,255,0.08)', marginTop: 8 }}>
-                <div style={{ height: 3, borderRadius: 2, width: `${a.pct}%`, background: a.color }} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
     </div>
   )
 }

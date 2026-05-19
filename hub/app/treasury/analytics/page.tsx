@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
-import { fetchTreasury, fetchAgents } from '@/lib/palmflow-api'
-import { PF_AGENTS } from '@/lib/palmflow-fallbacks'
-import type { TreasuryData } from '@/lib/palmflow-api'
-import type { PFAgent } from '@/lib/palmflow-fallbacks'
+import {
+  ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  PieChart, Pie, Cell, Legend, BarChart, Bar,
+} from 'recharts'
+import { fetchAnalyticsData } from '@/lib/palmflow-api'
+import type { PFAnalyticsData } from '@/lib/palmflow-api'
 
 const TEAL = '#00E5CC'
 const BG = '#080810'
@@ -13,146 +15,199 @@ const CARD = 'rgba(255,255,255,0.03)'
 const BDR = 'rgba(255,255,255,0.07)'
 const MONO = '"JetBrains Mono","Fira Code",monospace'
 
-const SVG_W = 600, SVG_H = 100, PAD = 8
-function buildPath(data: number[], color: string) {
-  if (!data.length) return null
-  const mn = Math.min(...data), mx = Math.max(...data), range = mx - mn || 1
-  const pts = data.map((v, i) => {
-    const x = PAD + (i / (data.length - 1)) * (SVG_W - PAD * 2)
-    const y = SVG_H - PAD - ((v - mn) / range) * (SVG_H - PAD * 2)
-    return `${x.toFixed(1)},${y.toFixed(1)}`
-  })
-  const d = `M${pts.join('L')}`
-  const fill = `${d}L${SVG_W - PAD},${SVG_H - PAD}L${PAD},${SVG_H - PAD}Z`
-  return { d, fill }
+const DATE_RANGES = ['7d', '30d', '90d', 'all'] as const
+type DateRange = typeof DATE_RANGES[number]
+
+const CHART_TOOLTIP_STYLE = {
+  contentStyle: { background:'#0e0e1a', border:'1px solid rgba(0,229,204,0.2)', borderRadius:8, fontSize:11 },
+  labelStyle: { color:'rgba(255,255,255,0.5)' },
+  itemStyle: { color:'#fff' },
 }
 
-const FORECAST = [999945, 1042000, 1089000, 1138000, 1190000, 1245000, 1303000]
-const FORECAST_LABELS = ['May 19', 'May 26', 'Jun 2', 'Jun 9', 'Jun 16', 'Jun 23', 'Jun 30']
-
 export default function AnalyticsPage() {
-  const [treasury, setTreasury] = useState<TreasuryData | null>(null)
-  const [agents, setAgents] = useState<PFAgent[]>([])
+  const [data, setData] = useState<PFAnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeChart, setActiveChart] = useState<'treasury' | 'forecast'>('treasury')
+  const [range, setRange] = useState<DateRange>('30d')
+  const [mounted, setMounted] = useState(false)
+
+  /* charts must only render client-side */
+  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
-    Promise.all([fetchTreasury('demo'), fetchAgents()]).then(([t, a]) => {
-      setTreasury(t); setAgents(a); setLoading(false)
-    })
-  }, [])
+    setLoading(true)
+    fetchAnalyticsData(range).then(d => { setData(d); setLoading(false) })
+  }, [range])
 
   function exportCSV() {
-    if (!treasury) return
-    const rows = treasury.chartLabels.map((l, i) => `${l},${treasury.chartData[i]}`).join('\n')
-    const csv = `Date,Balance (PUSD)\n${rows}`
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
-    a.download = 'treasury-analytics.csv'
-    a.click()
-    toast.success('CSV exported')
+    if (!data) return
+    const rows = data.volumeTrend.map(v => `${v.date},${v.sent},${v.received}`).join('\n')
+    const csv = `Date,Sent (USD),Received (USD)\n${rows}`
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type:'text/csv' })); a.download = 'analytics.csv'; a.click()
+    toast.success('Analytics exported')
   }
 
-  const chartData = activeChart === 'treasury' ? treasury?.chartData : FORECAST
-  const chartLabels = activeChart === 'treasury' ? treasury?.chartLabels : FORECAST_LABELS
-  const path = chartData ? buildPath(chartData, TEAL) : null
-
-  const leaderboard = [...(agents.length ? agents : PF_AGENTS)].sort((a, b) => b.tasks - a.tasks)
+  const d = data
 
   return (
-    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#fff', fontFamily: '"Inter",system-ui,sans-serif' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+    <div style={{ background:BG, minHeight:'100vh', padding:'24px', color:'#fff', fontFamily:'"Inter",system-ui,sans-serif' }}>
+
+      {/* Header */}
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24, flexWrap:'wrap', gap:12 }}>
         <div>
-          <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>PALMFLOW AI / ANALYTICS</div>
-          <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>Treasury Analytics</h1>
-          <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Deep insights and neural forecasting</p>
+          <div style={{ fontSize:11, color:TEAL, fontFamily:MONO, letterSpacing:'0.1em', marginBottom:4 }}>PALMFLOW AI / ANALYTICS</div>
+          <h1 style={{ margin:0, fontSize:24, fontWeight:700 }}>Treasury Analytics</h1>
+          <p style={{ margin:'6px 0 0', fontSize:13, color:'rgba(255,255,255,0.4)' }}>Financial performance and AI-powered insights</p>
         </div>
-        <button
-          onClick={exportCSV}
-          style={{ padding: '9px 18px', borderRadius: 8, border: `1px solid ${BDR}`, background: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.6)', fontSize: 12, cursor: 'pointer' }}
-        >
-          ↓ Export CSV
-        </button>
+        <div style={{ display:'flex', gap:8, alignItems:'center' }}>
+          <div style={{ display:'flex', gap:4 }}>
+            {DATE_RANGES.map(r => (
+              <button key={r} onClick={() => setRange(r)}
+                style={{ padding:'6px 12px', borderRadius:16, border:`1px solid ${range===r?TEAL:BDR}`, background:range===r?'rgba(0,229,204,0.1)':'transparent', color:range===r?TEAL:'rgba(255,255,255,0.4)', fontSize:11, cursor:'pointer' }}>
+                {r === 'all' ? 'All' : r}
+              </button>
+            ))}
+          </div>
+          <button onClick={exportCSV} style={{ padding:'7px 14px', borderRadius:8, border:`1px solid ${BDR}`, background:'rgba(255,255,255,0.04)', color:'rgba(255,255,255,0.5)', fontSize:11, cursor:'pointer' }}>
+            ↓ Export CSV
+          </button>
+        </div>
       </div>
 
-      {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 24 }}>
+      {/* KPI Cards */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
         {[
-          { label: '7-Day Peak', value: loading ? '—' : `${Math.max(...(treasury?.chartData || [0])).toLocaleString()} PUSD`, color: '#22C55E' },
-          { label: '7-Day Low', value: loading ? '—' : `${Math.min(...(treasury?.chartData || [0])).toLocaleString()} PUSD`, color: '#EF4444' },
-          { label: 'Net Flow', value: loading || !treasury ? '—' : `${(treasury.chartData[treasury.chartData.length-1] - treasury.chartData[0]).toLocaleString()} PUSD`, color: TEAL },
-          { label: 'Forecast (30d)', value: '+30.3%', color: '#A855F7' },
+          { label:'Total Sent (30d)',     value: d ? `$${d.totalSent.toLocaleString()}` : '—',     sub:'+12.5% vs prev',               color:'#60A5FA', icon:'📤' },
+          { label:'Total Received (30d)', value: d ? `$${d.totalReceived.toLocaleString()}` : '—', sub:'+8.3% vs prev',                color:'#22C55E', icon:'📥' },
+          { label:'Gas Spent',            value: d ? `$${d.gasSpent.toLocaleString()}` : '—',      sub: d ? `saved $${d.gasSaved}` : '',color:TEAL,      icon:'⛽' },
+          { label:'Transactions',         value: d ? `${d.transactionCount}` : '—',                sub: d ? `${d.successRate}% success` : '', color:'#A855F7', icon:'🔢' },
         ].map(k => (
-          <div key={k.label} style={{ background: CARD, border: `1px solid ${BDR}`, borderRadius: 10, padding: '14px 16px' }}>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>{k.label}</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: k.color, fontFamily: MONO }}>{k.value}</div>
+          <div key={k.label} style={{ background:CARD, border:`1px solid ${BDR}`, borderRadius:12, padding:'16px 18px' }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+              <div>
+                <div style={{ fontSize:10, color:'rgba(255,255,255,0.4)', marginBottom:6 }}>{k.label}</div>
+                <div style={{ fontSize:20, fontWeight:700, color:k.color, fontFamily:MONO }}>{loading ? '—' : k.value}</div>
+                <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:3 }}>{k.sub}</div>
+              </div>
+              <span style={{ fontSize:20 }}>{k.icon}</span>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Chart */}
-      <div style={{ background: CARD, border: `1px solid ${BDR}`, borderRadius: 12, padding: '20px 24px', marginBottom: 20 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600 }}>
-            {activeChart === 'treasury' ? 'Treasury Balance History' : '🔮 Neural Forecast (30-day)'}
-          </div>
-          <div style={{ display: 'flex', gap: 6 }}>
-            {(['treasury', 'forecast'] as const).map(tab => (
-              <button
-                key={tab}
-                onClick={() => setActiveChart(tab)}
-                style={{ padding: '5px 12px', borderRadius: 20, border: `1px solid ${activeChart === tab ? TEAL : BDR}`, background: activeChart === tab ? 'rgba(0,229,204,0.1)' : 'transparent', color: activeChart === tab ? TEAL : 'rgba(255,255,255,0.4)', fontSize: 11, cursor: 'pointer', textTransform: 'capitalize' }}
-              >
-                {tab === 'forecast' ? '🔮 Forecast' : 'History'}
-              </button>
-            ))}
-          </div>
-        </div>
-        <svg width="100%" viewBox={`0 0 ${SVG_W} ${SVG_H}`} style={{ overflow: 'visible' }}>
-          <defs>
-            <linearGradient id="anaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={activeChart === 'forecast' ? '#A855F7' : TEAL} stopOpacity="0.3" />
-              <stop offset="100%" stopColor={activeChart === 'forecast' ? '#A855F7' : TEAL} stopOpacity="0" />
-            </linearGradient>
-          </defs>
-          {path && <path d={path.fill} fill="url(#anaGrad)" />}
-          {path && <path d={path.d} fill="none" stroke={activeChart === 'forecast' ? '#A855F7' : TEAL} strokeWidth="2" strokeDasharray={activeChart === 'forecast' ? '6,3' : undefined} />}
-        </svg>
-        {chartLabels && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8 }}>
-            {chartLabels.map(l => (
-              <span key={l} style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>{l}</span>
-            ))}
-          </div>
+      {/* Volume trend chart */}
+      <div style={{ background:CARD, border:`1px solid ${BDR}`, borderRadius:12, padding:'20px 24px', marginBottom:16 }}>
+        <div style={{ fontSize:14, fontWeight:600, marginBottom:4 }}>Payment Volume Trend</div>
+        <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)', marginBottom:20 }}>Daily sent vs received (USD)</div>
+        {mounted && d && (
+          <ResponsiveContainer width="100%" height={220}>
+            <LineChart data={d.volumeTrend} margin={{ top:4, right:16, left:0, bottom:0 }}>
+              <CartesianGrid stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
+              <XAxis dataKey="date" tick={{ fill:'rgba(255,255,255,0.35)', fontSize:10 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill:'rgba(255,255,255,0.35)', fontSize:10 }} axisLine={false} tickLine={false} tickFormatter={v => `$${(v/1000).toFixed(0)}k`} />
+              <Tooltip {...CHART_TOOLTIP_STYLE} formatter={(v: unknown) => `$${Number(v).toLocaleString()}`} />
+              <Line type="monotone" dataKey="sent"     stroke="#60A5FA" strokeWidth={2} dot={false} name="Sent" />
+              <Line type="monotone" dataKey="received" stroke="#22C55E" strokeWidth={2} dot={false} name="Received" />
+            </LineChart>
+          </ResponsiveContainer>
         )}
+        {(!mounted || !d) && <div style={{ height:220, display:'flex', alignItems:'center', justifyContent:'center', color:'rgba(255,255,255,0.2)', fontSize:12 }}>Loading chart...</div>}
+        <div style={{ display:'flex', gap:20, marginTop:12, justifyContent:'center' }}>
+          <span style={{ fontSize:11, color:'#60A5FA', display:'flex', alignItems:'center', gap:6 }}><span style={{ width:16, height:2, background:'#60A5FA', display:'inline-block' }} /> Sent</span>
+          <span style={{ fontSize:11, color:'#22C55E', display:'flex', alignItems:'center', gap:6 }}><span style={{ width:16, height:2, background:'#22C55E', display:'inline-block' }} /> Received</span>
+        </div>
       </div>
 
-      {/* Agent leaderboard */}
-      <div style={{ background: CARD, border: `1px solid ${BDR}`, borderRadius: 12, padding: '20px 24px' }}>
-        <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 16 }}>Agent Leaderboard</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-          {leaderboard.map((a, i) => (
-            <div key={a.id} style={{ display: 'grid', gridTemplateColumns: '24px 1fr 80px 80px 70px', gap: 12, alignItems: 'center', padding: '11px 0', borderBottom: i < leaderboard.length - 1 ? `1px solid ${BDR}` : 'none' }}>
-              <span style={{ fontSize: 12, color: i < 3 ? ['#F59E0B', '#94A3B8', '#CD7C2F'][i] : 'rgba(255,255,255,0.3)', fontWeight: 700, fontFamily: MONO }}>
-                #{i + 1}
-              </span>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600 }}>{a.name}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>{a.type}</div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: TEAL, fontFamily: MONO }}>{a.tasks}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>tasks</div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#22C55E', fontFamily: MONO }}>{a.efficiency}%</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>efficiency</div>
-              </div>
-              <div style={{ textAlign: 'right', fontSize: 12, color: a.status === 'active' ? '#22C55E' : '#F59E0B' }}>
-                ● {a.status}
-              </div>
+      {/* Pie + Bar */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
+
+        {/* Asset Composition Pie */}
+        <div style={{ background:CARD, border:`1px solid ${BDR}`, borderRadius:12, padding:'20px 24px' }}>
+          <div style={{ fontSize:14, fontWeight:600, marginBottom:4 }}>Treasury Composition</div>
+          <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)', marginBottom:16 }}>Portfolio breakdown by asset</div>
+          {mounted && d ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie data={d.assetComposition} dataKey="amount" nameKey="asset" cx="50%" cy="50%" outerRadius={75} label={false} labelLine={false}>
+                  {d.assetComposition.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip {...CHART_TOOLTIP_STYLE} formatter={(v: unknown) => `$${Number(v).toLocaleString()}`} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ height:200, display:'flex', alignItems:'center', justifyContent:'center', color:'rgba(255,255,255,0.2)', fontSize:12 }}>Loading...</div>
+          )}
+          {d && (
+            <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginTop:8, justifyContent:'center' }}>
+              {d.assetComposition.map(a => (
+                <span key={a.asset} style={{ fontSize:10, display:'flex', alignItems:'center', gap:4, color:'rgba(255,255,255,0.55)' }}>
+                  <span style={{ width:8, height:8, borderRadius:'50%', background:a.color, display:'inline-block' }} />
+                  {a.asset} {a.percentage}%
+                </span>
+              ))}
             </div>
-          ))}
+          )}
+        </div>
+
+        {/* Network Distribution Bar */}
+        <div style={{ background:CARD, border:`1px solid ${BDR}`, borderRadius:12, padding:'20px 24px' }}>
+          <div style={{ fontSize:14, fontWeight:600, marginBottom:4 }}>Activity by Network</div>
+          <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)', marginBottom:16 }}>% of total volume per chain</div>
+          {mounted && d ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={d.networkDistribution} margin={{ top:4, right:8, left:0, bottom:0 }}>
+                <CartesianGrid stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
+                <XAxis dataKey="network" tick={{ fill:'rgba(255,255,255,0.35)', fontSize:10 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill:'rgba(255,255,255,0.35)', fontSize:10 }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
+                <Tooltip {...CHART_TOOLTIP_STYLE} formatter={(v: unknown) => `${v}%`} />
+                <Bar dataKey="percentage" radius={[4,4,0,0]} name="Volume %">
+                  {d.networkDistribution.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div style={{ height:200, display:'flex', alignItems:'center', justifyContent:'center', color:'rgba(255,255,255,0.2)', fontSize:12 }}>Loading...</div>
+          )}
+        </div>
+      </div>
+
+      {/* Top Recipients Table */}
+      <div style={{ background:CARD, border:`1px solid ${BDR}`, borderRadius:12, padding:'20px 24px' }}>
+        <div style={{ fontSize:14, fontWeight:600, marginBottom:16 }}>Top 5 Payment Recipients (30 days)</div>
+        <div style={{ overflowX:'auto' }}>
+          <table style={{ width:'100%', borderCollapse:'collapse', fontSize:12 }}>
+            <thead>
+              <tr style={{ borderBottom:`1px solid ${BDR}` }}>
+                {['#', 'Recipient Address', 'Amount Sent', 'Transactions', '% of Total'].map(h => (
+                  <th key={h} style={{ textAlign:'left', padding:'6px 12px', fontSize:10, color:'rgba(255,255,255,0.3)', fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {(d?.topRecipients || []).map((r, i) => (
+                <tr key={r.address} style={{ borderBottom:`1px solid rgba(255,255,255,0.03)` }}>
+                  <td style={{ padding:'11px 12px', color:i < 3 ? ['#F59E0B','#94A3B8','#CD7C2F'][i] : 'rgba(255,255,255,0.3)', fontWeight:700, fontFamily:MONO }}>#{i+1}</td>
+                  <td style={{ padding:'11px 12px', fontFamily:MONO, color:TEAL }}>{r.address}</td>
+                  <td style={{ padding:'11px 12px', fontWeight:700 }}>${r.amount.toLocaleString()}</td>
+                  <td style={{ padding:'11px 12px', color:'rgba(255,255,255,0.6)' }}>{r.count} txns</td>
+                  <td style={{ padding:'11px 12px' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                      <div style={{ width:60, height:4, borderRadius:2, background:'rgba(255,255,255,0.06)' }}>
+                        <div style={{ height:4, borderRadius:2, background:TEAL, width:`${r.percentage}%` }} />
+                      </div>
+                      <span style={{ fontFamily:MONO, color:TEAL }}>{r.percentage}%</span>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {!d && [...Array(4)].map((_,i) => (
+                <tr key={i}><td colSpan={5} style={{ padding:'11px 12px', color:'rgba(255,255,255,0.15)' }}>Loading...</td></tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
