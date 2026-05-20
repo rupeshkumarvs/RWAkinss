@@ -7,7 +7,12 @@ import TopBar from '../../components/TopBar'
 
 /* Paths that render inside the hub shell (sidebar + topbar).
    /dashboard is self-contained — it owns its own sidebar. */
-const HUB_PREFIXES: string[] = []
+const HUB_PREFIXES: string[] = [
+  '/credit', '/legacy', '/agents', '/vault', '/split', '/lend', '/treasury', '/shadow',
+  '/performance', '/architecture', '/developers', '/governance', '/operations', '/executive',
+  '/security', '/coordination', '/policies', '/integrations', '/ecosystem', '/analytics',
+  '/story', '/protocols'
+]
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
