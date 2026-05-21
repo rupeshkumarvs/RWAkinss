@@ -22,6 +22,14 @@ NEXT_PUBLIC_SYNCSPLIT_URL=https://kubryx-syncsplit.onrender.com
 NEXT_PUBLIC_PALMFLOW_URL=https://kubryx-palmflow.onrender.com
 (Add to Vercel environment variables before going live)
 
+## TrustMesh
+NEXT_PUBLIC_TRUSTMESH_URL=https://kubryx-trustmesh.onrender.com
+(Add to Vercel environment variables before going live)
 
+## EternaVault
+NEXT_PUBLIC_ETERNALVAULT_URL=https://kubryx-eternalvault.onrender.com
+(Add to Vercel environment variables before going live)
 
-
+## CreditBlocks
+NEXT_PUBLIC_CREDITBLOCKS_URL=https://creditblock-rs-backend.onrender.com
+(Add to Vercel environment variables before going live)
