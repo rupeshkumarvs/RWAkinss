@@ -846,11 +846,7 @@ function FinalCTA() {
                     <ArrowRight size={17} strokeWidth={2.4} color="#0A0F2E" />
                   </Link>
                 </motion.div>
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                  <a href="https://github.com/Kubryx/kubryx" target="_blank" rel="noopener noreferrer" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, borderRadius: 999, border: '1px solid rgba(255,255,255,0.7)', color: '#fff', fontWeight: 700, padding: '16px 28px', fontSize: 15, textDecoration: 'none', transition: 'background 0.2s' }}>
-                    View on GitHub
-                  </a>
-                </motion.div>
+
               </div>
             </div>
           </div>
@@ -864,7 +860,7 @@ function FinalCTA() {
 const FOOTER_COLS = {
   PLATFORM: ['Credit Passport', 'Legacy Vault', 'Agent Mesh', 'Private Vault', 'SyncSplit', 'AI Lending', 'Treasury AI', 'Shadow OS'],
   CHAINS: ['QIE Mainnet', 'Solana', 'Stellar', 'Ethereum L2'],
-  RESOURCES: ['GitHub Repository', 'Smart Contracts', 'API Docs', 'Demo Video'],
+  RESOURCES: ['Smart Contracts', 'API Docs', 'Demo Video'],
   COMPANY: ['About', 'Blog', 'Newsletter'],
 }
 
@@ -884,9 +880,7 @@ function Footer() {
             <Link href="/dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontWeight: 600, padding: '10px 20px', fontSize: 14, textDecoration: 'none' }}>
               Launch App <ArrowRight size={15} strokeWidth={2.4} />
             </Link>
-            <a href="https://github.com/Kubryx/kubryx" target="_blank" rel="noopener noreferrer" className="btn-gradient" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 999, padding: '10px 20px', fontSize: 14, fontWeight: 600, textDecoration: 'none', color: '#fff' }}>
-              GitHub
-            </a>
+
           </div>
         </div>
 
@@ -922,8 +916,8 @@ function Footer() {
 
         {/* Bottom bar */}
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: 16, paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: 13, color: '#64748B' }}>
-          <span>© 2025 Kubryx. All rights reserved.</span>
-          <span>Built for the multi-chain future · MIT License</span>
+          <span>© 2025 Kubryx. Founder & Developer: vsrupeshkumar. All rights reserved.</span>
+          <span>Built for the multi-chain future · Apache-2.0 License</span>
         </div>
       </div>
     </footer>
