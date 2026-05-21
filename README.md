@@ -1,6 +1,6 @@
 # Kubryx
 
-One financial OS for Web3. Eight powerful tools — credit scoring, inheritance vaults, private trading, DeFi lending, treasury automation, AI agents, split payments, and a unified dashboard — across four chains.
+One financial OS for Web3. Eight powerful tools — credit scoring, inheritance vaults, private trading, DeFi lending, Yield Operations Hub automation, AI agents, split payments, and a unified dashboard — across four chains.
 
 **Live:** https://kubryx.vercel.app
 
@@ -11,13 +11,13 @@ One financial OS for Web3. Eight powerful tools — credit scoring, inheritance 
 | Tool | Route | Chain | Backend |
 |------|-------|-------|---------|
 | Credit Passport | `/credit` | QIE Mainnet | CreditBlocks |
-| Legacy Vault | `/legacy` | QIE Mainnet | EternalVault |
-| SyncSplit | `/split` | Stellar Testnet | Soroban RPC |
-| AI Lending | `/lend` | Arbitrum | Lendora AI |
-| Agent Mesh | `/agents` | Solana Devnet | TrustMesh |
-| Shadow OS | `/shadow` | Solana Devnet | ShadowLedger |
-| Treasury AI | `/treasury` | Solana Devnet | PalmFlow |
-| Private Vault | `/vault` | Multi-chain | CipherVault |
+| Family vault | `/legacy` | QIE Mainnet | EternalVault |
+| Bill split | `/split` | Stellar Testnet | Soroban RPC |
+| Protocol Borrow Engine | `/lend` | Arbitrum | Lendora AI |
+| Agent co-ordinator | `/agents` | Solana Devnet | TrustMesh |
+| Stealth Execution Suite | `/shadow` | Solana Devnet | ShadowLedger |
+| Yield Operations Hub | `/treasury` | Solana Devnet | PalmFlow |
+| Private vault | `/vault` | Multi-chain | CipherVault |
 
 ---
 
@@ -25,9 +25,9 @@ One financial OS for Web3. Eight powerful tools — credit scoring, inheritance 
 
 | Contract | Address | Chain |
 |----------|---------|-------|
-| NeuroCredStaking V2 | `0x08DA91C81cebD27d181cA732615379f185FbFb51` | QIE Mainnet |
-| SyncSplit Soroban | `CCEIBX7TF3OY5CWE5GDGZPFNNTIRTLLHDYJ4NQG4YLWYTNURUZ4YGKGF` | Stellar Testnet |
-| TrustMesh Program | `66DXeSqBccWxWWw9S21vxe2Mvvqqkmw5KsK5jqA42quz` | Solana Devnet |
+| Credit Passport Staking V2 | `0x08DA91C81cebD27d181cA732615379f185FbFb51` | QIE Mainnet |
+| Bill split Soroban | `CCEIBX7TF3OY5CWE5GDGZPFNNTIRTLLHDYJ4NQG4YLWYTNURUZ4YGKGF` | Stellar Testnet |
+| Agent co-ordinator Program | `66DXeSqBccWxWWw9S21vxe2Mvvqqkmw5KsK5jqA42quz` | Solana Devnet |
 
 ---
 
@@ -58,7 +58,7 @@ Open http://localhost:3000.
 
 ### Environment variables
 
-Create `hub/.env.local`:
+Create `hub/.env.local` or `hub/.env.production`:
 
 ```env
 NEXT_PUBLIC_CREDITBLOCKS_API=https://creditblock-rs-backend.onrender.com
@@ -98,3 +98,14 @@ Backend services deploy to Render using the `render.yaml` in each service direct
 - **Health polling:** 60-second auto-refresh of all backend statuses on the dashboard
 - **Stellar dynamic import:** `new Function('u', 'return import(u)')` bypasses Turbopack static analysis for CDN import
 - **OG images:** `/og-default.svg` (1200×630) used across all routes
+
+---
+
+## License & Attribution
+
+This platform, including its source code, system architecture, infrastructure design, backend systems, frontend implementation, APIs, databases, UI/UX, and production workflows, was independently designed and developed by **vsrupeshkumar**.
+
+- **Founder & Developer:** vsrupeshkumar
+- **License:** Apache License 2.0
+
+All rights reserved.
