@@ -98,24 +98,34 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   // ─ EVM helpers ─────────────────────────────────────────────────────────────
 
   async function loadEVMDetails(address: string) {
+    // The connection is confirmed the moment we have an account address.
+    // Commit it to state + storage FIRST so a failed chainId/balance read
+    // (e.g. a flaky or non-standard chain RPC) can never drop the wallet.
+    try { localStorage.setItem(EVM_STORAGE_KEY, address) } catch { /* noop */ }
+    setEvm(p => ({
+      ...p,
+      address,
+      isConnecting: false,
+      isConnected: true,
+      error: null,
+    }))
+
+    // chainId + balance are best-effort enrichment — failures here must not
+    // undo the connection committed above. The address guard prevents a
+    // stale in-flight read from clobbering a newer account.
+    const eth = getEthereum()
+    if (!eth) return
     try {
-      const eth = getEthereum()
-      if (!eth) return
       const chainIdHex = await eth.request({ method: 'eth_chainId' }) as string
+      setEvm(p => (p.address === address ? { ...p, chainId: parseInt(chainIdHex, 16) } : p))
+    } catch { /* keep the connection without a chainId */ }
+    try {
       const balanceHex = await eth.request({
         method: 'eth_getBalance',
         params: [address, 'latest'],
       }) as string
-      setEvm({
-        address,
-        balance: weiHexToEther(balanceHex),
-        chainId: parseInt(chainIdHex, 16),
-        isConnecting: false, isConnected: true, error: null,
-      })
-      localStorage.setItem(EVM_STORAGE_KEY, address)
-    } catch {
-      setEvm(p => ({ ...p, isConnecting: false, error: 'Failed to load wallet' }))
-    }
+      setEvm(p => (p.address === address ? { ...p, balance: weiHexToEther(balanceHex) } : p))
+    } catch { /* keep the connection without a balance */ }
   }
 
   const disconnectEVM = useCallback(() => {
