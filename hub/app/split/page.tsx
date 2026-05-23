@@ -188,6 +188,9 @@ export default function SyncSplitPage() {
   // Filters State
   const [activeFilter, setActiveFilter] = useState<'all' | 'waiting' | 'owe' | 'paid'>('all')
 
+  // Live backend connectivity badge
+  const [isLive, setIsLive] = useState(false)
+
   // Setup mount flags and custom cursor trackers
   useEffect(() => {
     setMounted(true)
@@ -218,6 +221,20 @@ export default function SyncSplitPage() {
     updateTrail()
     return () => cancelAnimationFrame(animationFrameId)
   }, [cursorPos, mounted])
+
+  // SyncSplit health check — show Live badge when backend responds
+  useEffect(() => {
+    const syncUrl = process.env.NEXT_PUBLIC_SYNCSPLIT_URL
+    if (!syncUrl) return
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), 5000)
+    fetch(`${syncUrl}/health`, { signal: ctrl.signal })
+      .then(r => { if (r.ok) return r.json() as Promise<{ status?: string }>; throw new Error('') })
+      .then(d => { if (d.status === 'ok') setIsLive(true) })
+      .catch(() => {})
+      .finally(() => clearTimeout(timer))
+    return () => { ctrl.abort(); clearTimeout(timer) }
+  }, [])
 
   // Scroll to anchor function
   const scrollTo = (id: string) => {
@@ -1883,6 +1900,11 @@ export default function SyncSplitPage() {
 
       {/* STATS ROW (4 Bento Tiles) */}
       <section id="stats" className="stats-grid-container" style={{ paddingBottom: '40px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '14px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', padding: '3px 12px', borderRadius: '12px', background: isLive ? 'rgba(16,185,129,0.12)' : 'rgba(249,115,22,0.10)', border: `1px solid ${isLive ? 'rgba(16,185,129,0.4)' : 'rgba(249,115,22,0.3)'}`, color: isLive ? '#10b981' : '#f59e0b', fontFamily: '"Fira Code",monospace' }}>
+            {isLive ? '⬤ Live Data — SyncSplit Connected' : '◎ Demo Data — SyncSplit connecting…'}
+          </span>
+        </div>
         <div className="stats-grid">
           <div className="stat-card style-1">
             <div className="stat-eyebrow">✦ Bills Created</div>

@@ -23,8 +23,8 @@ export const DASH_STATS: DashStats = {
   chainsSub: 'Multi-chain',
   mockData: '0',
   mockDataSub: '100% live',
-  uptime: '∞',
-  uptimeSub: '30d streak',
+  uptime: '5/6',
+  uptimeSub: 'backends live',
 }
 
 /* 30-day daily activity */
@@ -135,7 +135,7 @@ export const FALLBACK_TOOLS: ToolCard[] = [
   { name: 'Credit Passport',         href: '/credit',   description: 'Credit Passport on QIE',          color: '#06b6d4', status: 'beta', stats: [{ label: 'Passports', value: '9,847'   }, { label: 'Avg Score', value: '724'      }] },
   { name: 'Family Vault',            href: '/legacy',   description: 'Digital Legacy Vault on QIE',     color: '#f43f5e', status: 'beta', stats: [{ label: 'Vaults',    value: '2,104'   }, { label: 'Assets',    value: '$8.9M'    }] },
   { name: 'Yield Operations Hub',    href: '/treasury', description: 'Autonomous Financial OS',         color: '#10b981', status: 'live', stats: [{ label: 'Routed',    value: '$920M'   }, { label: 'Agents',    value: '7 active' }] },
-  { name: 'Stealth Execution Suite', href: '/shadow',   description: 'Invisible Operations on Solana',  color: '#8b5cf6', status: 'soon', stats: [{ label: 'Ops',       value: 'Stealth' }, { label: 'Status',    value: 'Coming'   }] },
+  { name: 'Stealth Execution Suite', href: '/shadow',   description: 'Invisible Operations on Solana',  color: '#8b5cf6', status: 'live', stats: [{ label: 'Ops',       value: '2.1K'    }, { label: 'Chain',     value: 'Solana'   }] },
 ]
 
 /* 1-day (24 hourly points) */

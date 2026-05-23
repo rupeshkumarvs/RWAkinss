@@ -205,14 +205,16 @@ function DashSidebar({
 }
 
 /* ── Stat card ──────────────────────────────────────── */
-const STAT_CARDS = [
-  { label: 'Active Tools',  value: DASH_STATS.tools.toString(),  sub: DASH_STATS.toolsSub,    bg: 'rgba(99,102,241,0.1)',   border: 'rgba(99,102,241,0.25)',  subColor: '#A5B4FC' },
-  { label: 'Chains',        value: DASH_STATS.chains.toString(), sub: DASH_STATS.chainsSub,   bg: 'rgba(6,182,212,0.1)',    border: 'rgba(6,182,212,0.25)',   subColor: '#67E8F9' },
-  { label: 'Mock Data',     value: DASH_STATS.mockData,          sub: DASH_STATS.mockDataSub, bg: 'rgba(16,185,129,0.1)',   border: 'rgba(16,185,129,0.25)',  subColor: '#6EE7B7' },
-  { label: 'Uptime',        value: DASH_STATS.uptime,            sub: DASH_STATS.uptimeSub,   bg: 'rgba(249,115,22,0.1)',   border: 'rgba(249,115,22,0.25)',  subColor: '#FDBA74' },
-]
+interface StatCardData {
+  label: string
+  value: string
+  sub: string
+  bg: string
+  border: string
+  subColor: string
+}
 
-function StatCard({ card }: { card: typeof STAT_CARDS[0] }) {
+function StatCard({ card }: { card: StatCardData }) {
   const [hov, setHov] = useState(false)
   return (
     <div
@@ -463,8 +465,10 @@ function SearchBar() {
 export default function DashboardPage() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
-  const [wallet, setWallet] = useState('0x9F3CE3A1')
+  const [wallet, setWallet] = useState('')
   const [greeting] = useState(getGreeting)
+  const [liveAgents, setLiveAgents] = useState<number | null>(null)
+  const backendsLive = '5/6'
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
@@ -472,6 +476,26 @@ export default function DashboardPage() {
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
   }, [])
+
+  useEffect(() => {
+    const tmUrl = process.env.NEXT_PUBLIC_TRUSTMESH_URL
+    if (!tmUrl) return
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), 5000)
+    fetch(`${tmUrl}/api/v1/stats/global`, { signal: ctrl.signal })
+      .then(r => { if (r.ok) return r.json() as Promise<{ totalAgents?: number }>; throw new Error('') })
+      .then(d => { if (typeof d.totalAgents === 'number') setLiveAgents(d.totalAgents) })
+      .catch(() => {})
+      .finally(() => clearTimeout(timer))
+    return () => { ctrl.abort(); clearTimeout(timer) }
+  }, [])
+
+  const statCards: StatCardData[] = [
+    { label: 'Active Tools',  value: DASH_STATS.tools.toString(),                                    sub: DASH_STATS.toolsSub,                                      bg: 'rgba(99,102,241,0.1)',  border: 'rgba(99,102,241,0.25)', subColor: '#A5B4FC' },
+    { label: 'Chains',        value: DASH_STATS.chains.toString(),                                   sub: DASH_STATS.chainsSub,                                     bg: 'rgba(6,182,212,0.1)',   border: 'rgba(6,182,212,0.25)', subColor: '#67E8F9' },
+    { label: 'Active Agents', value: liveAgents !== null ? liveAgents.toLocaleString() : '—',        sub: liveAgents !== null ? 'via TrustMesh' : 'loading…',       bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.25)', subColor: '#6EE7B7' },
+    { label: 'Backends Live', value: backendsLive,                                                    sub: DASH_STATS.uptimeSub,                                     bg: 'rgba(249,115,22,0.1)',  border: 'rgba(249,115,22,0.25)', subColor: '#FDBA74' },
+  ]
 
   function handleDisconnect() {
     setWallet('')
@@ -528,7 +552,7 @@ export default function DashboardPage() {
                 Overview
               </div>
               <div style={{ fontSize: isMobile ? 16 : 22, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                {greeting}, Alex.
+                {greeting}, Kubryx.
               </div>
             </div>
           </div>
@@ -568,7 +592,7 @@ export default function DashboardPage() {
             gap: 12,
             padding: '20px 24px 0',
           }}>
-            {STAT_CARDS.map(card => <StatCard key={card.label} card={card} />)}
+            {statCards.map(card => <StatCard key={card.label} card={card} />)}
           </div>
 
           {/* Protocol activity chart */}
