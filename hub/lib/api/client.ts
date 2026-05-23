@@ -26,7 +26,7 @@ export const API_ENDPOINTS = {
 export const RPC_NODES: Record<ChainType, RPCNode[]> = {
   QIE: [
     { url: process.env.NEXT_PUBLIC_QIE_RPC || 'https://mainnet.qie.digital/api/eth-rpc', latency: 0, healthy: true },
-    { url: 'https://rpc2.qie.space', latency: 0, healthy: true }
+    { url: 'https://mainnet.qie.digital/api/v1/eth-rpc', latency: 0, healthy: true },
   ],
   SOLANA: [
     { url: process.env.NEXT_PUBLIC_SOLANA_RPC || 'https://api.devnet.solana.com', latency: 0, healthy: true },

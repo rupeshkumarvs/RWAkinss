@@ -3,7 +3,8 @@
 // No ethers.js — pure fetch plus a self-contained keccak-256 implementation
 // (Ethereum variant, 0x01 domain padding).
 
-const QIE_RPC = 'https://mainnet.qie.digital/api/eth-rpc'
+const QIE_RPC_PRIMARY  = 'https://mainnet.qie.digital/api/eth-rpc'
+const QIE_RPC_FALLBACK = 'https://mainnet.qie.digital/api/v1/eth-rpc'
 
 // ─── keccak-256 ──────────────────────────────────────────────────────────────
 
@@ -133,19 +134,37 @@ export function decodeWords(hex: string): bigint[] {
 
 // ─── JSON-RPC ────────────────────────────────────────────────────────────────
 
+async function rpcPost(url: string, body: string): Promise<Response> {
+  const ctrl = new AbortController()
+  const t = setTimeout(() => ctrl.abort(), 5000)
+  try {
+    return await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      signal: ctrl.signal,
+    })
+  } finally {
+    clearTimeout(t)
+  }
+}
+
 /** Read-only contract call against the QIE Mainnet RPC. Returns the result hex. */
 export async function ethCall(contractAddress: string, encodedData: string): Promise<string> {
-  const res = await fetch(QIE_RPC, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      id: 1,
-      method: 'eth_call',
-      params: [{ to: contractAddress, data: encodedData }, 'latest'],
-    }),
+  const payload = JSON.stringify({
+    jsonrpc: '2.0', id: 1, method: 'eth_call',
+    params: [{ to: contractAddress, data: encodedData }, 'latest'],
   })
+
+  let res: Response
+  try {
+    res = await rpcPost(QIE_RPC_PRIMARY, payload)
+  } catch {
+    // Primary timed out or unreachable — retry once with fallback.
+    res = await rpcPost(QIE_RPC_FALLBACK, payload)
+  }
+
   const json = await res.json()
-  if (json.error) throw new Error(json.error.message || 'eth_call failed')
+  if (json.error) throw new Error(json.error.message || json.error || 'eth_call failed')
   return json.result as string
 }

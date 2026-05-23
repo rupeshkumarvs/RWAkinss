@@ -2,7 +2,7 @@
 export const QIE_MAINNET = {
   chainId: '0x7C6',
   chainName: 'QIE Mainnet',
-  rpcUrls: ['https://rpc.qie.digital'],
+  rpcUrls: ['https://mainnet.qie.digital/api/eth-rpc'],
   nativeCurrency: { name: 'QIE', symbol: 'QIE', decimals: 18 },
   blockExplorerUrls: ['https://mainnet.qie.digital'],
 }

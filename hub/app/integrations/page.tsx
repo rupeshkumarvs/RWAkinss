@@ -34,7 +34,7 @@ const INTEGRATIONS: IntegrationItem[] = [
     logo: '⬡',
     description: 'Secures high-speed L1 decentralized transaction logs and NFT minting workflows.',
     metadata: {
-      endpoint: 'https://rpc.qie.info',
+      endpoint: 'https://mainnet.qie.digital/api/eth-rpc',
       contractAddress: '0x08DA91C81cebD27d181cA732615379f185FbFb51',
       version: 'v1.4.2',
       payloadExample: '{\n  "jsonrpc": "2.0",\n  "method": "eth_getBalance",\n  "params": ["0x...", "latest"],\n  "id": 1990\n}',

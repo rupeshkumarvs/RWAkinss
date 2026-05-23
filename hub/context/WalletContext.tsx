@@ -205,35 +205,41 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const switchToNetwork = useCallback(async (chainIdHex: string, networkKey: string) => {
     const eth = getEthereum()
     if (!eth) return
+    const net = NETWORKS[networkKey as keyof typeof NETWORKS]
+    if (!net || net.chainId == null) return
+
+    // Always try wallet_addEthereumChain first.
+    // This pushes the correct RPC URL into MetaMask even for users who
+    // previously added QIE with a stale/broken URL (e.g. rpc.qie.digital).
+    // MetaMask: if chain exists with same config → silent switch.
+    //           if chain exists with different RPC → "Update network" prompt.
+    //           if chain doesn't exist → "Add network" prompt.
     try {
       await withTimeout(
         eth.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: chainIdHex }],
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: net.chainId,
+            chainName: net.name,
+            rpcUrls: [net.rpcUrl],
+            blockExplorerUrls: [net.explorer],
+            nativeCurrency: net.currency,
+          }],
         }),
-        CONNECT_TIMEOUT, 'Network switch',
+        CONNECT_TIMEOUT, 'Add/update network',
       )
-    } catch (err) {
-      // Network not in MetaMask — add it (QIE Mainnet is not bundled by default).
-      if ((err as { code?: number })?.code === 4902) {
-        const net = NETWORKS[networkKey as keyof typeof NETWORKS]
-        if (!net || net.chainId == null) return
-        try {
-          await withTimeout(
-            eth.request({
-              method: 'wallet_addEthereumChain',
-              params: [{
-                chainId: net.chainId,
-                chainName: net.name,
-                rpcUrls: [net.rpcUrl],
-                blockExplorerUrls: [net.explorer],
-                nativeCurrency: net.currency,
-              }],
-            }),
-            CONNECT_TIMEOUT, 'Add network',
-          )
-        } catch { /* user dismissed or the prompt never settled */ }
-      }
+    } catch {
+      // wallet_addEthereumChain failed (user dismissed or MetaMask rejected) —
+      // fall back to a plain switch in case the chain is already correct.
+      try {
+        await withTimeout(
+          eth.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: chainIdHex }],
+          }),
+          CONNECT_TIMEOUT, 'Network switch',
+        )
+      } catch { /* user dismissed or the prompt never settled */ }
     }
   }, [])
 

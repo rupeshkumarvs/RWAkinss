@@ -64,7 +64,7 @@ export const PLATFORM_MODES: ModeProfile[] = [
 ]
 
 export const CHAIN_REGISTRY: Record<string, ChainMetadata> = {
-  qie: { id: 'qie', name: 'QIE Mainnet', chainId: '1990', explorerUrl: 'https://mainnet.qie.info', rpcUrl: 'https://rpc.qie.info', status: 'healthy' },
+  qie: { id: 'qie', name: 'QIE Mainnet', chainId: '1990', explorerUrl: 'https://mainnet.qie.digital', rpcUrl: 'https://mainnet.qie.digital/api/eth-rpc', status: 'healthy' },
   solana: { id: 'solana', name: 'Solana Devnet', explorerUrl: 'https://explorer.solana.com', rpcUrl: 'https://api.devnet.solana.com', status: 'healthy' },
   stellar: { id: 'stellar', name: 'Stellar Testnet', explorerUrl: 'https://stellar.expert/explorer/testnet', rpcUrl: 'https://horizon-testnet.stellar.org', status: 'healthy' },
   arbitrum: { id: 'arbitrum', name: 'Arbitrum One', chainId: '42161', explorerUrl: 'https://arbiscan.io', rpcUrl: 'https://arb1.arbitrum.io/rpc', status: 'healthy' },
