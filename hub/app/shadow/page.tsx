@@ -223,15 +223,37 @@ export default function ShadowPage() {
     finally { setLoading(false) }
   }
 
-  useEffect(() => {
-    async function init() {
-      try { const d = await req<{status?:string}>('/health'); setHealth((d as any).status==='ok'?'ok':'down') }
-      catch { setHealth('down') }
-      await loadData()
+  async function checkHealth(): Promise<boolean> {
+    if (!apiBase) return false
+    const ctrl = new AbortController()
+    const t = setTimeout(() => ctrl.abort(), 8000)
+    try {
+      const res = await fetch(`${apiBase}/health`, {
+        signal: ctrl.signal,
+        headers: { 'Content-Type': 'application/json' },
+      })
+      if (!res.ok) return false
+      const d = await res.json()
+      return d?.status === 'ok'
+    } catch { return false }
+    finally { clearTimeout(t) }
+  }
+
+  async function runInit() {
+    setHealth('checking')
+    setIsDemo(false)
+    let ok = false
+    for (let i = 0; i < 3; i++) {
+      ok = await checkHealth()
+      if (ok) break
     }
-    init()
+    setHealth(ok ? 'ok' : 'down')
+    if (ok) await loadData()
+    else loadDemo()
+  }
+
+  useEffect(() => { runInit() }, [])
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   // Auto-append activity in demo
   useEffect(() => {
@@ -326,10 +348,16 @@ export default function ShadowPage() {
             <span style={{ width:6, height:6, borderRadius:'50%', background:'#64748B' }} />Solana Devnet
           </span>
           {/* Health */}
-          <span style={{ fontSize:12, padding:'6px 14px', borderRadius:999, background:health==='ok'?'#D1FAE5':'#FEE2E2', border:`1px solid ${health==='ok'?'#A7F3D0':'#FECACA'}`, color:health==='ok'?'#10B981':'#EF4444', display:'flex', alignItems:'center', gap:6, fontWeight:700 }}>
-            <span style={{ width:6, height:6, borderRadius:'50%', background:health==='ok'?'#10B981':'#EF4444' }} />
-            {health==='checking'?'Checking…':health==='ok'?'API Online':'API Offline'}
+          <span style={{ fontSize:12, padding:'6px 14px', borderRadius:999, background:health==='ok'?'#D1FAE5':health==='checking'?'#F1F5F9':'#FEE2E2', border:`1px solid ${health==='ok'?'#A7F3D0':health==='checking'?'#E2E8F0':'#FECACA'}`, color:health==='ok'?'#10B981':health==='checking'?'#64748B':'#EF4444', display:'flex', alignItems:'center', gap:6, fontWeight:700 }}>
+            <span style={{ width:6, height:6, borderRadius:'50%', background:health==='ok'?'#10B981':health==='checking'?'#94A3B8':'#EF4444' }} />
+            {health==='checking'?'Connecting…':health==='ok'?'API Online':'API Offline'}
           </span>
+          {/* Retry button — only shown when API is offline */}
+          {health === 'down' && (
+            <button onClick={runInit} style={{ fontSize:12, padding:'6px 14px', borderRadius:999, cursor:'pointer', background:'#DBEAFE', border:'1px solid #BFDBFE', color:'#3B82F6', fontWeight:700, transition:'all 0.2s' }} onMouseOver={e=>(e.currentTarget.style.background='#BFDBFE')} onMouseOut={e=>(e.currentTarget.style.background='#DBEAFE')}>
+              ↻ Retry
+            </button>
+          )}
           {/* Stealth */}
           <button onClick={()=>setStealth(s=>!s)} style={{ fontSize:12, padding:'6px 16px', borderRadius:999, cursor:'pointer', background:stealth?'#FEF2F2':'#FFFFFF', border:`1px solid ${stealth?'#FECACA':'#E2E8F0'}`, color:stealth?'#EF4444':'#64748B', fontWeight:700, transition: 'all 0.2s' }} onMouseOver={e => !stealth && (e.currentTarget.style.background = '#F8FAFC')} onMouseOut={e => !stealth && (e.currentTarget.style.background = '#FFFFFF')}>
             {stealth?'🔴 STEALTH ON':'⚫ Stealth Off'}

@@ -6,6 +6,7 @@ import { useWalletForTool } from '@/hooks/useWalletForTool'
 import { ConnectButton } from '@/components/wallet/ConnectButton'
 import { PriceBadge } from '@/components/ui/PriceBadge'
 
+import { readLegacyVault, type LegacyVaultState } from '@/lib/contracts/eternalVault'
 import VaultDashboard from '@/components/vault/VaultDashboard'
 import CollateralManager from '@/components/vault/CollateralManager'
 import DWalletManager from '@/components/vault/DWalletManager'
@@ -35,6 +36,7 @@ function VaultInner() {
   const wallet = address ?? ''
   const [isLive, setIsLive] = useState(false)
   const [privacyScore, setPrivacyScore] = useState<number | undefined>(undefined)
+  const [vaultState, setVaultState] = useState<LegacyVaultState | null>(null)
 
   const [mounted, setMounted] = useState(false)
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 })
@@ -58,6 +60,10 @@ function VaultInner() {
     window.addEventListener('mousemove', moveCursor)
     return () => window.removeEventListener('mousemove', moveCursor)
   }, [])
+
+  useEffect(() => {
+    readLegacyVault(wallet || undefined).then(s => setVaultState(s)).catch(() => {})
+  }, [wallet])
 
   useEffect(() => {
     if (!mounted) return
@@ -245,6 +251,11 @@ function VaultInner() {
           <span className={`badge ${isLive ? 'badge-live' : 'badge-demo'}`}>
             {isLive ? 'Multi-chain Live' : 'Demo Data'}
           </span>
+          {vaultState && (
+            <span className="badge badge-live" style={{ background: '#D1FAE5', color: '#059669', border: '1px solid #A7F3D0' }}>
+              ⬤ On-Chain · QIE Mainnet
+            </span>
+          )}
           <span className="badge badge-private">FHE Private</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -272,6 +283,27 @@ function VaultInner() {
             Execute Private Trade
           </button>
         </div>
+
+        {vaultState && (
+          <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <div style={{ fontSize: 12, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.7)', border: '1px solid #CFFAFE', color: '#083344', fontWeight: 600, fontFamily: 'Fira Code, monospace' }}>
+              Owner: {vaultState.owner.slice(0, 8)}…{vaultState.owner.slice(-6)}
+            </div>
+            <div style={{ fontSize: 12, padding: '8px 16px', borderRadius: 999, background: vaultState.deceased ? '#FEE2E2' : '#D1FAE5', border: `1px solid ${vaultState.deceased ? '#FECACA' : '#A7F3D0'}`, color: vaultState.deceased ? '#DC2626' : '#059669', fontWeight: 600 }}>
+              {vaultState.deceased ? '⚠ Legacy Mode Active' : '✓ Vault Active'}
+            </div>
+            {vaultState.unlockDate && (
+              <div style={{ fontSize: 12, padding: '8px 16px', borderRadius: 999, background: 'rgba(255,255,255,0.7)', border: '1px solid #CFFAFE', color: '#083344', fontWeight: 600 }}>
+                Unlock: {vaultState.unlockDate.toLocaleDateString()}
+              </div>
+            )}
+            {vaultState.canAccess !== null && (
+              <div style={{ fontSize: 12, padding: '8px 16px', borderRadius: 999, background: vaultState.canAccess ? '#D1FAE5' : '#FEF3C7', border: `1px solid ${vaultState.canAccess ? '#A7F3D0' : '#FDE68A'}`, color: vaultState.canAccess ? '#059669' : '#D97706', fontWeight: 600 }}>
+                {vaultState.canAccess ? '✓ You have access' : '◎ Access pending'}
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="tabs-container">
           {TABS.map(t => (

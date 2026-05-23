@@ -33,3 +33,14 @@ export const NCRD_TOKEN_ABI = [
   'function allowance(address owner, address spender) view returns (uint256)',
   'function approve(address spender, uint256 amount) returns (bool)',
 ] as const
+
+// EternalVault LegacyVault — QIE Mainnet (Chain ID 1990).
+// ⚠ VAULT NOT DEPLOYED — NEXT_PUBLIC_LEGACY_VAULT_ADDRESS must be set.
+export const LEGACY_VAULT_ABI = [
+  'function owner() view returns (address)',
+  'function deceased() view returns (bool)',
+  'function unlockTimestamp() view returns (uint256)',
+  'function canAccess(address user) view returns (bool)',
+  'function heirs(address) view returns (bool)',
+  'function isValidator(address) view returns (bool)',
+] as const
