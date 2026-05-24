@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useWalletForTool } from '@/hooks/useWalletForTool'
 import { ConnectButton } from '@/components/wallet/ConnectButton'
+import { WrongNetworkBanner } from '@/components/wallet/WrongNetwork'
 import { PriceBadge } from '@/components/ui/PriceBadge'
 
 // Sub-components for tabs
@@ -362,6 +363,8 @@ function AgentsPageInner() {
           <div className="custom-cursor-ring" style={{ left: cursorTrail.x, top: cursorTrail.y }} />
         </>
       )}
+
+      <WrongNetworkBanner />
 
       {/* Hero Section */}
       <div className="hero-section">

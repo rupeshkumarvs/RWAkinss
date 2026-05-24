@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useMemo } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ConnectButton } from '@/components/wallet/ConnectButton'
+import { WrongNetworkBanner } from '@/components/wallet/WrongNetwork'
 import { PriceBadge } from '@/components/ui/PriceBadge'
 import { useTrustMesh } from '@/hooks/useTrustMesh'
 import { type OnChainJobAccount } from '@/lib/api/solana'
@@ -56,6 +57,13 @@ const SUPPORTED = [
   { name:'Optimism', symbol:'OP',    color:'#EF4444' },
 ]
 
+function secsAgo(ts: number) {
+  const diff = Math.floor((Date.now() - ts) / 1000)
+  if (diff < 60) return `${diff}s ago`
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  return new Date(ts).toLocaleTimeString()
+}
+
 export default function TreasuryLanding() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const trustmesh = useTrustMesh()
@@ -65,6 +73,20 @@ export default function TreasuryLanding() {
   const activeJobCount = liveJobs.filter(j => j.status === 0).length
   const totalBudgetSol = liveJobs.reduce((sum, j) => sum + Number(j.budgetLamports), 0) / 1e9
   const operatorShort = `${TRUSTMESH_OWNER_WALLET.slice(0, 6)}…${TRUSTMESH_OWNER_WALLET.slice(-4)}`
+
+  const [lastUpdated, setLastUpdated] = useState<number | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  useEffect(() => {
+    if (trustmesh.isLive) setLastUpdated(Date.now())
+  }, [trustmesh.currentSlot, trustmesh.isLive])
+
+  function copyOperator() {
+    navigator.clipboard.writeText(TRUSTMESH_OWNER_WALLET).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1800)
+    }).catch(() => {})
+  }
 
   // Cursor position
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 })
@@ -595,6 +617,8 @@ export default function TreasuryLanding() {
       {/* Animated particle canvas */}
       <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }} />
 
+      <WrongNetworkBanner />
+
       <div style={{ position: 'relative', zIndex: 10 }}>
         {/* Hero */}
         <section className="hero-section">
@@ -640,15 +664,42 @@ export default function TreasuryLanding() {
 
         {/* Stats Grid */}
         <section className="stats-grid-container">
-          {/* Live badge */}
-          <div style={{ textAlign: 'center', marginBottom: 16 }}>
-            <span className={trustmesh.isLive ? 'badge-live' : 'badge-demo'}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: trustmesh.isLive ? '#10b981' : '#f59e0b', flexShrink: 0 }} />
-              {trustmesh.isLive
-                ? `Live · Solana Devnet · Block ${trustmesh.currentSlot.toLocaleString()} · Operator ${operatorShort}`
-                : 'Demo Data — Connecting to Solana Devnet…'}
-            </span>
+          {/* Live badge + controls */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+              <span className={trustmesh.isLive ? 'badge-live' : 'badge-demo'}>
+                <span style={{
+                  width: 8, height: 8, borderRadius: '50%',
+                  background: trustmesh.isLive ? '#10b981' : '#f59e0b', flexShrink: 0,
+                  animation: trustmesh.isLive ? 'tPulse 1.4s ease-in-out infinite' : 'none',
+                }} />
+                {trustmesh.isLive
+                  ? `Live · Solana Devnet · Block ${trustmesh.currentSlot.toLocaleString()}`
+                  : 'Demo Data — Connecting to Solana Devnet…'}
+              </span>
+              {trustmesh.isLive && (
+                <button
+                  onClick={copyOperator}
+                  title={`Copy: ${TRUSTMESH_OWNER_WALLET}`}
+                  style={{ fontSize: 11, padding: '3px 10px', borderRadius: 99, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', color: '#10b981', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                >
+                  {copied ? '✓ Copied' : `⎘ ${operatorShort}`}
+                </button>
+              )}
+              <button
+                onClick={trustmesh.refresh}
+                style={{ fontSize: 11, padding: '3px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.55)', cursor: 'pointer' }}
+              >
+                ↻ Refresh
+              </button>
+            </div>
+            {lastUpdated && (
+              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>
+                Last updated: {secsAgo(lastUpdated)}
+              </span>
+            )}
           </div>
+          <style>{`@keyframes tPulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}

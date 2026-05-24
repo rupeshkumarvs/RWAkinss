@@ -1,7 +1,7 @@
 // Built by vsrupeshkumar
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   fetchAllJobAccounts,
   fetchSolanaSlot,
@@ -17,9 +17,10 @@ export type TrustMeshState = {
   loading: boolean
   error: string | null
   isLive: boolean
+  refresh: () => Promise<void>
 }
 
-const INITIAL: TrustMeshState = {
+const INITIAL: Omit<TrustMeshState, 'refresh'> = {
   jobs: [],
   currentSlot: 0,
   loading: true,
@@ -28,34 +29,35 @@ const INITIAL: TrustMeshState = {
 }
 
 export function useTrustMesh(): TrustMeshState {
-  const [state, setState] = useState<TrustMeshState>(INITIAL)
+  const [state, setState] = useState<Omit<TrustMeshState, 'refresh'>>(INITIAL)
+  const activeRef = useRef(true)
 
-  useEffect(() => {
-    let active = true
-
-    async function load() {
-      try {
-        const [jobs, slot] = await Promise.all([fetchAllJobAccounts(), fetchSolanaSlot()])
-        if (!active) return
-        const isLive = jobs.some(j => j.isLive)
-        setState({ jobs, currentSlot: slot, loading: false, error: null, isLive })
-      } catch (e) {
-        if (!active) return
-        setState(prev => ({
-          ...prev,
-          loading: false,
-          error: e instanceof Error ? e.message : 'Failed to reach Solana Devnet',
-        }))
-      }
-    }
-
-    load()
-    const interval = setInterval(load, 30_000)
-    return () => {
-      active = false
-      clearInterval(interval)
+  const load = useCallback(async () => {
+    setState(prev => ({ ...prev, loading: true }))
+    try {
+      const [jobs, slot] = await Promise.all([fetchAllJobAccounts(), fetchSolanaSlot()])
+      if (!activeRef.current) return
+      const isLive = jobs.some(j => j.isLive)
+      setState({ jobs, currentSlot: slot, loading: false, error: null, isLive })
+    } catch (e) {
+      if (!activeRef.current) return
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: e instanceof Error ? e.message : 'Failed to reach Solana Devnet',
+      }))
     }
   }, [])
 
-  return state
+  useEffect(() => {
+    activeRef.current = true
+    load()
+    const interval = setInterval(load, 30_000)
+    return () => {
+      activeRef.current = false
+      clearInterval(interval)
+    }
+  }, [load])
+
+  return { ...state, refresh: load }
 }

@@ -71,6 +71,7 @@ export default function AgentDashboard() {
 
   return (
     <div style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 24 }}>
+      <style>{`@keyframes agentPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.85)} }`}</style>
 
       {/* ── Devnet live job accounts panel ─────────────────────── */}
       <div style={{ background: CARD, border: `1px solid ${BORDER}`, borderRadius: 12, padding: 20 }}>
@@ -87,7 +88,13 @@ export default function AgentDashboard() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {trustmesh.currentSlot > 0 && (
-              <span style={{ fontFamily: MONO, fontSize: 11, color: MUTED2 }}>
+              <span style={{ fontFamily: MONO, fontSize: 11, color: MUTED2, display: 'flex', alignItems: 'center', gap: 5 }}>
+                <span style={{
+                  width: 7, height: 7, borderRadius: '50%',
+                  background: '#10b981',
+                  display: 'inline-block',
+                  animation: 'agentPulse 1.4s ease-in-out infinite',
+                }} />
                 Block: {trustmesh.currentSlot.toLocaleString()}
               </span>
             )}
@@ -107,6 +114,21 @@ export default function AgentDashboard() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {trustmesh.loading ? (
             <div style={{ color: MUTED2, fontSize: 12, padding: '12px 0' }}>Fetching Devnet accounts…</div>
+          ) : trustmesh.error && !trustmesh.isLive ? (
+            <div style={{
+              padding: '14px 16px', borderRadius: 10, border: '1px solid rgba(239,68,68,0.25)',
+              background: 'rgba(239,68,68,0.06)', display: 'flex', alignItems: 'flex-start', gap: 10,
+            }}>
+              <span style={{ fontSize: 16, flexShrink: 0 }}>⚠️</span>
+              <div>
+                <p style={{ fontSize: 12, color: '#ef4444', fontWeight: 700, margin: '0 0 4px' }}>
+                  Solana RPC Unreachable
+                </p>
+                <p style={{ fontSize: 11, color: MUTED2, margin: 0, lineHeight: 1.5 }}>
+                  {trustmesh.error} — Showing demo data. Last attempt: {new Date().toLocaleTimeString()}
+                </p>
+              </div>
+            </div>
           ) : trustmesh.jobs.map(job => {
             const live = job.isLive ? (job as OnChainJobAccount) : null
             const statusNum = live?.status ?? 0

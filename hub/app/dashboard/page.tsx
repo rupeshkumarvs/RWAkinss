@@ -621,6 +621,39 @@ export default function DashboardPage() {
             {statCards.map(card => <StatCard key={card.label} card={card} />)}
           </div>
 
+          {/* Backend health cards */}
+          {stats && (
+            <div style={{ padding: '20px 24px 0' }}>
+              <div style={{ marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: MUTED2 }}>
+                  {stats.backendsTotal} Backends
+                </span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: GREEN }}>
+                  {stats.backendsLive} live
+                </span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(5, 1fr)', gap: 8 }}>
+                {stats.backends.map(b => {
+                  const isSlowMs = b.latency !== null && b.latency > 2000
+                  const dotColor = !b.isLive ? '#ef4444' : isSlowMs ? '#f59e0b' : '#10b981'
+                  return (
+                    <div key={b.name} style={{
+                      background: 'rgba(255,255,255,0.03)', border: `1px solid ${BORDER}`,
+                      borderRadius: 10, padding: '10px 12px',
+                      display: 'flex', alignItems: 'center', gap: 8,
+                    }}>
+                      <span style={{ width: 7, height: 7, borderRadius: '50%', background: dotColor, flexShrink: 0 }} />
+                      <span style={{ flex: 1, fontSize: 11, fontWeight: 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.name}</span>
+                      <span style={{ fontSize: 10, fontFamily: MONO, color: b.isLive ? (isSlowMs ? '#f59e0b' : '#10b981') : '#ef4444' }}>
+                        {b.latency !== null ? `${b.latency}ms` : 'down'}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Protocol activity chart */}
           <ProtocolActivity />
 

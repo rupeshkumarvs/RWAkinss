@@ -5,6 +5,7 @@ import { toast } from '../../lib/toast'
 import { getExplorerUrl } from '../../lib/explorer'
 import { useWalletForTool } from '../../hooks/useWalletForTool'
 import { ConnectButton } from '../../components/wallet/ConnectButton'
+import { WrongNetworkBanner } from '../../components/wallet/WrongNetwork'
 import { useStellar } from '../../hooks/useStellar'
 import { EmptyState } from '../../components/ui/EmptyState'
 
@@ -115,6 +116,17 @@ function CountUpDecimal({ end, decimals = 1, prefix = '', suffix = '' }: { end: 
   return <span>{prefix}{val.toFixed(decimals)}{suffix}</span>
 }
 
+const STELLAR_ACCOUNT = 'GBTZHFZG4JLUQEOMOUVHZCHHLXO26UHN4JXY4T376LXNI56O2IPGIBCC'
+const STELLAR_EXPLORER = `https://stellar.expert/explorer/testnet/account/${STELLAR_ACCOUNT}`
+const STELLAR_SHORT = `${STELLAR_ACCOUNT.slice(0, 6)}…${STELLAR_ACCOUNT.slice(-4)}`
+
+function secsAgo(ts: number) {
+  const diff = Math.floor((Date.now() - ts) / 1000)
+  if (diff < 60) return `${diff}s ago`
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+  return new Date(ts).toLocaleTimeString()
+}
+
 export default function SyncSplitPage() {
   // Wallet state now comes from the global wallet context (EVM / QIE Mainnet).
   const { address, isConnected } = useWalletForTool()
@@ -122,7 +134,13 @@ export default function SyncSplitPage() {
   const [mounted, setMounted] = useState(false)
 
   // Stellar Horizon live data
-  const { stats: stellarStats, isLive: stellarLive } = useStellar()
+  const { stats: stellarStats, isLive: stellarLive, refresh: refreshStellar } = useStellar()
+  const [stellarLastUpdated, setStellarLastUpdated] = useState<number | null>(null)
+
+  // Record time whenever stellarStats updates
+  useEffect(() => {
+    if (stellarLive) setStellarLastUpdated(Date.now())
+  }, [stellarStats, stellarLive])
 
   // Cursor position
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 })
@@ -1878,6 +1896,8 @@ export default function SyncSplitPage() {
         </div>
       </header>
 
+      <WrongNetworkBanner />
+
       {/* HERO SECTION */}
       <section className="hero-section">
         <div className="page-eyebrow">
@@ -1903,11 +1923,32 @@ export default function SyncSplitPage() {
 
       {/* STATS ROW (4 Bento Tiles) */}
       <section id="stats" className="stats-grid-container" style={{ paddingBottom: '40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '14px' }}>
-          <span className={(isLive || stellarLive) ? 'badge-live' : 'badge-demo'}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: (isLive || stellarLive) ? '#10b981' : '#f59e0b', flexShrink: 0 }} />
-            {(isLive || stellarLive) ? 'Live Data — Stellar Testnet' : 'Demo Data — SyncSplit connecting…'}
-          </span>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, marginBottom: '14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <span className={(isLive || stellarLive) ? 'badge-live' : 'badge-demo'}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: (isLive || stellarLive) ? '#10b981' : '#f59e0b', flexShrink: 0 }} />
+              {(isLive || stellarLive) ? 'Live Data — Stellar Testnet' : 'Demo Data — SyncSplit connecting…'}
+            </span>
+            <a
+              href={STELLAR_EXPLORER}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontSize: 11, fontFamily: 'monospace', color: 'rgba(255,255,255,0.5)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', padding: '3px 10px', borderRadius: 99, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              {STELLAR_SHORT} ↗
+            </a>
+            <button
+              onClick={() => { refreshStellar(); setStellarLastUpdated(Date.now()) }}
+              style={{ fontSize: 11, padding: '3px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.6)', cursor: 'pointer' }}
+            >
+              ↻ Refresh
+            </button>
+          </div>
+          {stellarLastUpdated && (
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>
+              Last updated: {secsAgo(stellarLastUpdated)}
+            </span>
+          )}
         </div>
         <div className="stats-grid">
           <div className="stat-card style-1">
@@ -2060,7 +2101,7 @@ export default function SyncSplitPage() {
                     <span className="chip-addr">{wallet ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}` : 'GB5W...ACTIVE'}</span>
                   </div>
                   {participants.map((addr, idx) => (
-                    <div key={idx} className="p-chip">
+                    <div key={addr} className="p-chip">
                       <span className="chip-name">Participant {idx + 2}</span>
                       <span className="chip-addr">{`${addr.slice(0, 6)}...${addr.slice(-4)}`}</span>
                       <button 
@@ -2097,9 +2138,9 @@ export default function SyncSplitPage() {
                     const bg = colors[idx % colors.length]
                     const initials = idx === 0 ? 'YOU' : `P${idx + 1}`
                     return (
-                      <div 
-                        key={idx} 
-                        className="split-segment" 
+                      <div
+                        key={addr}
+                        className="split-segment"
                         style={{ flex: 1, backgroundColor: bg }}
                         title={addr}
                       >
@@ -2262,7 +2303,7 @@ export default function SyncSplitPage() {
                       const isYou = addr === wallet
                       const initials = isYou ? 'YOU' : `P${idx + 1}`
                       return (
-                        <div key={idx} className="avatar-circle-wrapper" title={addr}>
+                        <div key={addr} className="avatar-circle-wrapper" title={addr}>
                           <div className="avatar-node" style={{ border: isYou ? '1.5px solid #F472B6' : '1.5px solid #FBCFE8' }}>
                             {initials}
                           </div>

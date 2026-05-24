@@ -12,6 +12,7 @@ export interface BackendStatus {
   name: string
   url: string
   isLive: boolean
+  latency: number | null
 }
 
 export interface DashboardStats {
@@ -37,11 +38,13 @@ const BACKENDS: { name: string; url: string }[] = [
 async function checkBackend(name: string, url: string): Promise<BackendStatus> {
   const ctrl = new AbortController()
   const t = setTimeout(() => ctrl.abort(), 5000)
+  const start = Date.now()
   try {
     const res = await fetch(url, { signal: ctrl.signal })
-    return { name, url, isLive: res.ok }
+    const latency = Date.now() - start
+    return { name, url, isLive: res.ok, latency: res.ok ? latency : null }
   } catch {
-    return { name, url, isLive: false }
+    return { name, url, isLive: false, latency: null }
   } finally {
     clearTimeout(t)
   }
@@ -50,7 +53,7 @@ async function checkBackend(name: string, url: string): Promise<BackendStatus> {
 const SAFE_DEFAULTS: DashboardStats = {
   backendsLive: 0,
   backendsTotal: 6,
-  backends: BACKENDS.map(b => ({ ...b, isLive: false })),
+  backends: BACKENDS.map(b => ({ ...b, isLive: false, latency: null })),
   solanaSlot: 0,
   stellarBalance: '0',
   stellarIsLive: false,
@@ -71,7 +74,7 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
     const backends: BackendStatus[] =
       backendResults.status === 'fulfilled'
         ? backendResults.value
-        : BACKENDS.map(b => ({ ...b, isLive: false }))
+        : BACKENDS.map(b => ({ ...b, isLive: false, latency: null }))
 
     const liveCount = backends.filter(b => b.isLive).length
 

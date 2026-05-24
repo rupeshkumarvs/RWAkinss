@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState, useMemo } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useWalletForTool } from '@/hooks/useWalletForTool'
 import { ConnectButton } from '@/components/wallet/ConnectButton'
+import { WrongNetworkBanner } from '@/components/wallet/WrongNetwork'
 import { PriceBadge } from '@/components/ui/PriceBadge'
 
 import { readLegacyVault, type LegacyVaultState } from '@/lib/contracts/eternalVault'
@@ -34,7 +35,8 @@ function VaultInner() {
   // Wallet state now comes from the global wallet context (EVM / Arbitrum).
   const { address } = useWalletForTool()
   const wallet = address ?? ''
-  const [isLive, setIsLive] = useState(false)
+  const [healthStatus, setHealthStatus] = useState<'checking' | 'live' | 'demo'>('checking')
+  const isLive = healthStatus === 'live'
   const [privacyScore, setPrivacyScore] = useState<number | undefined>(undefined)
   const [vaultState, setVaultState] = useState<LegacyVaultState | null>(null)
 
@@ -44,17 +46,34 @@ function VaultInner() {
 
   useEffect(() => {
     setMounted(true)
-    if (!apiBase) return
-    const ctrl1 = new AbortController()
-    const t1 = setTimeout(() => ctrl1.abort(), 5000)
-    fetch(`${apiBase}/health`, { signal: ctrl1.signal })
-      .then(r => r.ok && r.json()).then(d => setIsLive(d?.status === 'ok')).catch(() => {})
-      .finally(() => clearTimeout(t1))
-    const ctrl2 = new AbortController()
-    const t2 = setTimeout(() => ctrl2.abort(), 5000)
-    fetch(`${apiBase}/api/privacy/score`, { signal: ctrl2.signal })
-      .then(r => r.ok && r.json()).then(d => d?.score && setPrivacyScore(d.score)).catch(() => {})
-      .finally(() => clearTimeout(t2))
+
+    async function tryHealth() {
+      if (!apiBase) { setHealthStatus('demo'); return }
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const ctrl = new AbortController()
+          const t = setTimeout(() => ctrl.abort(), 8000)
+          const r = await fetch(`${apiBase}/health`, { signal: ctrl.signal })
+          clearTimeout(t)
+          if (r.ok) {
+            const d = await r.json()
+            if (d?.status === 'ok') { setHealthStatus('live'); return }
+          }
+        } catch {
+          // retry
+        }
+      }
+      setHealthStatus('demo')
+    }
+    tryHealth()
+
+    if (apiBase) {
+      const ctrl2 = new AbortController()
+      const t2 = setTimeout(() => ctrl2.abort(), 8000)
+      fetch(`${apiBase}/api/privacy/score`, { signal: ctrl2.signal })
+        .then(r => r.ok && r.json()).then(d => d?.score && setPrivacyScore(d.score)).catch(() => {})
+        .finally(() => clearTimeout(t2))
+    }
 
     const moveCursor = (e: MouseEvent) => setCursorPos({ x: e.clientX, y: e.clientY })
     window.addEventListener('mousemove', moveCursor)
@@ -248,13 +267,13 @@ function VaultInner() {
           Kubryx <span className="sparkle-icon">◈</span> Private vault
         </div>
         <div className="nav-links">
-          <span className={isLive ? 'badge-live' : 'badge-demo'}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: isLive ? '#10b981' : '#f59e0b', flexShrink: 0 }} />
-            {isLive ? 'Multi-chain Live' : 'Demo Data'}
+          <span className={healthStatus === 'live' ? 'badge-live' : 'badge-demo'}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: healthStatus === 'live' ? '#10b981' : '#f59e0b', flexShrink: 0 }} />
+            {healthStatus === 'checking' ? 'Connecting…' : healthStatus === 'live' ? 'Multi-chain Live' : 'Demo Data'}
           </span>
           {vaultState && (
             <span className="badge badge-live" style={{ background: '#D1FAE5', color: '#059669', border: '1px solid #A7F3D0' }}>
-              ⬤ On-Chain · QIE Mainnet
+              ⬤ On-Chain · Arbitrum One
             </span>
           )}
           <span className="badge badge-private">FHE Private</span>
@@ -265,6 +284,8 @@ function VaultInner() {
           <ConnectButton type="evm" size="lg" />
         </div>
       </header>
+
+      <WrongNetworkBanner />
 
       <section className="hero-section">
         <div className="page-eyebrow">◈ Secure & Private</div>
@@ -283,6 +304,12 @@ function VaultInner() {
             Execute Private Trade
           </button>
         </div>
+
+        {wallet && vaultState === null && (
+          <div style={{ textAlign: 'center', marginBottom: 16, fontSize: 12, color: 'rgba(8,51,68,0.45)', fontWeight: 500 }}>
+            Vault is empty — no on-chain state found for this address
+          </div>
+        )}
 
         {vaultState && (
           <div style={{ display: 'flex', gap: 12, marginBottom: 24, flexWrap: 'wrap', justifyContent: 'center' }}>

@@ -6,6 +6,7 @@ import { fallbackShadowAgents } from '../../lib/fallback'
 import { toast } from '../../lib/toast'
 import { useWalletForTool } from '../../hooks/useWalletForTool'
 import { ConnectButton } from '../../components/wallet/ConnectButton'
+import { WrongNetworkBanner } from '../../components/wallet/WrongNetwork'
 import { PriceBadge } from '../../components/ui/PriceBadge'
 import ExecutiveWalkthrough from '../components/ExecutiveWalkthrough'
 import CommandPalette from '../components/CommandPalette'
@@ -368,6 +369,8 @@ export default function ShadowPage() {
           <ConnectButton type="solana" size="lg" />
         </div>
       </header>
+
+      <WrongNetworkBanner />
 
       <main style={{ position: 'relative', zIndex: 1, maxWidth: 1400, margin: '0 auto', padding: '0 24px 60px' }}>
         

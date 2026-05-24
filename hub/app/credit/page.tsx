@@ -26,7 +26,8 @@ import { toast } from '../../lib/toast'
 import { useWalletForTool } from '../../hooks/useWalletForTool'
 import { useWallet } from '../../context/WalletContext'
 import { ConnectButton } from '../../components/wallet/ConnectButton'
-import { readCreditScore, readPassportExists } from '../../lib/contracts/creditPassport'
+import { WrongNetworkBanner } from '../../components/wallet/WrongNetwork'
+import { readCreditScore, readPassportExists, readStakedAmount, readIntegrationTier } from '../../lib/contracts/creditPassport'
 import { usePrices } from '../../hooks/usePrices'
 
 // ─── Gauge math ──────────────────────────────────────────────
@@ -160,18 +161,20 @@ function ProgressBar({
   color,
   label,
   displayValue,
+  tooltip,
 }: {
   value: number
   max: number
   color: string
   label: string
   displayValue: string
+  tooltip?: string
 }) {
   const pct = Math.max(0, Math.min((value / max) * 100, 100))
   return (
-    <div style={{ marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ marginBottom: 16, fontFamily: "'DM Sans', sans-serif" }} title={tooltip}>
       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
-        <span style={{ color: 'rgba(45,26,38,0.6)' }}>{label}</span>
+        <span style={{ color: 'rgba(45,26,38,0.6)', cursor: tooltip ? 'help' : 'default' }}>{label}{tooltip && ' ⓘ'}</span>
         <span style={{ fontWeight: 600, color: '#2D1A26' }}>{displayValue}</span>
       </div>
       <div style={{ height: 8, background: 'rgba(45,26,38,0.06)', borderRadius: 99, overflow: 'hidden' }}>
@@ -291,6 +294,10 @@ export default function CreditDashboard() {
   const [passportExists, setPassportExists] = useState<boolean | null>(null)
   const [error, setError] = useState('')
   const [mounted, setMounted] = useState(false)
+  const [stakedAmount, setStakedAmount] = useState('0')
+  const [integrationTier, setIntegrationTier] = useState(0)
+  const [lastRefreshed, setLastRefreshed] = useState<number | null>(null)
+  const [passportVerifiedAt, setPassportVerifiedAt] = useState<number | null>(null)
 
   // Cursor position
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 })
@@ -343,6 +350,10 @@ export default function CreditDashboard() {
       setIsDemo(false)
       setOnChain(false)
       setPassportExists(null)
+      setStakedAmount('0')
+      setIntegrationTier(0)
+      setLastRefreshed(null)
+      setPassportVerifiedAt(null)
       return
     }
     loadDashboard(wallet)
@@ -359,8 +370,15 @@ export default function CreditDashboard() {
       setBreakdown(bd)
       setScore(bd.score)
       setIsDemo(bd.score === fallbackBreakdown.score && bd.baseScore === fallbackBreakdown.baseScore)
-      const exists = await readPassportExists(addr)
+      const [exists, staked, tier] = await Promise.all([
+        readPassportExists(addr),
+        readStakedAmount(addr),
+        readIntegrationTier(addr),
+      ])
       setPassportExists(exists)
+      setStakedAmount(staked)
+      setIntegrationTier(tier)
+      if (exists) setPassportVerifiedAt(Date.now())
       const chainScore = exists ? await readCreditScore(addr) : 0
       if (chainScore > 0) {
         setScore(chainScore)
@@ -368,6 +386,7 @@ export default function CreditDashboard() {
       } else {
         setOnChain(false)
       }
+      setLastRefreshed(Date.now())
     } finally {
       setLoading(false)
     }
@@ -389,13 +408,23 @@ export default function CreditDashboard() {
       setExplanation(res.explanation || 'Based on on-chain analysis')
       if (res.transactionHash) setRefreshTxHash(res.transactionHash)
       setIsDemo(!res.transactionHash)
-      const bd = await fetchScoreBreakdown(wallet)
+      const [bd, exists, staked, tier] = await Promise.all([
+        fetchScoreBreakdown(wallet),
+        readPassportExists(wallet),
+        readStakedAmount(wallet),
+        readIntegrationTier(wallet),
+      ])
       setBreakdown(bd)
+      setPassportExists(exists)
+      setStakedAmount(staked)
+      setIntegrationTier(tier)
+      if (exists) setPassportVerifiedAt(Date.now())
       const chainScore = await readCreditScore(wallet)
       if (chainScore > 0) {
         setScore(chainScore)
         setOnChain(true)
       }
+      setLastRefreshed(Date.now())
       toast.success(res.transactionHash ? 'Score refreshed on-chain' : 'Score refreshed (demo mode)')
     } finally {
       setLoading(false)
@@ -414,6 +443,21 @@ export default function CreditDashboard() {
   const stakingTierLabel = (tier: StakingTier) => {
     if (tier === 'None') return 'None'
     return tier
+  }
+
+  const TIER_NAMES: Record<number, string> = { 0: 'None', 1: 'Bronze', 2: 'Silver', 3: 'Gold' }
+  const TIER_COLORS: Record<number, { bg: string; color: string; border: string }> = {
+    0: { bg: 'rgba(107,114,128,0.1)', color: '#6B7280', border: 'rgba(107,114,128,0.3)' },
+    1: { bg: 'rgba(245,158,11,0.1)', color: '#B45309', border: 'rgba(245,158,11,0.3)' },
+    2: { bg: 'rgba(156,163,175,0.15)', color: '#6B7280', border: 'rgba(156,163,175,0.4)' },
+    3: { bg: 'rgba(234,179,8,0.1)', color: '#A16207', border: 'rgba(234,179,8,0.35)' },
+  }
+
+  function secsAgo(ts: number) {
+    const diff = Math.floor((Date.now() - ts) / 1000)
+    if (diff < 60) return `${diff}s ago`
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+    return `${Math.floor(diff / 3600)}h ago`
   }
 
   // Float circles rendering helpers
@@ -666,6 +710,8 @@ export default function CreditDashboard() {
         </div>
       </header>
 
+      <WrongNetworkBanner />
+
       {/* Main Container */}
       <main className="main-content">
         <div className="header-box">
@@ -761,16 +807,49 @@ export default function CreditDashboard() {
             {/* No on-chain passport yet for this wallet */}
             {passportExists === false && (
               <div className="bento-card" style={{
-                marginBottom: 24, padding: '16px 24px',
+                marginBottom: 24, padding: '24px 28px',
                 background: 'rgba(245,166,35,0.06)', border: '1px solid rgba(245,166,35,0.3)',
-                display: 'flex', alignItems: 'flex-start', gap: 12,
+                borderLeft: '4px solid #F5A623',
+                display: 'flex', alignItems: 'flex-start', gap: 16,
               }}>
-                <span style={{ fontSize: 18, flexShrink: 0 }}>ℹ️</span>
-                <p style={{ fontSize: 13, color: 'rgba(45,26,38,0.7)', margin: 0, lineHeight: 1.6 }}>
-                  No credit passport found for this wallet. Credit scores are issued by the
-                  Kubryx backend after on-chain activity is detected — the score below is a
-                  demo preview until your passport is minted.
-                </p>
+                <div style={{
+                  width: 48, height: 48, borderRadius: 12, background: 'rgba(245,166,35,0.12)',
+                  border: '1px solid rgba(245,166,35,0.3)', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', fontSize: 22, flexShrink: 0,
+                }}>📄</div>
+                <div>
+                  <p style={{ fontSize: 15, fontWeight: 700, color: '#B47814', margin: '0 0 6px', fontFamily: "'Syne', sans-serif" }}>
+                    No Credit Passport Found
+                  </p>
+                  <p style={{ fontSize: 13, color: 'rgba(45,26,38,0.65)', margin: 0, lineHeight: 1.7, maxWidth: 560 }}>
+                    Your wallet does not yet have a Credit Passport NFT minted on QIE Mainnet.
+                    Passports are issued by the Kubryx backend after sufficient on-chain activity is detected —
+                    the score shown below is a <strong>demo preview</strong> until your passport is minted.
+                    Interact with QIE Mainnet DeFi protocols to become eligible.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* On-chain passport confirmed */}
+            {passportExists === true && passportVerifiedAt && (
+              <div className="bento-card" style={{
+                marginBottom: 24, padding: '14px 20px',
+                background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.25)',
+                display: 'flex', alignItems: 'center', gap: 12,
+              }}>
+                <span style={{ fontSize: 20, flexShrink: 0 }}>✅</span>
+                <div style={{ flex: 1 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#16A34A' }}>Credit Passport Active</span>
+                  <span style={{ fontSize: 12, color: 'rgba(45,26,38,0.4)', marginLeft: 10 }}>
+                    On-chain ✓ · Verified {secsAgo(passportVerifiedAt)}
+                  </span>
+                </div>
+                <span style={{
+                  fontSize: 11, padding: '4px 10px', borderRadius: 99,
+                  background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)',
+                  color: '#16A34A', fontWeight: 700, letterSpacing: '0.04em',
+                }}>SOULBOUND NFT</span>
               </div>
             )}
 
@@ -787,8 +866,18 @@ export default function CreditDashboard() {
                   onClick={refreshScore} disabled={loading}
                   onMouseEnter={(e) => { if (!loading) (e.target as HTMLElement).style.backgroundColor = '#EAB308' }}
                   onMouseLeave={(e) => { if (!loading) (e.target as HTMLElement).style.backgroundColor = '#F5A623' }}>
-                  {loading ? 'Refreshing…' : '↻ Refresh Score'}
+                  {loading ? (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ width: 14, height: 14, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
+                      Refreshing…
+                    </span>
+                  ) : '↻ Refresh Score'}
                 </button>
+                {lastRefreshed && (
+                  <p style={{ fontSize: 11, color: 'rgba(45,26,38,0.4)', margin: '6px 0 0', textAlign: 'center' }}>
+                    Last refreshed: {secsAgo(lastRefreshed)}
+                  </p>
+                )}
 
                 {refreshTxHash && (
                   <div style={{
@@ -807,10 +896,10 @@ export default function CreditDashboard() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
                   { icon: '🧠', title: 'Credit Passport', desc: 'Get personalized loan offers', href: '/credit/lend', accent: '#8B5CF6' },
-                  { icon: '🛡', title: 'Stake NCRD', desc: 'Boost your credit score', href: '/credit/stake', accent: '#22C55E' },
+                  { icon: '🛡', title: 'Stake NCRD', desc: 'Boost your credit score', href: '/credit/stake', accent: '#22C55E', tooltip: 'NCRD token not yet deployed — transactions will fail' },
                   { icon: '⚡', title: 'DeFi Demo', desc: 'See your borrowing power', href: '/credit/lending-demo', accent: '#F5A623' },
                 ].map((item) => (
-                  <Link key={item.href} href={item.href} className="action-link-card">
+                  <Link key={item.href} href={item.href} className="action-link-card" title={'tooltip' in item ? item.tooltip : undefined}>
                     <div style={{
                       width: 48, height: 48, borderRadius: 14, background: `${item.accent}15`,
                       border: `1px solid ${item.accent}30`, display: 'flex', alignItems: 'center',
@@ -819,7 +908,7 @@ export default function CreditDashboard() {
                       {item.icon}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <p style={{ fontWeight: 600, margin: 0, fontSize: 15, color: item.accent }}>{item.title}</p>
+                      <p style={{ fontWeight: 600, margin: 0, fontSize: 15, color: item.accent }}>{item.title}{'tooltip' in item && <span style={{ fontSize: 10, marginLeft: 6, opacity: 0.6 }}>⚠</span>}</p>
                       <p style={{ fontSize: 13, color: 'rgba(45,26,38,0.5)', margin: '4px 0 0' }}>{item.desc}</p>
                     </div>
                     <span style={{ color: 'rgba(45,26,38,0.2)', fontSize: 20 }}>→</span>
@@ -830,25 +919,29 @@ export default function CreditDashboard() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 4 }}>
                   <div className="bento-card" style={{ padding: '20px', minHeight: 0 }}>
                     <p style={{ fontSize: 11, color: 'rgba(45,26,38,0.5)', fontWeight: 700, letterSpacing: '0.08em', margin: '0 0 8px' }}>
-                      ORACLE PRICE
+                      STAKED NCRD
                     </p>
-                    <p style={{ fontSize: 24, fontWeight: 700, color: '#3B82F6', margin: 0, fontFamily: "'Syne', sans-serif" }}>
-                      ${(oraclePrice ?? 2.45).toFixed(2)}
+                    <p style={{ fontSize: 18, fontWeight: 700, color: stakedAmount === '0' || stakedAmount === '0.00' ? 'rgba(45,26,38,0.3)' : '#16A34A', margin: 0, fontFamily: "'Syne', sans-serif" }}>
+                      {stakedAmount === '0' || stakedAmount === '0.00' ? '—' : stakedAmount}
                     </p>
-                    <p style={{ fontSize: 11, color: 'rgba(45,26,38,0.4)', margin: '4px 0 0' }}>QIE / USD</p>
+                    <p style={{ fontSize: 11, color: 'rgba(45,26,38,0.4)', margin: '4px 0 0' }}>
+                      {stakedAmount === '0' || stakedAmount === '0.00' ? 'No tokens staked yet' : 'NCRD tokens'}
+                    </p>
                   </div>
                   <div className="bento-card" style={{ padding: '20px', minHeight: 0 }}>
-                    <p style={{ fontSize: 11, color: 'rgba(45,26,38,0.5)', fontWeight: 700, letterSpacing: '0.08em', margin: '0 0 8px' }}>
-                      STAKING TIER
+                    <p style={{ fontSize: 11, color: 'rgba(45,26,38,0.5)', fontWeight: 700, letterSpacing: '0.08em', margin: '0 0 10px' }}>
+                      INTEGRATION TIER
                     </p>
-                    <p style={{
-                        fontSize: 20, fontWeight: 700, fontFamily: "'Syne', sans-serif", margin: 0,
-                        color: breakdown.stakingTier === 'Gold' ? '#F5C518' : breakdown.stakingTier === 'Silver' ? '#9CA3AF' : breakdown.stakingTier === 'Bronze' ? '#F97316' : 'rgba(45,26,38,0.4)',
-                      }}>
-                      {stakingTierLabel(breakdown.stakingTier)}
-                    </p>
+                    <span style={{
+                      display: 'inline-block', fontSize: 12, fontWeight: 700, padding: '4px 12px', borderRadius: 99,
+                      background: TIER_COLORS[integrationTier]?.bg,
+                      color: TIER_COLORS[integrationTier]?.color,
+                      border: `1px solid ${TIER_COLORS[integrationTier]?.border}`,
+                    }}>
+                      {TIER_NAMES[integrationTier] ?? 'None'}
+                    </span>
                     <p style={{ fontSize: 11, color: 'rgba(45,26,38,0.4)', margin: '6px 0 0' }}>
-                      Boost: +{breakdown.stakingBoost}
+                      Boost: +{breakdown.stakingBoost ?? 0}
                     </p>
                   </div>
                 </div>
@@ -865,9 +958,9 @@ export default function CreditDashboard() {
                 <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', color: '#F5A623', margin: '0 0 24px' }}>
                   SCORE BREAKDOWN
                 </p>
-                <ProgressBar label="Base Score" value={breakdown.baseScore ?? 0} max={1000} color="#2D1A26" displayValue={String(breakdown.baseScore ?? 0)} />
-                <ProgressBar label="Staking Boost" value={breakdown.stakingBoost ?? 0} max={300} color="#16A34A" displayValue={`+${breakdown.stakingBoost ?? 0}`} />
-                <ProgressBar label="Oracle Penalty" value={breakdown.oraclePenalty ?? 0} max={200} color="#EF4444" displayValue={(breakdown.oraclePenalty ?? 0) === 0 ? '0' : `-${breakdown.oraclePenalty ?? 0}`} />
+                <ProgressBar label="Base Score" value={breakdown.baseScore ?? 0} max={1000} color="#2D1A26" displayValue={String(breakdown.baseScore ?? 0)} tooltip="Your foundational score derived from on-chain activity including transaction volume, wallet age, and DeFi interactions." />
+                <ProgressBar label="Staking Boost" value={breakdown.stakingBoost ?? 0} max={300} color="#16A34A" displayValue={`+${breakdown.stakingBoost ?? 0}`} tooltip="Bonus points earned by staking NCRD tokens. Higher stake = higher boost (max +300). Encourages long-term protocol participation." />
+                <ProgressBar label="Oracle Penalty" value={breakdown.oraclePenalty ?? 0} max={200} color="#EF4444" displayValue={(breakdown.oraclePenalty ?? 0) === 0 ? '0' : `-${breakdown.oraclePenalty ?? 0}`} tooltip="Deduction applied when the QIE oracle price is below threshold or when anomalous on-chain behavior is detected." />
 
                 <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid rgba(45,26,38,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: 14, color: 'rgba(45,26,38,0.5)', fontWeight: 500 }}>
