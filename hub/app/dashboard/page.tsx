@@ -12,6 +12,7 @@ import {
 } from '@/lib/dashboard-fallbacks'
 import type { ChartPoint } from '@/lib/dashboard-fallbacks'
 import ActivityFeed from '@/components/ActivityFeed'
+import { useDashboard } from '@/hooks/useDashboard'
 import ToolQuickAccess from '@/components/ToolQuickAccess'
 import { PriceTicker } from '@/components/ui/PriceTicker'
 import { ConnectButton } from '@/components/wallet/ConnectButton'
@@ -468,7 +469,9 @@ export default function DashboardPage() {
   const [wallet, setWallet] = useState('')
   const [greeting] = useState(getGreeting)
   const [liveAgents, setLiveAgents] = useState<number | null>(null)
-  const backendsLive = '5/6'
+  const [secondsAgo, setSecondsAgo] = useState(0)
+
+  const { stats, loading: dashLoading } = useDashboard()
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
@@ -490,11 +493,31 @@ export default function DashboardPage() {
     return () => { ctrl.abort(); clearTimeout(timer) }
   }, [])
 
+  // Tick secondsAgo every second so "Last updated X ago" stays current
+  useEffect(() => {
+    if (!stats) return
+    setSecondsAgo(0)
+    const tick = setInterval(() => setSecondsAgo(s => s + 1), 1000)
+    return () => clearInterval(tick)
+  }, [stats])
+
+  const backendsLiveStr = stats
+    ? `${stats.backendsLive}/${stats.backendsTotal}`
+    : dashLoading ? '…' : '5/6'
+
+  const activeToolsValue = stats
+    ? stats.backendsLive.toString()
+    : dashLoading ? '…' : DASH_STATS.tools.toString()
+
+  const lastUpdatedSub = stats
+    ? secondsAgo < 5 ? 'Just updated' : `Updated ${secondsAgo}s ago`
+    : DASH_STATS.uptimeSub
+
   const statCards: StatCardData[] = [
-    { label: 'Active Tools',  value: DASH_STATS.tools.toString(),                                    sub: DASH_STATS.toolsSub,                                      bg: 'rgba(99,102,241,0.1)',  border: 'rgba(99,102,241,0.25)', subColor: '#A5B4FC' },
+    { label: 'Active Tools',  value: activeToolsValue,                                               sub: 'backends live',                                          bg: 'rgba(99,102,241,0.1)',  border: 'rgba(99,102,241,0.25)', subColor: '#A5B4FC' },
     { label: 'Chains',        value: DASH_STATS.chains.toString(),                                   sub: DASH_STATS.chainsSub,                                     bg: 'rgba(6,182,212,0.1)',   border: 'rgba(6,182,212,0.25)', subColor: '#67E8F9' },
     { label: 'Active Agents', value: liveAgents !== null ? liveAgents.toLocaleString() : '—',        sub: liveAgents !== null ? 'via TrustMesh' : 'loading…',       bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.25)', subColor: '#6EE7B7' },
-    { label: 'Backends Live', value: backendsLive,                                                    sub: DASH_STATS.uptimeSub,                                     bg: 'rgba(249,115,22,0.1)',  border: 'rgba(249,115,22,0.25)', subColor: '#FDBA74' },
+    { label: 'Backends Live', value: backendsLiveStr,                                                 sub: lastUpdatedSub,                                           bg: 'rgba(249,115,22,0.1)',  border: 'rgba(249,115,22,0.25)', subColor: '#FDBA74' },
   ]
 
   function handleDisconnect() {
@@ -560,16 +583,25 @@ export default function DashboardPage() {
           {/* Right — search + status + wallet */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {!isMobile && <SearchBar />}
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '6px 12px', borderRadius: 20,
-              background: `${GREEN}1a`, border: `1px solid ${GREEN}40`,
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: GREEN, flexShrink: 0 }} />
-              <span style={{ fontSize: 12, fontWeight: 600, color: GREEN, whiteSpace: 'nowrap' }}>
-                {isMobile ? 'Live' : 'All systems live'}
-              </span>
-            </div>
+            {(() => {
+              const isLive = stats ? stats.isLive : true
+              const badgeColor = isLive ? GREEN : '#f59e0b'
+              const badgeLabel = isMobile
+                ? (isLive ? 'Live' : 'Degraded')
+                : (isLive ? '⬤ Live Dashboard' : 'Partial Outage')
+              return (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '6px 12px', borderRadius: 20,
+                  background: `${badgeColor}1a`, border: `1px solid ${badgeColor}40`,
+                }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: badgeColor, flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, fontWeight: 600, color: badgeColor, whiteSpace: 'nowrap' }}>
+                    {badgeLabel}
+                  </span>
+                </div>
+              )
+            })()}
             <ConnectButton type="auto" size="sm" />
           </div>
         </header>
@@ -599,7 +631,7 @@ export default function DashboardPage() {
           <ProtocolActivity />
 
           {/* Live activity feed */}
-          <ActivityFeed />
+          <ActivityFeed stats={stats} />
 
           {/* Tool quick-access grid */}
           <ToolQuickAccess />

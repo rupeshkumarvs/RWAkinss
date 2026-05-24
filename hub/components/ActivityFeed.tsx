@@ -3,6 +3,7 @@
 
 import { AnimatePresence, motion } from 'framer-motion'
 import { useDashboardActivity } from '@/hooks/useDashboardActivity'
+import type { DashboardStats } from '@/lib/api/dashboard'
 
 const BORDER = 'rgba(255,255,255,0.08)'
 const MUTED  = 'rgba(255,255,255,0.6)'
@@ -10,8 +11,8 @@ const MUTED2 = 'rgba(255,255,255,0.35)'
 const GREEN  = '#10b981'
 const MONO   = '"Fira Code","JetBrains Mono",monospace'
 
-export default function ActivityFeed() {
-  const { feed } = useDashboardActivity()
+export default function ActivityFeed({ stats }: { stats?: DashboardStats | null }) {
+  const { feed } = useDashboardActivity(stats)
 
   return (
     <div style={{ margin: '24px', marginTop: 0 }}>
