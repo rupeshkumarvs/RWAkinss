@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from '../../lib/toast'
 import { getExplorerUrl } from '../../lib/explorer'
 import { useWalletForTool } from '../../hooks/useWalletForTool'
@@ -8,6 +8,7 @@ import { ConnectButton } from '../../components/wallet/ConnectButton'
 import { WrongNetworkBanner } from '../../components/wallet/WrongNetwork'
 import { useStellar } from '../../hooks/useStellar'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { ColdStartBanner } from '../../components/ui/ColdStartBanner'
 
 type SplitRecord = {
   id: string
@@ -254,18 +255,18 @@ export default function SyncSplitPage() {
   }, [cursorPos, mounted])
 
   // SyncSplit health check — show Live badge when backend responds
-  useEffect(() => {
+  const checkSync = useCallback(async () => {
     const syncUrl = process.env.NEXT_PUBLIC_SYNCSPLIT_URL
     if (!syncUrl) return
     const ctrl = new AbortController()
-    const timer = setTimeout(() => ctrl.abort(), 5000)
-    fetch(`${syncUrl}/health`, { signal: ctrl.signal })
-      .then(r => { if (r.ok) return r.json() as Promise<{ status?: string }>; throw new Error('') })
-      .then(d => { if (d.status === 'ok') setIsLive(true) })
-      .catch(() => {})
-      .finally(() => clearTimeout(timer))
-    return () => { ctrl.abort(); clearTimeout(timer) }
+    const timer = setTimeout(() => ctrl.abort(), 8000)
+    try {
+      const r = await fetch(`${syncUrl}/health`, { signal: ctrl.signal })
+      if (r.ok) { const d = await r.json() as { status?: string }; if (d.status === 'ok') setIsLive(true) }
+    } catch { /* silent */ } finally { clearTimeout(timer) }
   }, [])
+
+  useEffect(() => { checkSync() }, [checkSync])
 
   // Scroll to anchor function
   const scrollTo = (id: string) => {
@@ -1906,6 +1907,12 @@ export default function SyncSplitPage() {
 
       <WrongNetworkBanner />
 
+      {!isLive && !stellarLive && process.env.NEXT_PUBLIC_SYNCSPLIT_URL && (
+        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '8px 24px 0' }}>
+          <ColdStartBanner serviceName="SyncSplit" onRetry={checkSync} />
+        </div>
+      )}
+
       {/* HERO SECTION */}
       <section className="hero-section">
         <div className="page-eyebrow">
@@ -1935,7 +1942,7 @@ export default function SyncSplitPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
             <span className={(isLive || stellarLive) ? 'badge-live' : 'badge-demo'}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: (isLive || stellarLive) ? '#10b981' : '#f59e0b', flexShrink: 0 }} />
-              {(isLive || stellarLive) ? 'Live Data — Stellar Testnet' : 'Demo Data — SyncSplit connecting…'}
+              {(isLive || stellarLive) ? 'Live Data — Stellar Testnet' : 'Testnet Data — SyncSplit connecting…'}
             </span>
             <a
               href={STELLAR_EXPLORER}

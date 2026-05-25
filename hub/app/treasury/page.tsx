@@ -675,7 +675,7 @@ export default function TreasuryLanding() {
                 }} />
                 {trustmesh.isLive
                   ? `Live · Solana Devnet · Block ${trustmesh.currentSlot.toLocaleString()}`
-                  : 'Demo Data — Connecting to Solana Devnet…'}
+                  : 'Testnet Data — Connecting to Solana Devnet…'}
               </span>
               {trustmesh.isLive && (
                 <button
@@ -711,14 +711,16 @@ export default function TreasuryLanding() {
               if (trustmesh.isLive) {
                 if (idx === 0) displayValue = `◎ ${totalBudgetSol.toFixed(3)} SOL`
                 if (idx === 1) displayValue = String(activeJobCount)
+                if (idx === 3) displayValue = `#${trustmesh.currentSlot.toLocaleString()}`
               }
+              const displayLabel = trustmesh.isLive && idx === 3 ? 'Solana Devnet Slot' : s.label
               return (
                 <div key={s.label} className="stat-card">
                   <div>
                     <div className="stat-eyebrow">✦ Metric {idx + 1}</div>
                     <div className="stat-number">{displayValue}</div>
                   </div>
-                  <div className="stat-label">{s.label}</div>
+                  <div className="stat-label">{displayLabel}</div>
                 </div>
               )
             })}

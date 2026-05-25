@@ -11,6 +11,7 @@ import { PriceBadge } from '../../components/ui/PriceBadge'
 import ExecutiveWalkthrough from '../components/ExecutiveWalkthrough'
 import CommandPalette from '../components/CommandPalette'
 import { EmptyState } from '../../components/ui/EmptyState'
+import { ColdStartBanner } from '../../components/ui/ColdStartBanner'
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -345,7 +346,7 @@ export default function ShadowPage() {
           {/* Live / Demo */}
           <span className={isDemo ? 'badge-demo' : 'badge-live'}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: isDemo ? '#f59e0b' : '#10b981', flexShrink: 0 }} />
-            {isDemo ? 'Demo Mode' : 'Live'}
+            {isDemo ? 'Testnet Data' : 'Live'}
           </span>
           {/* Solana */}
           <span style={{ fontSize:12, padding:'6px 14px', borderRadius:999, background:'#F8FAFC', border:'1px solid #E2E8F0', color:'#475569', display:'flex', alignItems:'center', gap:6, fontWeight:700 }}>
@@ -373,6 +374,12 @@ export default function ShadowPage() {
       </header>
 
       <WrongNetworkBanner />
+
+      {health === 'down' && apiBase && (
+        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '8px 24px 0' }}>
+          <ColdStartBanner serviceName="Shadow" onRetry={runInit} />
+        </div>
+      )}
 
       <main style={{ position: 'relative', zIndex: 1, maxWidth: 1400, margin: '0 auto', padding: '0 24px 60px' }}>
         

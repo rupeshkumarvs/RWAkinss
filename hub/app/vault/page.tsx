@@ -8,6 +8,7 @@ import { WrongNetworkBanner } from '@/components/wallet/WrongNetwork'
 import { PriceBadge } from '@/components/ui/PriceBadge'
 
 import { readLegacyVault, type LegacyVaultState } from '@/lib/contracts/eternalVault'
+import { ColdStartBanner } from '@/components/ui/ColdStartBanner'
 import VaultDashboard from '@/components/vault/VaultDashboard'
 import CollateralManager from '@/components/vault/CollateralManager'
 import DWalletManager from '@/components/vault/DWalletManager'
@@ -275,7 +276,7 @@ function VaultInner() {
         <div className="nav-links">
           <span className={healthStatus === 'live' ? 'badge-live' : 'badge-demo'}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: healthStatus === 'live' ? '#10b981' : '#f59e0b', flexShrink: 0 }} />
-            {healthStatus === 'checking' ? `Connecting… (${retryAttempt}/3)` : healthStatus === 'live' ? 'Multi-chain Live' : 'Demo Data'}
+            {healthStatus === 'checking' ? `Connecting… (${retryAttempt}/3)` : healthStatus === 'live' ? 'Multi-chain Live' : 'Testnet Data'}
           </span>
           {vaultState && (
             <span className="badge badge-live" style={{ background: '#D1FAE5', color: '#059669', border: '1px solid #A7F3D0' }}>
@@ -292,6 +293,30 @@ function VaultInner() {
       </header>
 
       <WrongNetworkBanner />
+
+      {healthStatus === 'demo' && apiBase && (
+        <div style={{ padding: '8px 20px 0' }}>
+          <ColdStartBanner serviceName="CipherVault" onRetry={() => {
+            setHealthStatus('checking')
+            setRetryAttempt(0)
+            const run = async () => {
+              if (!apiBase) { setHealthStatus('demo'); return }
+              for (let attempt = 0; attempt < 3; attempt++) {
+                setRetryAttempt(attempt + 1)
+                try {
+                  const ctrl = new AbortController()
+                  const t = setTimeout(() => ctrl.abort(), 8000)
+                  const r = await fetch(`${apiBase}/health`, { signal: ctrl.signal })
+                  clearTimeout(t)
+                  if (r.ok) { const d = await r.json(); if (d?.status === 'ok') { setHealthStatus('live'); return } }
+                } catch { /* retry */ }
+              }
+              setHealthStatus('demo')
+            }
+            run()
+          }} />
+        </div>
+      )}
 
       <section className="hero-section">
         <div className="page-eyebrow">◈ Secure & Private</div>
@@ -350,7 +375,7 @@ function VaultInner() {
       <main className="content-section">
         <div className="vault-shadow-box">
           <div className="vault-inverted-wrapper">
-            {tab === 'dashboard'  && <VaultDashboard walletAddress={wallet} privacyScore={privacyScore} onGoToCollateral={() => setTab('collateral')} onGoToHistory={() => setTab('history')} />}
+            {tab === 'dashboard'  && <VaultDashboard walletAddress={wallet} privacyScore={privacyScore} vaultState={vaultState} onGoToCollateral={() => setTab('collateral')} onGoToHistory={() => setTab('history')} />}
             {tab === 'collateral' && <CollateralManager walletAddress={wallet} />}
             {tab === 'dwallet'    && <DWalletManager walletAddress={wallet} />}
             {tab === 'trade'      && <FHETradeForm walletAddress={wallet} />}

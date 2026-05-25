@@ -7,6 +7,7 @@ import KubrykSidebar from '../../components/KubrykSidebar'
 import TopBar from '../../components/TopBar'
 import { WalletProvider } from '../../context/WalletContext'
 import { WrongNetworkBanner } from '../../components/wallet/WrongNetwork'
+import { useBackendWarmup } from '../../hooks/useBackendWarmup'
 
 /* Paths that render inside the hub shell (sidebar + topbar).
    /dashboard is self-contained — it owns its own sidebar. */
@@ -23,6 +24,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [mounted, setMounted] = useState(false)
+
+  // Silently keep all Render backends warm to prevent cold-start during demo
+  useBackendWarmup()
 
   useEffect(() => {
     setMounted(true)

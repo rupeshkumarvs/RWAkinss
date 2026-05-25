@@ -734,7 +734,7 @@ export default function CreditDashboard() {
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
             <span className={isDemo ? 'badge-demo' : 'badge-live'}>
               <span style={{ width: 8, height: 8, borderRadius: '50%', background: isDemo ? '#f59e0b' : '#10b981', flexShrink: 0 }} />
-              {isDemo ? 'Demo Mode' : 'Live Data'}
+              {isDemo ? 'Testnet Data' : 'Live Data'}
             </span>
             <span style={{
               fontSize: 12, padding: '6px 14px', borderRadius: 20,

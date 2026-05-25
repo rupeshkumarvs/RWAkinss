@@ -8,6 +8,7 @@ import {
   FALLBACK_MY_POSITIONS,
   FALLBACK_RECENT_ACTIVITY,
 } from '@/lib/vault-fallbacks'
+import { type LegacyVaultState } from '@/lib/contracts/eternalVault'
 
 const ACCENT = CIPHERVAULT_ACCENT
 const BORDER = 'rgba(255,255,255,0.08)'
@@ -23,11 +24,13 @@ function fmtUsd(n: number) {
 export default function VaultDashboard({
   walletAddress,
   privacyScore,
+  vaultState,
   onGoToCollateral,
   onGoToHistory,
 }: {
   walletAddress?: string
   privacyScore?: number
+  vaultState?: LegacyVaultState | null
   onGoToCollateral?: () => void
   onGoToHistory?: () => void
 }) {
@@ -132,13 +135,27 @@ export default function VaultDashboard({
             }}>◈</span>
           </div>
 
-          <SummaryRow label="Collateral Deposited" value={fmtUsd(totalValue)} accent />
-          <div style={{ fontSize: 11, color: MUTED2, marginBottom: 12, marginTop: -4, paddingLeft: 2 }}>
-            {FALLBACK_MY_POSITIONS.map(p => `${p.amount} ${p.asset}`).join('  ·  ')}
-          </div>
-          <SummaryRow label="Available to Borrow" value={`${fmtUsd(availableToBorrow)} (LTV 66.6%)`} />
-          <SummaryRow label="Outstanding Loans" value="$0" />
-          <SummaryRow label="Health Factor" value={`${healthFactor.toFixed(2)} (Safe)`} color="#10b981" />
+          {vaultState ? (
+            <>
+              <SummaryRow label="Contract Owner" value={`${vaultState.owner.slice(0, 8)}…${vaultState.owner.slice(-6)}`} accent />
+              <SummaryRow label="Vault Address" value={`${vaultState.vaultAddress.slice(0, 8)}…${vaultState.vaultAddress.slice(-6)}`} />
+              <SummaryRow label="Unlock Date" value={vaultState.unlockDate ? vaultState.unlockDate.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : 'Not set'} />
+              <SummaryRow label="Status" value={vaultState.deceased ? 'Deceased — Inheritance active' : 'Active — Owner controls vault'} color={vaultState.deceased ? '#ef4444' : '#10b981'} />
+              {vaultState.canAccess !== null && (
+                <SummaryRow label="Your Access" value={vaultState.canAccess ? 'Authorized ✓' : 'Not authorized'} color={vaultState.canAccess ? '#10b981' : MUTED} />
+              )}
+            </>
+          ) : (
+            <>
+              <SummaryRow label="Collateral Deposited" value={fmtUsd(totalValue)} accent />
+              <div style={{ fontSize: 11, color: MUTED2, marginBottom: 12, marginTop: -4, paddingLeft: 2 }}>
+                {FALLBACK_MY_POSITIONS.map(p => `${p.amount} ${p.asset}`).join('  ·  ')}
+              </div>
+              <SummaryRow label="Available to Borrow" value={`${fmtUsd(availableToBorrow)} (LTV 66.6%)`} />
+              <SummaryRow label="Outstanding Loans" value="$0" />
+              <SummaryRow label="Health Factor" value={`${healthFactor.toFixed(2)} (Safe)`} color="#10b981" />
+            </>
+          )}
           {privacyScore !== undefined && (
             <SummaryRow label="Privacy Score" value={`${privacyScore} / 100`} color={ACCENT} />
           )}
