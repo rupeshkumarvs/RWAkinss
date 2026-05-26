@@ -8,6 +8,7 @@ import TopBar from '../../components/TopBar'
 import { WalletProvider } from '../../context/WalletContext'
 import { KubrykPlatformProvider } from '../../context/KubrykPlatformContext'
 import { WrongNetworkBanner } from '../../components/wallet/WrongNetwork'
+import { WalletPlatformSync } from '../../components/wallet/WalletPlatformSync'
 import { useBackendWarmup } from '../../hooks/useBackendWarmup'
 
 /* Paths that render inside the hub shell (sidebar + topbar).
@@ -44,7 +45,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   /* WalletProvider wraps every hub route (shell + the self-contained
      /dashboard) so useWallet works platform-wide. The landing page renders
      inside it too — harmless, the provider has no effect until used. */
-  if (!showShell) return <WalletProvider><KubrykPlatformProvider>{children}</KubrykPlatformProvider></WalletProvider>
+  if (!showShell) return <WalletProvider><KubrykPlatformProvider><WalletPlatformSync />{children}</KubrykPlatformProvider></WalletProvider>
 
   /* sidebar occupies fixed space; main content shifts right */
   const sidebarWidth = isMobile ? 0 : (collapsed ? 80 : 280)
@@ -52,6 +53,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <WalletProvider>
     <KubrykPlatformProvider>
+    <WalletPlatformSync />
     <div style={{ background: '#080808', minHeight: '100vh', display: 'flex' }}>
       {mounted && (
         <KubrykSidebar

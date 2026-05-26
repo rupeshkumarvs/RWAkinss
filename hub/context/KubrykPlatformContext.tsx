@@ -22,6 +22,7 @@ type PlatformActions = {
   setStellar:    (balance: number, payments: number) => void
   setTreasury:   (value: number) => void
   setSolanaSlot: (slot: number) => void
+  resetToDemo:   () => void
 }
 
 type PlatformCtxValue = PlatformState & PlatformActions
@@ -31,7 +32,7 @@ const Ctx = createContext<PlatformCtxValue | null>(null)
 const KEY = 'kubryx_platform_state'
 const TTL_MS = 24 * 60 * 60 * 1000
 
-const DEMO_STATE: PlatformState = {
+export const DEMO_STATE: PlatformState = {
   creditScore: 742, vaultActive: true, vaultOwner: '0x270A...E8fc8',
   stellarBalance: 9999.99, stellarPayments: 12, treasuryValue: 850,
   solanaSlot: 461676776, isDemoMode: true,
@@ -44,6 +45,7 @@ function load(): PlatformState {
     if (!raw) return { ...DEMO_STATE }
     const { ts, data } = JSON.parse(raw)
     if (Date.now() - ts > TTL_MS) { localStorage.removeItem(KEY); return { ...DEMO_STATE } }
+    // Real data (isDemoMode: false) within TTL wins; otherwise fall back to demo overlay
     return { ...DEMO_STATE, ...data }
   } catch { return { ...DEMO_STATE } }
 }
@@ -66,8 +68,14 @@ export function KubrykPlatformProvider({ children }: { children: ReactNode }) {
   const setTreasury   = useCallback((value: number)                     => patch({ treasuryValue: value, isDemoMode: false }), [patch])
   const setSolanaSlot = useCallback((slot: number)                      => patch({ solanaSlot: slot, isDemoMode: false }), [patch])
 
+  const resetToDemo = useCallback(() => {
+    const fresh = { ...DEMO_STATE }
+    save(fresh)
+    setState(fresh)
+  }, [])
+
   return (
-    <Ctx.Provider value={{ ...state, setCredit, setVault, setStellar, setTreasury, setSolanaSlot }}>
+    <Ctx.Provider value={{ ...state, setCredit, setVault, setStellar, setTreasury, setSolanaSlot, resetToDemo }}>
       {children}
     </Ctx.Provider>
   )

@@ -3,7 +3,8 @@
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Area, AreaChart } from 'recharts'
 import { LENDORA_ACCENT, FALLBACK_LEND_STATS, FALLBACK_MY_POSITIONS, FALLBACK_RATE_HISTORY, FALLBACK_AI_ACTIVITY } from '@/lib/lend-fallbacks'
 import { useKubrykPlatform } from '@/context/KubrykPlatformContext'
-import { getCreditTier } from '@/lib/platform/scoring'
+import { getCreditTier, TIER_BORROW_RATES } from '@/lib/platform/scoring'
+import { PlatformModeBadge } from '@/components/ui/PlatformModeBadge'
 
 const A = LENDORA_ACCENT
 const BORDER = 'rgba(255,255,255,0.08)'
@@ -19,9 +20,8 @@ export default function LendDashboard({ onGoToBorrow, onGoToLoans }: { onGoToBor
   const platform = useKubrykPlatform()
   const tier = getCreditTier(platform.creditScore)
   const liveScore = platform.creditScore
-  const TIER_RATES: Record<string, number> = { Platinum: 4.2, Gold: 6.8, Silver: 9.5, Bronze: 13.2, Unrated: 18.9 }
-  const customRate = TIER_RATES[tier.name] ?? 18.9
-  const liveRate = `${customRate.toFixed(1)}% APR`
+  const rateStr = TIER_BORROW_RATES[tier.name] ?? '18.9%'
+  const liveRate = `${rateStr} APR`
   return (
     <div style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 24 }}>
 
@@ -32,9 +32,7 @@ export default function LendDashboard({ onGoToBorrow, onGoToLoans }: { onGoToBor
         <div style={{ width: 1, height: 16, background: 'rgba(255,255,255,0.1)' }} />
         <span style={{ fontSize: 11, color: MUTED, flex: 1 }}>Borrow rate: <span style={{ color: tier.color, fontWeight: 700 }}>{liveRate}</span> · Vault LTV: <span style={{ color: tier.color, fontWeight: 700 }}>{tier.vaultLTV}%</span></span>
         {liveScore === null && <span style={{ fontSize: 10, color: MUTED2 }}>Connect Credit Passport to see your rate</span>}
-        <span style={{ fontSize: 10, padding: '3px 10px', borderRadius: 999, background: platform.isDemoMode ? 'rgba(107,114,128,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${platform.isDemoMode ? 'rgba(107,114,128,0.3)' : 'rgba(16,185,129,0.3)'}`, color: platform.isDemoMode ? '#9CA3AF' : '#10b981', fontWeight: 600, fontFamily: MONO }}>
-          {platform.isDemoMode ? '◎ Demo · Connect wallet for live data' : '⬤ Live · Wallet Connected'}
-        </span>
+        <PlatformModeBadge />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>

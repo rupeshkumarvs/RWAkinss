@@ -10,6 +10,7 @@ import { PriceBadge } from '@/components/ui/PriceBadge'
 import { readLegacyVault, type LegacyVaultState } from '@/lib/contracts/eternalVault'
 import { ColdStartBanner } from '@/components/ui/ColdStartBanner'
 import { useKubrykPlatform } from '@/context/KubrykPlatformContext'
+import { PlatformModeBadge } from '@/components/ui/PlatformModeBadge'
 import VaultDashboard from '@/components/vault/VaultDashboard'
 import CollateralManager from '@/components/vault/CollateralManager'
 import DWalletManager from '@/components/vault/DWalletManager'
@@ -374,8 +375,8 @@ function VaultInner() {
             🔐 Active vault → +85 pts to your Kubryx Credit Score
           </div>
         )}
-        <div style={{ fontSize: 12, padding: '5px 14px', borderRadius: 999, background: platform.isDemoMode ? 'rgba(107,114,128,0.1)' : 'rgba(16,185,129,0.1)', border: `1px solid ${platform.isDemoMode ? 'rgba(107,114,128,0.3)' : 'rgba(16,185,129,0.3)'}`, color: platform.isDemoMode ? '#9CA3AF' : '#10b981', fontWeight: 600, marginBottom: 20, display: 'inline-block' }}>
-          {platform.isDemoMode ? '◎ Demo · Connect wallet for live data' : '⬤ Live · Wallet Connected'}
+        <div style={{ marginBottom: 20 }}>
+          <PlatformModeBadge />
         </div>
 
         <div className="tabs-container">

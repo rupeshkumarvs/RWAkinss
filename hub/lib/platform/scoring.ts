@@ -43,3 +43,12 @@ export function getTreasuryBoost(value: number | null): number {
   if (value >= 10_000)    return 30
   return 10
 }
+
+// Tier-specific borrow rates used across the lending module
+export const TIER_BORROW_RATES: Record<string, string> = {
+  Platinum: '4.2%',
+  Gold:     '6.8%',
+  Silver:   '9.5%',
+  Bronze:   '13.2%',
+  Unrated:  '18.9%',
+}

@@ -17,6 +17,7 @@ import { JOB_STATUS_LABEL, type OnChainJobAccount } from '@/lib/api/solana'
 import MiniMesh from './MiniMesh'
 import { useKubrykPlatform } from '@/context/KubrykPlatformContext'
 import { getCreditTier } from '@/lib/platform/scoring'
+import { PlatformModeBadge } from '@/components/ui/PlatformModeBadge'
 
 const ACCENT = TRUSTMESH_ACCENT
 const BORDER = 'rgba(255,255,255,0.08)'
@@ -97,9 +98,7 @@ export default function AgentDashboard() {
         {platform.solanaSlot && platform.solanaSlot > 0 && (
           <span style={{ fontSize: 10, fontFamily: MONO, color: MUTED2 }}>slot #{platform.solanaSlot.toLocaleString()}</span>
         )}
-        <span style={{ fontSize: 10, padding: '3px 10px', borderRadius: 999, background: platform.isDemoMode ? 'rgba(107,114,128,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${platform.isDemoMode ? 'rgba(107,114,128,0.3)' : 'rgba(16,185,129,0.3)'}`, color: platform.isDemoMode ? '#9CA3AF' : '#10b981', fontWeight: 600, fontFamily: MONO }}>
-          {platform.isDemoMode ? '◎ Demo · Connect wallet for live data' : '⬤ Live · Wallet Connected'}
-        </span>
+        <PlatformModeBadge />
       </div>
 
       {/* ── Devnet live job accounts panel ─────────────────────── */}

@@ -10,6 +10,7 @@ import type { PFPortfolio, PFAgentAI } from '@/lib/palmflow-api'
 import { PF_ACTIVITY_POOL } from '@/lib/palmflow-fallbacks'
 import { useKubrykPlatform } from '@/context/KubrykPlatformContext'
 import { getCreditTier } from '@/lib/platform/scoring'
+import { PlatformModeBadge } from '@/components/ui/PlatformModeBadge'
 
 const TEAL = '#00E5CC'
 const BG = '#080810'
@@ -166,9 +167,7 @@ export default function DashboardPage() {
               )) : <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Connect vault, Stellar & Solana to boost your credit score</span>}
             </div>
             <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontFamily: MONO }}>{tier.treasuryTier}</div>
-            <span style={{ fontSize: 10, padding: '3px 10px', borderRadius: 999, background: platform.isDemoMode ? 'rgba(107,114,128,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${platform.isDemoMode ? 'rgba(107,114,128,0.3)' : 'rgba(16,185,129,0.3)'}`, color: platform.isDemoMode ? '#9CA3AF' : '#10b981', fontWeight: 600, fontFamily: MONO }}>
-              {platform.isDemoMode ? '◎ Demo · Connect wallet for live data' : '⬤ Live · Wallet Connected'}
-            </span>
+            <PlatformModeBadge />
           </div>
         )
       })()}

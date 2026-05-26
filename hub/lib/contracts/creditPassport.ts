@@ -35,10 +35,16 @@ export async function readCreditScore(address: string): Promise<number> {
   try {
     const data = encodeCall('getScore(address)', address)
     const result = await ethCall(CONTRACTS.CreditPassportNFT, data)
-    // uint16 score is right-aligned in word[0] — extract from rightmost 4 hex chars
-    const word0 = result.replace(/^0x/, '').slice(0, 64)
-    const score = parseInt(word0.slice(-4), 16)
-    console.debug('[creditPassport] readCreditScore word[0]:', word0, '→ score:', score)
+    // ScoreView struct: { uint16 score; uint8 riskBand; uint64 lastUpdated }
+    // ABI-encoded as 3 × 32-byte words, each value right-aligned.
+    const hex = result.replace(/^0x/, '')
+    const word0 = hex.slice(0, 64)    // uint16 score
+    const word1 = hex.slice(64, 128)  // uint8 riskBand
+    const word2 = hex.slice(128, 192) // uint64 lastUpdated
+    const score       = parseInt(word0.slice(-4), 16)  // last 2 bytes
+    const riskBand    = parseInt(word1.slice(-2), 16)  // last 1 byte
+    const lastUpdated = parseInt(word2.slice(-16), 16) // last 8 bytes
+    console.debug('[creditPassport] score:', score, '| riskBand:', riskBand, '| lastUpdated:', lastUpdated)
     return Number.isFinite(score) && score >= 0 ? score : 0
   } catch (e) {
     console.error('[creditPassport] readCreditScore failed:', e)
