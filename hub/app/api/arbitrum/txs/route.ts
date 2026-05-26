@@ -83,21 +83,42 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'ARBISCAN_API_KEY not configured' }, { status: 503 })
   }
 
-  const upstream = `https://api.arbiscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${encodeURIComponent(apiKey)}`
+  // Arbiscan has migrated to a unified V2 endpoint on api.etherscan.io.
+  // Try V2 first; if it fails, fall back to the legacy api.arbiscan.io
+  // endpoint which still accepts the same key.
+  const v2 = `https://api.etherscan.io/v2/api?chainid=42161&module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${encodeURIComponent(apiKey)}`
+  const v1 = `https://api.arbiscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${encodeURIComponent(apiKey)}`
 
-  const ctrl = new AbortController()
-  const t = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS)
+  async function tryEndpoint(url: string): Promise<{ rows: ArbiscanTx[] | null; err?: string }> {
+    const ctrl = new AbortController()
+    const t = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS)
+    try {
+      const res = await fetch(url, { signal: ctrl.signal, cache: 'no-store', headers: { Accept: 'application/json' } })
+      if (!res.ok) return { rows: null, err: `HTTP ${res.status}` }
+      const json = await res.json() as { status: string; message: string; result: ArbiscanTx[] | string }
+      // status '1' = OK with data; status '0' + message 'No transactions found' = OK empty.
+      if (json.status === '1' && Array.isArray(json.result)) return { rows: json.result }
+      if (json.status === '0' && json.message === 'No transactions found') return { rows: [] }
+      // Surface the real reason — Arbiscan puts the actual error in `result`, not `message`.
+      const detail = typeof json.result === 'string' && json.result ? json.result : json.message
+      return { rows: null, err: detail }
+    } catch (e) {
+      return { rows: null, err: e instanceof Error ? e.message : 'network' }
+    } finally {
+      clearTimeout(t)
+    }
+  }
+
   try {
-    const res = await fetch(upstream, { signal: ctrl.signal, cache: 'no-store', headers: { Accept: 'application/json' } })
-    if (!res.ok) {
-      return NextResponse.json({ error: `Arbiscan HTTP ${res.status}` }, { status: 502 })
+    let result = await tryEndpoint(v2)
+    if (result.rows === null) {
+      const v2err = result.err
+      result = await tryEndpoint(v1)
+      if (result.rows === null) {
+        return NextResponse.json({ error: `Arbiscan v2: ${v2err} · v1: ${result.err}` }, { status: 502 })
+      }
     }
-    const json = await res.json() as { status: string; message: string; result: ArbiscanTx[] | string }
-    // Arbiscan returns status:'0' with message:'No transactions found' as a "success" empty case.
-    if (json.status !== '1' && json.message !== 'No transactions found') {
-      return NextResponse.json({ error: `Arbiscan: ${json.message}` }, { status: 502 })
-    }
-    const rows = Array.isArray(json.result) ? json.result : []
+    const rows = result.rows ?? []
     const txs: ArbTxRow[] = rows.map(tx => {
       const value = wei(tx.value)
       const fee = wei(tx.gasUsed) * wei(tx.gasPrice)
@@ -128,7 +149,5 @@ export async function GET(req: Request) {
     return NextResponse.json(payload, { headers: { 'Cache-Control': 'no-store' } })
   } catch (e) {
     return NextResponse.json({ error: e instanceof Error ? e.message : 'network' }, { status: 504 })
-  } finally {
-    clearTimeout(t)
   }
 }
