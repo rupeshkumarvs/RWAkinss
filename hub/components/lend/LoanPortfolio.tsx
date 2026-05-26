@@ -2,6 +2,7 @@
 'use client'
 import { useState } from 'react'
 import { LENDORA_ACCENT, FALLBACK_LOANS, FALLBACK_SUPPLY, FALLBACK_MY_POSITIONS } from '@/lib/lend-fallbacks'
+import { toast } from '@/lib/toast'
 
 const A = LENDORA_ACCENT
 const BORDER = 'rgba(255,255,255,0.08)'
@@ -16,10 +17,49 @@ const healthColor = (h: number) => h >= 2 ? '#10b981' : h >= 1.2 ? '#f59e0b' : '
 export default function LoanPortfolio({ isConnected = false }: { isConnected?: boolean }) {
   const [mode, setMode] = useState<Mode>('borrow')
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [repaidIds, setRepaidIds] = useState<Set<string>>(new Set())
+  const [withdrawnPools, setWithdrawnPools] = useState<Set<string>>(new Set())
+  const [claimedPools, setClaimedPools] = useState<Set<string>>(new Set())
 
   // Action buttons (repay / withdraw / claim) require a connected wallet.
   const gate = (s: React.CSSProperties): React.CSSProperties =>
     isConnected ? s : { ...s, opacity: 0.4, cursor: 'not-allowed' }
+
+  function notConnected() {
+    toast.error('Connect your wallet to perform on-chain actions')
+  }
+
+  function handleRepay(loanId: string, amount: string, asset: string) {
+    if (!isConnected) { notConnected(); return }
+    if (repaidIds.has(loanId)) { toast.success(`${loanId} already settled`); return }
+    setRepaidIds(prev => new Set(prev).add(loanId))
+    toast.success(`Repayment broadcast — ${amount} ${asset} (${loanId})`)
+  }
+
+  function handleAddCollateral() {
+    if (!isConnected) { notConnected(); return }
+    toast.success('Collateral deposit dialog — pending wallet signature')
+  }
+
+  function handleWithdraw(pool: string, amount: string) {
+    if (!isConnected) { notConnected(); return }
+    if (withdrawnPools.has(pool)) { toast.success(`${pool} already withdrawn`); return }
+    setWithdrawnPools(prev => new Set(prev).add(pool))
+    toast.success(`Withdraw broadcast — ${amount} from ${pool}`)
+  }
+
+  function handleClaim(pool: string, earned: string) {
+    if (!isConnected) { notConnected(); return }
+    if (claimedPools.has(pool)) { toast.success(`${pool} rewards already claimed`); return }
+    setClaimedPools(prev => new Set(prev).add(pool))
+    toast.success(`Claimed ${earned} from ${pool}`)
+  }
+
+  function handleClaimAll() {
+    if (!isConnected) { notConnected(); return }
+    setClaimedPools(new Set(FALLBACK_SUPPLY.map(s => s.pool)))
+    toast.success('Claimed $312 across all positions')
+  }
 
   return (
     <div style={{ padding: 28, display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -53,7 +93,7 @@ export default function LoanPortfolio({ isConnected = false }: { isConnected?: b
                       <td style={{ ...td, color: '#10b981' }}>{l.apr} {l.aiNegotiated && <span style={{ fontSize: 10, color: A }}>🤖</span>}</td>
                       <td style={{ ...td, color: healthColor(l.health), fontFamily: MONO }}>{l.health}</td>
                       <td style={{ ...td, color: MUTED }}>{l.due}</td>
-                      <td style={td}><button onClick={e => e.stopPropagation()} disabled={!isConnected} style={gate(smallBtn)}>Repay</button></td>
+                      <td style={td}><button onClick={e => { e.stopPropagation(); handleRepay(l.id, l.amount, l.asset) }} style={gate(smallBtn)}>{repaidIds.has(l.id) ? 'Settled ✓' : 'Repay'}</button></td>
                     </tr>
                     {expanded === l.id && (
                       <tr key={`${l.id}-d`}>
@@ -88,7 +128,7 @@ export default function LoanPortfolio({ isConnected = false }: { isConnected?: b
                 </div>
               </div>
             ))}
-            <button disabled={!isConnected} style={gate({ ...smallBtn, marginTop: 12 })}>+ Add Collateral</button>
+            <button onClick={handleAddCollateral} style={gate({ ...smallBtn, marginTop: 12 })}>+ Add Collateral</button>
           </div>
         </>
       ) : (
@@ -109,15 +149,15 @@ export default function LoanPortfolio({ isConnected = false }: { isConnected?: b
                   <td style={{ ...td, color: '#10b981', fontFamily: MONO }}>{s.earned}</td>
                   <td style={{ ...td, color: MUTED }}>{s.started}</td>
                   <td style={td}>
-                    <button disabled={!isConnected} style={gate(smallBtn)}>Withdraw</button>
-                    <button disabled={!isConnected} style={gate({ ...smallBtn, marginLeft: 6 })}>Claim</button>
+                    <button onClick={() => handleWithdraw(s.pool, s.supplied)} style={gate(smallBtn)}>{withdrawnPools.has(s.pool) ? 'Withdrawn ✓' : 'Withdraw'}</button>
+                    <button onClick={() => handleClaim(s.pool, s.earned)} style={gate({ ...smallBtn, marginLeft: 6 })}>{claimedPools.has(s.pool) ? 'Claimed ✓' : 'Claim'}</button>
                   </td>
                 </tr>
               ))}
               <tr>
                 <td colSpan={5} style={{ ...td, color: MUTED, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Total Unclaimed: $312</td>
                 <td colSpan={2} style={{ ...td, textAlign: 'right' }}>
-                  <button disabled={!isConnected} style={gate({ padding: '6px 14px', borderRadius: 6, background: A, color: '#fff', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer' })}>Claim All →</button>
+                  <button onClick={handleClaimAll} style={gate({ padding: '6px 14px', borderRadius: 6, background: A, color: '#fff', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer' })}>Claim All →</button>
                 </td>
               </tr>
             </tbody>

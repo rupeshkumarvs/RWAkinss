@@ -370,7 +370,7 @@ export default function ShadowPage() {
             <span style={{ width:6, height:6, borderRadius:'50%', background:'#64748B' }} />Solana Devnet
           </span>
           {/* Health */}
-          <span style={{ fontSize:12, padding:'6px 14px', borderRadius:999, background:health==='ok'?'#D1FAE5':health==='checking'?'#F1F5F9':'#FEE2E2', border:`1px solid ${health==='ok'?'#A7F3D0':health==='checking'?'#E2E8F0':'#FECACA'}`, color:health==='ok'?'#10B981':health==='checking'?'#64748B':'#EF4444', display:'flex', alignItems:'center', gap:6, fontWeight:700 }}>
+          <span style={{ fontSize:12, padding:'6px 14px', borderRadius:999, background:health==='ok'?'rgba(16,185,129,0.12)':health==='checking'?'rgba(255,255,255,0.06)':'rgba(239,68,68,0.12)', border:`1px solid ${health==='ok'?'rgba(16,185,129,0.3)':health==='checking'?'rgba(255,255,255,0.12)':'rgba(239,68,68,0.3)'}`, color:health==='ok'?'#10B981':health==='checking'?'#94A3B8':'#EF4444', display:'flex', alignItems:'center', gap:6, fontWeight:700 }}>
             <span style={{ width:6, height:6, borderRadius:'50%', background:health==='ok'?'#10B981':health==='checking'?'#94A3B8':'#EF4444' }} />
             {health==='checking'?`Connecting… (${healthAttempt}/3)`:health==='ok'?'API Online':'API Offline'}
           </span>
@@ -386,7 +386,7 @@ export default function ShadowPage() {
           </span>
           <PlatformModeBadge />
           {/* Stealth */}
-          <button onClick={()=>setStealth(s=>!s)} style={{ fontSize:12, padding:'6px 16px', borderRadius:999, cursor:'pointer', background:stealth?'#FEF2F2':'#FFFFFF', border:`1px solid ${stealth?'#FECACA':'#E2E8F0'}`, color:stealth?'#EF4444':'#64748B', fontWeight:700, transition: 'all 0.2s' }} onMouseOver={e => !stealth && (e.currentTarget.style.background = '#F8FAFC')} onMouseOut={e => !stealth && (e.currentTarget.style.background = '#FFFFFF')}>
+          <button onClick={()=>setStealth(s=>!s)} style={{ fontSize:12, padding:'6px 16px', borderRadius:999, cursor:'pointer', background:stealth?'rgba(239,68,68,0.12)':'rgba(255,255,255,0.06)', border:`1px solid ${stealth?'rgba(239,68,68,0.3)':'rgba(255,255,255,0.12)'}`, color:stealth?'#EF4444':'#CBD5E1', fontWeight:700, transition: 'all 0.2s' }} onMouseOver={e => !stealth && (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')} onMouseOut={e => !stealth && (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}>
             {stealth?'🔴 STEALTH ON':'⚫ Stealth Off'}
           </button>
           {/* Wallet */}

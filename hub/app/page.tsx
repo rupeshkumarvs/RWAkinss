@@ -807,9 +807,9 @@ function Pricing() {
               {['Custom chain deployment', 'Private instance', 'SLA guarantee', 'Priority support', 'White-label options'].map(f => <BulletLight key={f} text={f} />)}
             </div>
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }} style={{ position: 'relative' }}>
-              <Link href="#" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, borderRadius: 999, border: '1px solid rgba(255,255,255,0.5)', color: '#fff', padding: '12px 24px', fontSize: 15, fontWeight: 600, textDecoration: 'none', transition: 'background 0.2s' }}>
+              <a href="mailto:vijayakumarsasikalarupeshkumar@gmail.com?subject=Kubryx%20Enterprise%20Inquiry" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8, borderRadius: 999, border: '1px solid rgba(255,255,255,0.5)', color: '#fff', padding: '12px 24px', fontSize: 15, fontWeight: 600, textDecoration: 'none', transition: 'background 0.2s' }}>
                 Talk to us <ArrowRight size={17} strokeWidth={2.2} />
-              </Link>
+              </a>
             </motion.div>
           </motion.div>
         </motion.div>
@@ -857,11 +857,34 @@ function FinalCTA() {
 }
 
 // ─── FOOTER ──────────────────────────────────────────────────
-const FOOTER_COLS = {
-  PLATFORM: ['Credit Passport', 'Family Vault', 'Agent Coordinator', 'Private Vault', 'Bill Split', 'AI Lending', 'Yield Operations Hub', 'Stealth Execution Suite'],
-  CHAINS: ['QIE Mainnet', 'Solana', 'Stellar', 'Ethereum L2'],
-  RESOURCES: ['Smart Contracts', 'API Docs', 'Demo Video'],
-  COMPANY: ['About', 'Blog', 'Newsletter'],
+type FooterLink = { label: string; href: string; external?: boolean }
+const FOOTER_COLS: Record<string, FooterLink[]> = {
+  PLATFORM: [
+    { label: 'Credit Passport',            href: '/credit'   },
+    { label: 'Family Vault',               href: '/legacy'   },
+    { label: 'Agent Coordinator',          href: '/agents'   },
+    { label: 'Private Vault',              href: '/vault'    },
+    { label: 'Bill Split',                 href: '/split'    },
+    { label: 'AI Lending',                 href: '/lend'     },
+    { label: 'Yield Operations Hub',       href: '/treasury' },
+    { label: 'Stealth Execution Suite',    href: '/shadow'   },
+  ],
+  CHAINS: [
+    { label: 'QIE Mainnet',  href: 'https://mainnet.qie.info',                          external: true },
+    { label: 'Solana',       href: 'https://explorer.solana.com/?cluster=devnet',       external: true },
+    { label: 'Stellar',      href: 'https://stellar.expert/explorer/testnet',           external: true },
+    { label: 'Ethereum L2',  href: 'https://arbiscan.io',                               external: true },
+  ],
+  RESOURCES: [
+    { label: 'Smart Contracts', href: '/protocols'    },
+    { label: 'API Docs',        href: '/developers'   },
+    { label: 'Architecture',    href: '/architecture' },
+  ],
+  COMPANY: [
+    { label: 'About',     href: '/story'    },
+    { label: 'Ecosystem', href: '/ecosystem' },
+    { label: 'Contact',   href: 'mailto:vijayakumarsasikalarupeshkumar@gmail.com', external: true },
+  ],
 }
 
 function Footer() {
@@ -890,11 +913,20 @@ function Footer() {
             <div key={title}>
               <div style={{ fontSize: 11.5, letterSpacing: '0.18em', textTransform: 'uppercase', fontWeight: 700, color: 'rgba(139,92,246,0.7)', marginBottom: 16 }}>{title}</div>
               <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {links.map(l => (
-                  <li key={l}><a href="#" style={{ fontSize: 14, color: '#94A3B8', textDecoration: 'none', transition: 'color 0.2s' }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#94A3B8')}>{l}</a></li>
-                ))}
+                {links.map(l => {
+                  const linkStyle: React.CSSProperties = { fontSize: 14, color: '#94A3B8', textDecoration: 'none', transition: 'color 0.2s' }
+                  const onEnter = (e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = '#fff')
+                  const onLeave = (e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = '#94A3B8')
+                  return (
+                    <li key={l.label}>
+                      {l.external ? (
+                        <a href={l.href} target="_blank" rel="noopener noreferrer" style={linkStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>{l.label}</a>
+                      ) : (
+                        <Link href={l.href} style={linkStyle} onMouseEnter={onEnter} onMouseLeave={onLeave}>{l.label}</Link>
+                      )}
+                    </li>
+                  )
+                })}
               </ul>
             </div>
           ))}
