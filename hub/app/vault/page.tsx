@@ -297,7 +297,7 @@ function VaultInner() {
 
       {healthStatus === 'demo' && apiBase && (
         <div style={{ padding: '8px 20px 0' }}>
-          <ColdStartBanner serviceName="CipherVault" onRetry={() => {
+          <ColdStartBanner serviceName="Private Vault" onRetry={() => {
             setHealthStatus('checking')
             setRetryAttempt(0)
             const run = async () => {
