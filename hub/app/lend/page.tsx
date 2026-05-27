@@ -65,6 +65,49 @@ function SectionDivider({ bg = '#EEF2FF' }: { bg?: string }) {
   )
 }
 
+function DefiLlamaWidget() {
+  const [data, setData] = useState<{ total: number, top: any[] } | null>(null)
+  
+  useEffect(() => {
+    fetch('https://api.llama.fi/protocols')
+      .then(r => r.json())
+      .then(arr => {
+        // Filter out CEXes to get pure DeFi TVL
+        const defi = arr.filter((p: any) => p.category !== 'CEX')
+        const total = defi.reduce((acc: number, p: any) => acc + (p.tvl || 0), 0)
+        const top = defi.sort((a: any, b: any) => b.tvl - a.tvl).slice(0, 3)
+        setData({ total, top })
+      })
+      .catch(e => console.error('DefiLlama fetch error:', e))
+  }, [])
+
+  if (!data) return (
+    <div style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.7)', borderRadius: 9999, border: '1px solid #E0E7FF', display: 'flex', alignItems: 'center', gap: 8 }}>
+      <span style={{ fontSize: 12, fontWeight: 700, color: '#4338CA' }}>DeFiLlama TVL</span>
+      <span className="animate-pulse" style={{ height: 14, width: 64, borderRadius: 6, background: 'rgba(99,102,241,0.15)' }} />
+    </div>
+  )
+
+  return (
+    <div style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(10px)', borderRadius: 9999, border: '1px solid #E0E7FF', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 2px 10px rgba(99,102,241,0.1)' }}>
+      <span style={{ fontSize: 12, fontWeight: 700, color: '#4338CA' }}>Global DeFi TVL:</span>
+      <span style={{ fontSize: 14, fontWeight: 800, color: '#1E1B4B' }}>
+        ${(data.total / 1e9).toFixed(2)}B
+      </span>
+      <div style={{ display: 'flex', gap: 8, borderLeft: '1px solid rgba(99,102,241,0.2)', paddingLeft: 12 }}>
+        {data.top.map(p => (
+          <span key={p.name} style={{ fontSize: 11, color: '#6366F1', fontWeight: 600 }}>
+            {p.name} ${(p.tvl / 1e9).toFixed(1)}B
+          </span>
+        ))}
+      </div>
+      <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(30,27,75,0.4)', marginLeft: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+        Powered by DefiLlama 🦙
+      </span>
+    </div>
+  )
+}
+
 // Live collateral market prices (ETH primary collateral, ARB for L2 context).
 function LendMarketRow() {
   const { prices } = usePrices(['ethereum', 'arbitrum'])
@@ -107,6 +150,7 @@ function LendMarketRow() {
       <span style={{ fontSize: 12, fontWeight: 600, color: '#6366F1' }}>
         Collateral market prices · Live
       </span>
+      <DefiLlamaWidget />
     </div>
   )
 }
