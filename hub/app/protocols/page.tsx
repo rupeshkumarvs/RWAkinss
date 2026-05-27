@@ -113,7 +113,7 @@ export default function ProtocolsPage() {
       <header style={{ width: '100%', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 16, marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <Link className="gold-text" href="/dashboard" style={{ fontSize: 13, textDecoration: 'none' }}>◀ Back to Dashboard</Link>
+            <Link className="gold-text" href="/dashboard" style={{ fontSize: 13, textDecoration: 'none' }}>← Back to Dashboard</Link>
             <span style={{ color: '#666', fontSize: 12 }}>/</span>
             <span style={{ fontSize: 13, color: '#aaa' }}>Protocol Control Center</span>
           </div>

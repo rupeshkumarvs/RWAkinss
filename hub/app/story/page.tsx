@@ -403,7 +403,7 @@ export default function StoryPage() {
       <header style={{ width: '100%', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: 16, marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <Link className="gold-text" href="/dashboard" style={{ fontSize: 13, textDecoration: 'none' }}>◀ Back to Dashboard</Link>
+            <Link className="gold-text" href="/dashboard" style={{ fontSize: 13, textDecoration: 'none' }}>← Back to Dashboard</Link>
             <span style={{ color: '#666', fontSize: 12 }}>/</span>
             <span style={{ fontSize: 13, color: '#aaa' }}>Executive Narrative</span>
           </div>
@@ -469,7 +469,7 @@ export default function StoryPage() {
               className="btn-outline"
               style={{ padding: '8px 16px', fontSize: 12, opacity: activeSlideIndex === 0 ? 0.3 : 1 }}
             >
-              ◀ Previous
+              ← Previous
             </button>
             <button
               onClick={() => {
@@ -483,7 +483,7 @@ export default function StoryPage() {
               className="btn-gold"
               style={{ padding: '8px 18px', fontSize: 12 }}
             >
-              {activeSlideIndex === slides.length - 1 ? 'Finish Presentation ➔' : 'Next Chapter ▶'}
+              {activeSlideIndex === slides.length - 1 ? 'Finish Presentation ➔' : 'Next Chapter →'}
             </button>
           </div>
         </div>

@@ -246,7 +246,7 @@ export default function OnboardingTour() {
               fontSize: 12,
             }}
           >
-            Back
+            ← Back
           </button>
           
           <button
@@ -260,7 +260,7 @@ export default function OnboardingTour() {
               fontWeight: 600,
             }}
           >
-            {stepIndex === TOUR_STEPS.length - 1 ? 'Finish' : 'Next'}
+            {stepIndex === TOUR_STEPS.length - 1 ? 'Finish' : 'Next →'}
           </button>
         </div>
       </div>

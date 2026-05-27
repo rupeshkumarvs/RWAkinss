@@ -169,7 +169,7 @@ export default function ExecutiveWalkthrough() {
             className="btn-outline"
             style={{ padding: '6px 12px', fontSize: 11, opacity: demoStep === 0 ? 0.3 : 1 }}
           >
-            ◀ Back
+            ← Back
           </button>
           
           <button
@@ -185,7 +185,7 @@ export default function ExecutiveWalkthrough() {
               borderRadius: 4
             }}
           >
-            {demoStep === SHOWCASE_FLOW.length - 1 ? 'Exit Tour' : 'Next Step ▶'}
+            {demoStep === SHOWCASE_FLOW.length - 1 ? 'Exit Tour' : 'Next Step →'}
           </button>
 
           <button
