@@ -84,7 +84,7 @@ export default function ReceivePage() {
     <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#fff', fontFamily: '"Inter",system-ui,sans-serif' }}>
 
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>PALMFLOW AI / RECEIVE</div>
+        <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>YIELD OPERATIONS HUB / RECEIVE</div>
         <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>Receive Payment</h1>
         <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Share your wallet addresses or create payment requests with QR codes</p>
       </div>

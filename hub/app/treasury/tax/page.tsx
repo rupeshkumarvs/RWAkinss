@@ -124,7 +124,7 @@ export default function TaxPage() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
-          <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>PALMFLOW AI / FINANCIAL TRACKER</div>
+          <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>YIELD OPERATIONS HUB / FINANCIAL TRACKER</div>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>Tax Report</h1>
           <p style={{ margin: '6px 0 0', fontSize: 13, color: MUTED }}>FIFO capital gains/losses — short-term and long-term</p>
         </div>

@@ -59,6 +59,7 @@ export function ConnectButton({
   }
 
   if (!isConnected) {
+    const isDefaultColor = toolColor === '#F5C518'
     return (
       <>
         <div className="flex flex-col items-center gap-1">
@@ -67,10 +68,11 @@ export function ConnectButton({
             onClick={handleClick}
             className={`
               flex items-center rounded-full font-medium transition-all duration-200
-              bg-[#F5C518] text-[#080808] hover:bg-[#e6b800] active:scale-95
-              disabled:opacity-50 disabled:cursor-not-allowed
+              active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed
+              ${isDefaultColor ? 'bg-[#F5C518] text-[#080808] hover:bg-[#e6b800]' : 'hover:opacity-90'}
               ${sizeMap[size]} ${className}
             `}
+            style={!isDefaultColor ? { backgroundColor: toolColor, color: '#ffffff' } : undefined}
           >
             <Wallet size={13} />
             {isConnecting ? 'Connecting…' : error ? 'Retry Connect' : 'Connect Wallet'}

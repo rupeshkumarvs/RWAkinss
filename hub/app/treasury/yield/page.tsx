@@ -78,7 +78,7 @@ export default function YieldPage() {
     <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#fff', fontFamily: '"Inter",system-ui,sans-serif' }}>
 
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>PALMFLOW AI / YIELD OPTIMIZER</div>
+        <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>YIELD OPERATIONS HUB / YIELD OPTIMIZER</div>
         <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>Yield Optimizer</h1>
         <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Autonomous DeFi yield optimization across Solana protocols</p>
       </div>

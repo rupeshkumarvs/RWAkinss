@@ -93,35 +93,6 @@ export default function TreasuryLanding() {
     }).catch(() => {})
   }
 
-  // Cursor position
-  const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 })
-  const [cursorTrail, setCursorTrail] = useState({ x: -100, y: -100 })
-
-  useEffect(() => {
-    const moveCursor = (e: MouseEvent) => {
-      setCursorPos({ x: e.clientX, y: e.clientY })
-    }
-    window.addEventListener('mousemove', moveCursor)
-    return () => window.removeEventListener('mousemove', moveCursor)
-  }, [])
-
-  useEffect(() => {
-    let animationFrameId: number
-    const updateTrail = () => {
-      setCursorTrail(prev => {
-        const dx = cursorPos.x - prev.x
-        const dy = cursorPos.y - prev.y
-        return {
-          x: prev.x + dx * 0.18,
-          y: prev.y + dy * 0.18
-        }
-      })
-      animationFrameId = requestAnimationFrame(updateTrail)
-    }
-    updateTrail()
-    return () => cancelAnimationFrame(animationFrameId)
-  }, [cursorPos])
-
   /* particle canvas background */
   useEffect(() => {
     const canvas = canvasRef.current
@@ -190,62 +161,46 @@ export default function TreasuryLanding() {
   }, [])
 
   return (
-    <div className="Yield Operations Hub-container">
+    <div className="yield-hub-container">
       {/* Google Fonts Link */}
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=Dancing+Script:wght@600&family=Fira+Code:wght@400&display=swap" rel="stylesheet" />
 
       {/* Embedded Vanilla CSS Stylesheet */}
       <style dangerouslySetInnerHTML={{ __html: `
-        .Yield Operations Hub-container {
-          background-color: #FAFBFF;
-          color: #0A0F2E;
+        .yield-hub-container {
+          background-color: #050814;
+          color: #F8FAFC;
           font-family: 'DM Sans', sans-serif;
           min-height: 100vh;
           position: relative;
           overflow-x: hidden;
           width: 100%;
-          cursor: none;
         }
 
-        .custom-cursor-dot {
-          position: fixed;
-          width: 6px;
-          height: 6px;
-          background-color: #6366F1;
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 99999;
-          transform: translate(-50%, -50%);
-          transition: transform 0.05s ease-out;
-        }
-        .custom-cursor-ring {
-          position: fixed;
-          width: 24px;
-          height: 24px;
-          border: 1.5px solid #6366F1;
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 99998;
-          transform: translate(-50%, -50%);
-          background-color: rgba(99, 102, 241, 0.03);
-        }
-        a:hover ~ .custom-cursor-ring,
-        button:hover ~ .custom-cursor-ring,
-        input:hover ~ .custom-cursor-ring,
-        textarea:hover ~ .custom-cursor-ring {
-          width: 32px;
-          height: 32px;
-          border-color: #8B5CF6;
-          background-color: rgba(139, 92, 246, 0.08);
+        /* Override global page typography for high legibility on dark background */
+        .yield-hub-container .page-title {
+          color: #FFFFFF !important;
+          font-size: clamp(34px, 5vw, 56px);
+          font-weight: 800;
+          text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+          letter-spacing: -0.02em;
+          text-align: center;
         }
 
-        @media (max-width: 768px) {
-          .custom-cursor-dot, .custom-cursor-ring {
-            display: none !important;
-          }
-          .Yield Operations Hub-container {
-            cursor: auto !important;
-          }
+        .yield-hub-container .page-subtitle {
+          color: #94A3B8 !important;
+          font-size: 16px;
+          line-height: 1.7;
+          max-width: 650px;
+          margin: 0 auto 32px auto;
+          text-align: center;
+        }
+
+        .yield-hub-container .page-eyebrow {
+          color: #3B82F6 !important;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          justify-content: center;
         }
 
         .floating-container {
@@ -257,7 +212,7 @@ export default function TreasuryLanding() {
         }
         .float-bubble {
           position: absolute;
-          background-color: #E0E7FF;
+          background-color: rgba(59, 130, 246, 0.08);
           border-radius: 50%;
           animation: driftBubble linear infinite;
         }
@@ -271,7 +226,7 @@ export default function TreasuryLanding() {
         .dot-grid-overlay {
           position: absolute;
           inset: 0;
-          background-image: radial-gradient(circle, #C7D2FE 1px, transparent 1px);
+          background-image: radial-gradient(circle, rgba(59, 130, 246, 0.12) 1px, transparent 1px);
           background-size: 28px 28px;
           opacity: 0.3;
           pointer-events: none;
@@ -291,7 +246,7 @@ export default function TreasuryLanding() {
         .eyebrow-cursive {
           font-family: 'Dancing Script', cursive;
           font-size: 18px;
-          color: #6366F1;
+          color: #3B82F6;
           letter-spacing: 0.05em;
           display: flex;
           align-items: center;
@@ -306,21 +261,21 @@ export default function TreasuryLanding() {
         .title-syne-emerald {
           font-family: 'Syne', sans-serif;
           font-size: clamp(40px, 6vw, 66px);
-          color: #6366F1;
+          color: #3B82F6;
           font-weight: 700;
           letter-spacing: -0.02em;
         }
         .title-cursive-dark {
           font-family: 'Dancing Script', cursive;
           font-size: clamp(38px, 5.5vw, 58px);
-          color: #0A0F2E;
+          color: #FFFFFF;
           font-weight: 600;
         }
         .hero-subtext {
           font-family: 'DM Sans', sans-serif;
           font-size: 16px;
           line-height: 1.7;
-          color: rgba(10, 15, 46, 0.70);
+          color: #94A3B8;
           max-width: 600px;
           margin-bottom: 32px;
         }
@@ -333,7 +288,7 @@ export default function TreasuryLanding() {
           justify-content: center;
         }
         .btn-indigo-pill {
-          background-color: #6366F1;
+          background-color: #3B82F6;
           color: #FFFFFF;
           border: none;
           padding: 14px 32px;
@@ -343,18 +298,18 @@ export default function TreasuryLanding() {
           font-weight: 600;
           cursor: pointer;
           transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
-          box-shadow: 0 4px 14px rgba(99, 102, 241, 0.22);
+          box-shadow: 0 4px 14px rgba(59, 130, 246, 0.22);
           display: flex;
           align-items: center;
           gap: 8px;
         }
         .btn-indigo-pill:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(99, 102, 241, 0.32);
-          background-color: #4F46E5;
+          box-shadow: 0 6px 20px rgba(59, 130, 246, 0.32);
+          background-color: #2563EB;
         }
         .btn-navy-pill {
-          background-color: #0A0F2E;
+          background-color: #3B82F6;
           color: #FFFFFF;
           border: none;
           padding: 14px 32px;
@@ -370,13 +325,13 @@ export default function TreasuryLanding() {
         }
         .btn-navy-pill:hover {
           transform: translateY(-2px);
-          box-shadow: 0 6px 22px rgba(10, 15, 46, 0.25);
-          background-color: #6366F1;
+          box-shadow: 0 6px 22px rgba(59, 130, 246, 0.25);
+          background-color: #2563EB;
         }
         .btn-ghost-pill {
           background-color: transparent;
-          color: #0A0F2E;
-          border: 1px solid #A5B4FC;
+          color: #F8FAFC;
+          border: 1px solid #3B82F6;
           padding: 14px 32px;
           border-radius: 9999px;
           font-family: 'DM Sans', sans-serif;
@@ -390,7 +345,7 @@ export default function TreasuryLanding() {
         }
         .btn-ghost-pill:hover {
           transform: translateY(-2px);
-          background-color: rgba(165, 180, 252, 0.15);
+          background-color: rgba(59, 130, 246, 0.15);
         }
 
         .stats-grid-container {
@@ -402,32 +357,32 @@ export default function TreasuryLanding() {
         }
         .stats-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
           gap: 24px;
           margin-bottom: 80px;
         }
         .stat-card {
           border-radius: 24px;
-          border: 1px solid rgba(199, 210, 254, 0.6);
-          padding: 32px 28px;
+          border: 1px solid rgba(59, 130, 246, 0.25);
+          padding: 24px 20px;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           min-height: 160px;
-          box-shadow: 0 4px 24px rgba(99, 102, 241, 0.05);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-          background-color: rgba(255, 255, 255, 0.6);
+          box-shadow: 0 4px 24px rgba(59, 130, 246, 0.03);
+          transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+          background-color: rgba(13, 20, 44, 0.65);
           backdrop-filter: blur(12px);
         }
         .stat-card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
-          border-color: #8B5CF6;
+          box-shadow: 0 10px 30px rgba(59, 130, 246, 0.25);
+          border-color: rgba(96, 165, 250, 0.6);
         }
         .stat-eyebrow {
           font-family: 'Dancing Script', cursive;
           font-size: 18px;
-          color: #6366F1;
+          color: #60A5FA;
           font-weight: 600;
           display: flex;
           align-items: center;
@@ -436,15 +391,18 @@ export default function TreasuryLanding() {
         .stat-number {
           font-family: 'Syne', sans-serif;
           font-weight: 700;
-          font-size: clamp(28px, 3.5vw, 42px);
-          color: #0A0F2E;
+          font-size: clamp(16px, 1.8vw, 24px);
+          color: #FFFFFF;
           margin: 12px 0;
           line-height: 1.1;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .stat-label {
           font-family: 'DM Sans', sans-serif;
           font-size: 13px;
-          color: rgba(10, 15, 46, 0.65);
+          color: #94A3B8;
           font-weight: 500;
         }
 
@@ -455,8 +413,8 @@ export default function TreasuryLanding() {
           margin-bottom: 80px;
         }
         .feature-card {
-          background: rgba(255, 255, 255, 0.65);
-          border: 1px solid rgba(99, 102, 241, 0.2);
+          background: rgba(13, 20, 44, 0.6);
+          border: 1px solid rgba(59, 130, 246, 0.15);
           border-radius: 24px;
           padding: 32px;
           backdrop-filter: blur(12px);
@@ -464,13 +422,13 @@ export default function TreasuryLanding() {
         }
         .feature-card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 12px 40px rgba(99, 102, 241, 0.12);
-          border-color: rgba(99, 102, 241, 0.5);
+          box-shadow: 0 12px 40px rgba(59, 130, 246, 0.12);
+          border-color: rgba(59, 130, 246, 0.4);
         }
         .feature-icon {
           font-size: 36px;
           margin-bottom: 20px;
-          background: rgba(99, 102, 241, 0.1);
+          background: rgba(59, 130, 246, 0.1);
           width: 64px;
           height: 64px;
           display: flex;
@@ -482,21 +440,21 @@ export default function TreasuryLanding() {
           font-family: 'Syne', sans-serif;
           font-size: 18px;
           font-weight: 700;
-          color: #0A0F2E;
+          color: #FFFFFF;
           margin-bottom: 12px;
         }
         .feature-desc {
           font-family: 'DM Sans', sans-serif;
           font-size: 14px;
-          color: rgba(10, 15, 46, 0.7);
+          color: #94A3B8;
           line-height: 1.6;
           margin-bottom: 20px;
         }
         .feature-detail {
           font-family: 'Fira Code', monospace;
           font-size: 11px;
-          color: #4F46E5;
-          background: rgba(99, 102, 241, 0.08);
+          color: #93C5FD;
+          background: rgba(59, 130, 246, 0.08);
           padding: 10px 14px;
           border-radius: 10px;
           line-height: 1.5;
@@ -509,7 +467,7 @@ export default function TreasuryLanding() {
         .chains-title {
           font-family: 'DM Sans', sans-serif;
           font-size: 12px;
-          color: rgba(10, 15, 46, 0.5);
+          color: rgba(255, 255, 255, 0.5);
           letter-spacing: 0.1em;
           text-transform: uppercase;
           margin-bottom: 24px;
@@ -524,8 +482,8 @@ export default function TreasuryLanding() {
         .chain-pill {
           padding: 10px 20px;
           border-radius: 9999px;
-          border: 1px solid rgba(99, 102, 241, 0.2);
-          background: rgba(255, 255, 255, 0.6);
+          border: 1px solid rgba(59, 130, 246, 0.2);
+          background: rgba(13, 20, 44, 0.6);
           display: flex;
           align-items: center;
           gap: 8px;
@@ -534,42 +492,42 @@ export default function TreasuryLanding() {
         }
         .chain-pill:hover {
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
         }
         .chain-name {
           font-family: 'DM Sans', sans-serif;
           font-size: 13px;
           font-weight: 600;
-          color: #0A0F2E;
+          color: #F8FAFC;
         }
         .chain-symbol {
           font-family: 'Fira Code', monospace;
           font-size: 11px;
-          color: #6366F1;
+          color: #60A5FA;
           font-weight: 500;
         }
         
         .quick-actions-card {
-          background: rgba(255, 255, 255, 0.7);
-          border: 1px solid rgba(99, 102, 241, 0.2);
+          background: rgba(13, 20, 44, 0.5);
+          border: 1px solid rgba(59, 130, 246, 0.2);
           border-radius: 32px;
           padding: 48px;
           text-align: center;
           backdrop-filter: blur(16px);
           margin-bottom: 80px;
-          box-shadow: 0 8px 32px rgba(99, 102, 241, 0.08);
+          box-shadow: 0 8px 32px rgba(59, 130, 246, 0.08);
         }
         .qa-title {
           font-family: 'Syne', sans-serif;
           font-size: 28px;
           font-weight: 700;
-          color: #0A0F2E;
+          color: #FFFFFF;
           margin-bottom: 12px;
         }
         .qa-desc {
           font-family: 'DM Sans', sans-serif;
           font-size: 15px;
-          color: rgba(10, 15, 46, 0.65);
+          color: #94A3B8;
           margin-bottom: 32px;
           max-width: 500px;
           margin-left: auto;
@@ -581,22 +539,17 @@ export default function TreasuryLanding() {
           padding-bottom: 40px;
           font-family: 'DM Sans', sans-serif;
           font-size: 12px;
-          color: rgba(10, 15, 46, 0.4);
+          color: rgba(255, 255, 255, 0.4);
           line-height: 1.6;
           max-width: 600px;
           margin: 0 auto;
         }
+        .yield-hub-container .badge-live {
+          background-color: rgba(59, 130, 246, 0.15) !important;
+          border: 1px solid rgba(59, 130, 246, 0.3) !important;
+          color: #60A5FA !important;
+        }
       `}} />
-
-      {/* Custom Cursor Rendering */}
-      <div 
-        className="custom-cursor-dot" 
-        style={{ left: `${cursorPos.x}px`, top: `${cursorPos.y}px` }} 
-      />
-      <div 
-        className="custom-cursor-ring" 
-        style={{ left: `${cursorTrail.x}px`, top: `${cursorTrail.y}px` }} 
-      />
 
       {/* Floating Circles */}
       <div className="floating-container">
@@ -628,28 +581,28 @@ export default function TreasuryLanding() {
         {/* Hero */}
         <section className="hero-section">
           <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <div className="page-eyebrow">
+            <div className="page-eyebrow" style={{ color: '#3B82F6', fontWeight: 700, letterSpacing: '0.12em', justifyContent: 'center' }}>
               ✦ Autonomous Yield Operations Hub OS
             </div>
 
-            <h1 className="page-title">
+            <h1 className="page-title" style={{ color: '#FFFFFF' }}>
               Run Your Organization's Finances Invisibly On-Chain
             </h1>
 
-            <p className="page-subtitle" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+            <p className="page-subtitle" style={{ color: '#94A3B8', marginLeft: 'auto', marginRight: 'auto' }}>
               AI agents manage payments, optimize routing, and execute Yield Operations Hub operations autonomously.
-              PalmFlow AI — the Autonomous Financial Operating System for DAOs and enterprises.
+              Yield Operations Hub — the Autonomous Financial Operating System for DAOs and enterprises.
             </p>
 
             {/* CTAs */}
             <div className="hero-buttons">
               <PriceBadge coinId="solana" label="SOL" />
-              <ConnectButton type="solana" size="lg" />
+              <ConnectButton type="solana" size="lg" toolColor="#3B82F6" />
               <Link href="/treasury/dashboard">
                 <motion.button
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.97 }}
-                  className="btn-primary"
+                  className="btn-indigo-pill"
                 >
                   📊 View Dashboard
                 </motion.button>
@@ -658,7 +611,7 @@ export default function TreasuryLanding() {
                 <motion.button
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.97 }}
-                  className="btn-outline"
+                  className="btn-ghost-pill"
                 >
                   🎯 Try Demo
                 </motion.button>
@@ -675,7 +628,7 @@ export default function TreasuryLanding() {
               <span className={trustmesh.isLive ? 'badge-live' : 'badge-demo'}>
                 <span style={{
                   width: 8, height: 8, borderRadius: '50%',
-                  background: trustmesh.isLive ? '#6366f1' : '#f59e0b', flexShrink: 0,
+                  background: trustmesh.isLive ? '#3B82F6' : '#f59e0b', flexShrink: 0,
                   animation: trustmesh.isLive ? 'tPulse 1.4s ease-in-out infinite' : 'none',
                 }} />
                 {trustmesh.isLive
@@ -686,7 +639,7 @@ export default function TreasuryLanding() {
                 <button
                   onClick={copyOperator}
                   title={`Copy: ${TRUSTMESH_OWNER_WALLET}`}
-                  style={{ fontSize: 11, padding: '3px 10px', borderRadius: 99, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', color: '#6366f1', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                  style={{ fontSize: 11, padding: '3px 10px', borderRadius: 99, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', color: '#3B82F6', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                 >
                   {copied ? '✓ Copied' : `⎘ ${operatorShort}`}
                 </button>
@@ -719,11 +672,18 @@ export default function TreasuryLanding() {
                 if (idx === 3) displayValue = `#${trustmesh.currentSlot.toLocaleString()}`
               }
               const displayLabel = trustmesh.isLive && idx === 3 ? 'Solana Devnet Slot' : s.label
+              const isLong = displayValue.length > 8
               return (
                 <div key={s.label} className="stat-card">
                   <div>
                     <div className="stat-eyebrow">✦ Metric {idx + 1}</div>
-                    <div className="stat-number">{displayValue}</div>
+                    <div
+                      className="stat-number"
+                      style={isLong ? { fontSize: 'clamp(14px, 1.8vw, 19px)' } : {}}
+                      title={displayValue}
+                    >
+                      {displayValue}
+                    </div>
                   </div>
                   <div className="stat-label">{displayLabel}</div>
                 </div>
@@ -778,18 +738,42 @@ export default function TreasuryLanding() {
             </p>
             <div className="hero-buttons" style={{ marginBottom: 0 }}>
               {[
-                { href:'/treasury/dashboard', label:'📊 Dashboard',  color: '#6366F1' },
-                { href:'/treasury/send',      label:'💸 Send',       color: '#4F46E5' },
-                { href:'/treasury/receive',   label:'📥 Receive',    color: '#0A0F2E' },
-                { href:'/treasury/swap',      label:'🔄 Swap',       color: '#8B5CF6' },
-                { href:'/treasury/analytics', label:'📉 Analytics',  color: '#3B5BFA' },
-                { href:'/treasury/pnl',       label:'📈 P&L',        color: '#00E5CC' },
-                { href:'/treasury/tax',       label:'🧾 Tax Report', color: '#A855F7' },
+                { href:'/treasury/dashboard', label:'📊 Dashboard',  color: '#3B82F6' },
+                { href:'/treasury/send',      label:'💸 Send',       color: '#60A5FA' },
+                { href:'/treasury/receive',   label:'📥 Receive',    color: '#93C5FD' },
+                { href:'/treasury/swap',      label:'🔄 Swap',       color: '#34D399' },
+                { href:'/treasury/analytics', label:'📉 Analytics',  color: '#60A5FA' },
+                { href:'/treasury/pnl',       label:'📈 P&L',        color: '#34D399' },
+                { href:'/treasury/tax',       label:'🧾 Tax Report', color: '#FBBF24' },
               ].map(a => (
                 <Link key={a.href} href={a.href}>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
-                    style={{ padding: '12px 24px', borderRadius: '12px', border: `1px solid ${a.color}44`, background: 'rgba(255,255,255,0.8)', color: a.color, fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    style={{
+                      padding: '12px 24px',
+                      borderRadius: '12px',
+                      border: `1px solid rgba(59, 130, 246, 0.25)`,
+                      background: 'rgba(13, 20, 44, 0.65)',
+                      color: '#F8FAFC',
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      backdropFilter: 'blur(10px)',
+                      transition: 'all 0.2s',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = a.color
+                      e.currentTarget.style.boxShadow = `0 0 15px ${a.color}40`
+                      e.currentTarget.style.color = a.color
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.25)'
+                      e.currentTarget.style.boxShadow = 'none'
+                      e.currentTarget.style.color = '#F8FAFC'
+                    }}
                   >
                     {a.label}
                   </motion.button>
@@ -801,7 +785,7 @@ export default function TreasuryLanding() {
 
         {/* Footer note */}
         <div className="footer-note">
-          PalmFlow AI is a production-ready financial OS. Connect your wallet to start managing Yield Operations Hub operations.
+          Yield Operations Hub is a production-ready financial OS. Connect your wallet to start managing treasury operations.
           All operations are non-custodial — your keys, your funds.
         </div>
       </div>

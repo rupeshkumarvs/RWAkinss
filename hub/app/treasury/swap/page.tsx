@@ -71,7 +71,7 @@ export default function SwapPage() {
       <div style={{ maxWidth: 960, margin: '0 auto' }}>
 
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>PALMFLOW AI / SWAP</div>
+          <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>YIELD OPERATIONS HUB / SWAP</div>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>Swap Assets</h1>
           <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>AI-optimized DEX routing across Solana, Ethereum and more</p>
         </div>

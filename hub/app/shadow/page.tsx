@@ -303,7 +303,7 @@ export default function ShadowPage() {
     setLoading(true); setError('')
     try {
       if (!isDemo) await req('/api/org/setup', { method:'POST', body:JSON.stringify({ name:orgName, admin }) })
-      setMessage(`Organization "${orgName||'Shadow DAO'}" configured${isDemo?' (demo)':''}.`)
+      setMessage(`Organization "${orgName||'Stealth Executive Suite DAO'}" configured${isDemo?' (demo)':''}.`)
       toast.success('Organization saved')
       setOrgOpen(false)
     } catch (e) {
@@ -516,7 +516,7 @@ export default function ShadowPage() {
 
       {health === 'down' && apiBase && (
         <div style={{ maxWidth: 1400, margin: '0 auto', padding: '8px 24px 0' }}>
-          <ColdStartBanner serviceName="Shadow" onRetry={runInit} />
+          <ColdStartBanner serviceName="Stealth Executive Suite" onRetry={runInit} />
         </div>
       )}
 
@@ -526,7 +526,7 @@ export default function ShadowPage() {
         <section className="hero-section" style={{ textAlign: 'center', padding: '60px 20px 40px', position: 'relative', zIndex: 10 }}>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className="page-eyebrow">
-              SHADOWLEDGER NEXUS
+              STEALTH EXECUTIVE SUITE NEXUS
             </div>
             <h1 className="page-title">
               Autonomous Corporate AI <br/>
@@ -588,7 +588,7 @@ export default function ShadowPage() {
             <form onSubmit={setupOrg} style={{ display:'grid', gridTemplateColumns:'1fr 1fr auto', gap:24, alignItems:'end' }}>
               <div>
                 <label style={{ display:'block', fontSize:12, fontWeight: 700, color:'#94A3B8', marginBottom:8, letterSpacing:'0.05em' }}>ORGANIZATION NAME</label>
-                <input value={orgName} onChange={e=>setOrgName(e.target.value)} placeholder="Shadow DAO" style={{ width:'100%', padding:'14px 16px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:12, color:'#E2E8F0', fontSize:14, fontWeight: 500, boxSizing:'border-box', outline:'none', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = 'rgba(255,255,255,0.3)'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.12)'} />
+                <input value={orgName} onChange={e=>setOrgName(e.target.value)} placeholder="Stealth Executive Suite DAO" style={{ width:'100%', padding:'14px 16px', background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:12, color:'#E2E8F0', fontSize:14, fontWeight: 500, boxSizing:'border-box', outline:'none', transition: 'border-color 0.2s' }} onFocus={e => e.target.style.borderColor = 'rgba(255,255,255,0.3)'} onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.12)'} />
               </div>
               <div>
                 <label style={{ display:'block', fontSize:12, fontWeight: 700, color:'#94A3B8', marginBottom:8, letterSpacing:'0.05em' }}>ADMIN WALLET (SOLANA)</label>

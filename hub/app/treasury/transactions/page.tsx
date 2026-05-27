@@ -58,7 +58,7 @@ export default function TransactionsPage() {
 
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24, flexWrap:'wrap', gap:12 }}>
         <div>
-          <div style={{ fontSize:11, color:TEAL, fontFamily:MONO, letterSpacing:'0.1em', marginBottom:4 }}>PALMFLOW AI / TRANSACTIONS</div>
+          <div style={{ fontSize:11, color:TEAL, fontFamily:MONO, letterSpacing:'0.1em', marginBottom:4 }}>YIELD OPERATIONS HUB / TRANSACTIONS</div>
           <h1 style={{ margin:0, fontSize:24, fontWeight:700 }}>Transaction History</h1>
           <p style={{ margin:'6px 0 0', fontSize:13, color:'rgba(255,255,255,0.4)' }}>All payments, swaps, deposits and withdrawals</p>
         </div>

@@ -23,20 +23,20 @@ const ITEMS = [
   { href:'/treasury/settings',       label:'⚙️ Settings',  exact:false },
 ] as const
 
-const TEAL = '#00E5CC'
-
+const BLUE = '#3B82F6'
+ 
 export default function TreasuryNav() {
   const pathname = usePathname()
   return (
     <nav style={{
       display:'flex', gap:4, padding:'10px 20px',
-      borderBottom:'1px solid rgba(0,229,204,0.1)',
+      borderBottom:'1px solid rgba(59,130,246,0.15)',
       flexWrap:'wrap', background:'rgba(5,5,15,0.85)',
       backdropFilter:'blur(14px)', position:'sticky', top:0, zIndex:40,
       alignItems:'center',
     }}>
-      <span style={{ fontSize:11, fontWeight:800, color:TEAL, letterSpacing:'0.1em', marginRight:8, display:'flex', alignItems:'center', gap:4 }}>
-        <span style={{ fontSize:14 }}>⚡</span>PALMFLOW
+      <span style={{ fontSize:11, fontWeight:800, color:BLUE, letterSpacing:'0.1em', marginRight:8, display:'flex', alignItems:'center', gap:4 }}>
+        <span style={{ fontSize:14 }}>⚡</span>YIELD OPERATIONS HUB
       </span>
       <span style={{ fontSize:9, color:'rgba(255,255,255,0.2)', marginRight:4, letterSpacing:'0.05em' }}>Neural OS v4.2</span>
       {ITEMS.map(item => {
@@ -45,9 +45,9 @@ export default function TreasuryNav() {
           <Link key={item.href} href={item.href} style={{
             padding:'4px 10px', borderRadius:16, fontSize:10,
             fontWeight: active ? 700 : 400, textDecoration:'none',
-            background: active ? `rgba(0,229,204,0.12)` : 'transparent',
-            border:`1px solid ${active ? 'rgba(0,229,204,0.35)' : 'rgba(255,255,255,0.07)'}`,
-            color: active ? TEAL : 'rgba(255,255,255,0.45)',
+            background: active ? `rgba(59,130,246,0.12)` : 'transparent',
+            border:`1px solid ${active ? 'rgba(59,130,246,0.35)' : 'rgba(255,255,255,0.07)'}`,
+            color: active ? BLUE : 'rgba(255,255,255,0.45)',
             transition:'all 0.2s', whiteSpace:'nowrap',
           }}>
             {item.label}
