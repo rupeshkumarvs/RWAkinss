@@ -168,8 +168,10 @@ export default function TreasuryLanding() {
       {/* Embedded Vanilla CSS Stylesheet */}
       <style dangerouslySetInnerHTML={{ __html: `
         .yield-hub-container {
-          background-color: #050814;
-          color: #F8FAFC;
+          background: radial-gradient(60% 55% at 70% 40%, rgba(219,234,254,0.5) 0%, transparent 60%),
+                      radial-gradient(50% 50% at 25% 60%, rgba(237,233,254,0.5) 0%, transparent 60%),
+                      linear-gradient(180deg, #F8FAFC 0%, #EEF2FF 100%);
+          color: #0A0F2E;
           font-family: 'DM Sans', sans-serif;
           min-height: 100vh;
           position: relative;
@@ -177,18 +179,17 @@ export default function TreasuryLanding() {
           width: 100%;
         }
 
-        /* Override global page typography for high legibility on dark background */
         .yield-hub-container .page-title {
-          color: #FFFFFF !important;
+          color: #0A0F2E !important;
           font-size: clamp(34px, 5vw, 56px);
           font-weight: 800;
-          text-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+          text-shadow: none;
           letter-spacing: -0.02em;
           text-align: center;
         }
 
         .yield-hub-container .page-subtitle {
-          color: #94A3B8 !important;
+          color: #475569 !important;
           font-size: 16px;
           line-height: 1.7;
           max-width: 650px;
@@ -197,7 +198,7 @@ export default function TreasuryLanding() {
         }
 
         .yield-hub-container .page-eyebrow {
-          color: #3B82F6 !important;
+          color: #3B5BFA !important;
           font-weight: 700;
           letter-spacing: 0.12em;
           justify-content: center;
@@ -268,14 +269,14 @@ export default function TreasuryLanding() {
         .title-cursive-dark {
           font-family: 'Dancing Script', cursive;
           font-size: clamp(38px, 5.5vw, 58px);
-          color: #FFFFFF;
+          color: #0A0F2E;
           font-weight: 600;
         }
         .hero-subtext {
           font-family: 'DM Sans', sans-serif;
           font-size: 16px;
           line-height: 1.7;
-          color: #94A3B8;
+          color: #475569;
           max-width: 600px;
           margin-bottom: 32px;
         }
@@ -363,15 +364,15 @@ export default function TreasuryLanding() {
         }
         .stat-card {
           border-radius: 24px;
-          border: 1px solid rgba(59, 130, 246, 0.25);
+          border: 1px solid rgba(59, 130, 246, 0.2);
           padding: 24px 20px;
           display: flex;
           flex-direction: column;
           justify-content: space-between;
           min-height: 160px;
-          box-shadow: 0 4px 24px rgba(59, 130, 246, 0.03);
+          box-shadow: 0 4px 16px rgba(10, 15, 46, 0.06);
           transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-          background-color: rgba(13, 20, 44, 0.65);
+          background-color: rgba(255, 255, 255, 0.85);
           backdrop-filter: blur(12px);
         }
         .stat-card:hover {
@@ -392,7 +393,7 @@ export default function TreasuryLanding() {
           font-family: 'Syne', sans-serif;
           font-weight: 700;
           font-size: clamp(16px, 1.8vw, 24px);
-          color: #FFFFFF;
+          color: #0A0F2E;
           margin: 12px 0;
           line-height: 1.1;
           white-space: nowrap;
@@ -402,7 +403,7 @@ export default function TreasuryLanding() {
         .stat-label {
           font-family: 'DM Sans', sans-serif;
           font-size: 13px;
-          color: #94A3B8;
+          color: #64748B;
           font-weight: 500;
         }
 
@@ -413,11 +414,12 @@ export default function TreasuryLanding() {
           margin-bottom: 80px;
         }
         .feature-card {
-          background: rgba(13, 20, 44, 0.6);
+          background: rgba(255, 255, 255, 0.85);
           border: 1px solid rgba(59, 130, 246, 0.15);
           border-radius: 24px;
           padding: 32px;
           backdrop-filter: blur(12px);
+          box-shadow: 0 4px 16px rgba(10, 15, 46, 0.06);
           transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
         }
         .feature-card:hover {
@@ -440,21 +442,21 @@ export default function TreasuryLanding() {
           font-family: 'Syne', sans-serif;
           font-size: 18px;
           font-weight: 700;
-          color: #FFFFFF;
+          color: #0A0F2E;
           margin-bottom: 12px;
         }
         .feature-desc {
           font-family: 'DM Sans', sans-serif;
           font-size: 14px;
-          color: #94A3B8;
+          color: #475569;
           line-height: 1.6;
           margin-bottom: 20px;
         }
         .feature-detail {
           font-family: 'Fira Code', monospace;
           font-size: 11px;
-          color: #93C5FD;
-          background: rgba(59, 130, 246, 0.08);
+          color: #3B5BFA;
+          background: rgba(59, 91, 250, 0.06);
           padding: 10px 14px;
           border-radius: 10px;
           line-height: 1.5;
@@ -467,7 +469,7 @@ export default function TreasuryLanding() {
         .chains-title {
           font-family: 'DM Sans', sans-serif;
           font-size: 12px;
-          color: rgba(255, 255, 255, 0.5);
+          color: #64748B;
           letter-spacing: 0.1em;
           text-transform: uppercase;
           margin-bottom: 24px;
@@ -482,64 +484,65 @@ export default function TreasuryLanding() {
         .chain-pill {
           padding: 10px 20px;
           border-radius: 9999px;
-          border: 1px solid rgba(59, 130, 246, 0.2);
-          background: rgba(13, 20, 44, 0.6);
+          border: 1px solid rgba(59, 91, 250, 0.2);
+          background: rgba(255, 255, 255, 0.85);
           display: flex;
           align-items: center;
           gap: 8px;
           backdrop-filter: blur(10px);
+          box-shadow: 0 2px 8px rgba(10, 15, 46, 0.06);
           transition: transform 0.2s, box-shadow 0.2s;
         }
         .chain-pill:hover {
           transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+          box-shadow: 0 6px 16px rgba(59, 91, 250, 0.12);
         }
         .chain-name {
           font-family: 'DM Sans', sans-serif;
           font-size: 13px;
           font-weight: 600;
-          color: #F8FAFC;
+          color: #0A0F2E;
         }
         .chain-symbol {
           font-family: 'Fira Code', monospace;
           font-size: 11px;
-          color: #60A5FA;
+          color: #3B5BFA;
           font-weight: 500;
         }
         
         .quick-actions-card {
-          background: rgba(13, 20, 44, 0.5);
-          border: 1px solid rgba(59, 130, 246, 0.2);
+          background: rgba(255, 255, 255, 0.85);
+          border: 1px solid rgba(59, 91, 250, 0.15);
           border-radius: 32px;
           padding: 48px;
           text-align: center;
           backdrop-filter: blur(16px);
           margin-bottom: 80px;
-          box-shadow: 0 8px 32px rgba(59, 130, 246, 0.08);
+          box-shadow: 0 8px 32px rgba(10, 15, 46, 0.08);
         }
         .qa-title {
           font-family: 'Syne', sans-serif;
           font-size: 28px;
           font-weight: 700;
-          color: #FFFFFF;
+          color: #0A0F2E;
           margin-bottom: 12px;
         }
         .qa-desc {
           font-family: 'DM Sans', sans-serif;
           font-size: 15px;
-          color: #94A3B8;
+          color: #475569;
           margin-bottom: 32px;
           max-width: 500px;
           margin-left: auto;
           margin-right: auto;
         }
-        
+
         .footer-note {
           text-align: center;
           padding-bottom: 40px;
           font-family: 'DM Sans', sans-serif;
           font-size: 12px;
-          color: rgba(255, 255, 255, 0.4);
+          color: #94A3B8;
           line-height: 1.6;
           max-width: 600px;
           margin: 0 auto;
@@ -573,7 +576,7 @@ export default function TreasuryLanding() {
       <div className="dot-grid-overlay" />
       
       {/* Animated particle canvas */}
-      <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }} />
+      <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1, opacity: 0.12 }} />
 
       <WrongNetworkBanner />
 
@@ -585,11 +588,11 @@ export default function TreasuryLanding() {
               ✦ Autonomous Yield Operations Hub OS
             </div>
 
-            <h1 className="page-title" style={{ color: '#FFFFFF' }}>
+            <h1 className="page-title" style={{ color: '#0A0F2E' }}>
               Run Your Organization's Finances Invisibly On-Chain
             </h1>
 
-            <p className="page-subtitle" style={{ color: '#94A3B8', marginLeft: 'auto', marginRight: 'auto' }}>
+            <p className="page-subtitle" style={{ color: '#475569', marginLeft: 'auto', marginRight: 'auto' }}>
               AI agents manage payments, optimize routing, and execute Yield Operations Hub operations autonomously.
               Yield Operations Hub — the Autonomous Financial Operating System for DAOs and enterprises.
             </p>

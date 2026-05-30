@@ -114,6 +114,56 @@ body { background: #ffffff; color: #0A0F2E; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 .hide-scrollbar { scrollbar-width: none; }
 
+/* ── Kubryx Unified Tool Theme ─────────────────────────────── */
+/* Applies Kubryx homepage gradient to ALL tool page containers */
+.kbx-tool-page {
+  background:
+    radial-gradient(60% 55% at 70% 40%, rgba(252,231,243,0.7) 0%, rgba(252,231,243,0) 60%),
+    radial-gradient(50% 50% at 25% 60%, rgba(237,233,254,0.7) 0%, rgba(237,233,254,0) 60%),
+    radial-gradient(65% 65% at 50% 100%, rgba(224,242,254,0.6) 0%, rgba(224,242,254,0) 65%),
+    linear-gradient(180deg, #F8FAFC 0%, #F1F5FF 100%);
+  color: #0A0F2E;
+  min-height: 100%;
+}
+
+/* Override dark tool containers */
+.yield-hub-container {
+  background:
+    radial-gradient(60% 55% at 70% 40%, rgba(219,234,254,0.5) 0%, transparent 60%),
+    radial-gradient(50% 50% at 25% 60%, rgba(237,233,254,0.6) 0%, transparent 60%),
+    linear-gradient(180deg, #F8FAFC 0%, #EEF2FF 100%) !important;
+  color: #0A0F2E !important;
+}
+.yield-hub-container .page-title { color: #0A0F2E !important; text-shadow: none !important; }
+.yield-hub-container .page-subtitle { color: #475569 !important; }
+.yield-hub-container .page-eyebrow { color: #3B5BFA !important; }
+.yield-hub-container canvas { opacity: 0.15 !important; }
+.yield-hub-container .floating-container { opacity: 0.08 !important; }
+.yield-hub-container .dot-grid-overlay { opacity: 0.04 !important; }
+
+.shadow-container {
+  background:
+    radial-gradient(60% 55% at 70% 40%, rgba(252,231,243,0.7) 0%, transparent 60%),
+    radial-gradient(50% 50% at 25% 60%, rgba(237,233,254,0.7) 0%, transparent 60%),
+    linear-gradient(180deg, #F8FAFC 0%, #F1F5FF 100%) !important;
+  color: #0A0F2E !important;
+}
+.shadow-container .floating-container { opacity: 0.06 !important; }
+.shadow-container .dot-grid-overlay { opacity: 0.04 !important; }
+
+/* Agent page */
+.stripe-bg {
+  background:
+    radial-gradient(60% 55% at 70% 30%, rgba(192,132,252,0.2) 0%, transparent 60%),
+    radial-gradient(50% 50% at 20% 60%, rgba(237,233,254,0.5) 0%, transparent 60%),
+    linear-gradient(180deg, #FAF5FF 0%, #F3E8FF 60%, #EEF2FF 100%) !important;
+}
+
+/* Vault page */
+.vault-page, .cipher-vault-page {
+  background: linear-gradient(180deg, #ECFEFF 0%, #E0F2FE 100%) !important;
+}
+
 /* ── Global Typography & Layout (Unified UI) ── */
 .page-eyebrow {
   font-family: 'Dancing Script', cursive;

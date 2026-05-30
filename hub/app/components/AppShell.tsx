@@ -60,7 +60,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     <KubrykPlatformProvider>
     <ChainPreferenceProvider>
     <WalletPlatformSync />
-    <div style={{ background: '#080808', minHeight: '100vh', display: 'flex' }}>
+    <div style={{ background: '#FAFBFF', minHeight: '100vh', display: 'flex' }}>
       {mounted && (
         <KubrykSidebar
           collapsed={isMobile ? false : collapsed}

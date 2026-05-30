@@ -107,8 +107,8 @@ function AgentCard({
             {dept.icon}
           </div>
           <div>
-            <p style={{ fontSize: 16, fontWeight: 700, color: '#E2E8F0', margin: 0 }}>{dept.name}</p>
-            <p style={{ fontSize: 12, color: '#94A3B8', margin: 0 }}>{dept.role}</p>
+            <p style={{ fontSize: 16, fontWeight: 700, color: '#0A0F2E', margin: 0 }}>{dept.name}</p>
+            <p style={{ fontSize: 12, color: '#64748B', margin: 0 }}>{dept.role}</p>
           </div>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:5 }}>
@@ -119,7 +119,7 @@ function AgentCard({
       {/* Metric */}
       <div style={{ background:'rgba(255,255,255,0.05)', borderRadius:12, padding:'16px', display:'flex', justifyContent:'space-between', alignItems:'center', border: '1px solid rgba(255,255,255,0.08)' }}>
         <div>
-          <p style={{ fontSize:11, color:'#94A3B8', margin:'0 0 4px', textTransform:'uppercase', letterSpacing:'0.05em', fontWeight: 600 }}>{dept.label}</p>
+          <p style={{ fontSize:11, color:'#64748B', margin:'0 0 4px', textTransform:'uppercase', letterSpacing:'0.05em', fontWeight: 600 }}>{dept.label}</p>
           <p style={{ fontSize:24, fontWeight:800, color:'#E2E8F0', margin:0, fontFamily:MONO }}>
             {stealth ? '●●●●●' : dept.metric}
             <span style={{ fontSize:12, color:'#94A3B8', marginLeft:6 }}>{dept.unit}</span>
@@ -451,8 +451,8 @@ export default function ShadowPage() {
         <div style={{ display:'flex', alignItems:'center', gap:12 }}>
           <div style={{ width: 36, height: 36, background: '#0F172A', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🌑</div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize:14, fontWeight:800, color:'#E2E8F0', letterSpacing:'0.1em' }}>Stealth Execution Suite</span>
-            <span style={{ fontSize:10, color:'#64748B', letterSpacing:'0.06em', fontWeight: 600 }}>NEXUS v2.0</span>
+            <span style={{ fontSize:14, fontWeight:800, color:'#0A0F2E', letterSpacing:'0.1em' }}>Stealth Execution Suite</span>
+            <span style={{ fontSize:10, color:'#475569', letterSpacing:'0.06em', fontWeight: 600 }}>NEXUS v2.0</span>
           </div>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>
@@ -778,10 +778,10 @@ export default function ShadowPage() {
 
       <style>{`
         .shadow-container {
-          background-color: #080808;
-          background-image: radial-gradient(at 0% 0%, #0d1117 0px, transparent 50%),
-                            radial-gradient(at 100% 0%, #111827 0px, transparent 50%);
-          color: #E2E8F0;
+          background: radial-gradient(60% 55% at 70% 40%, rgba(252,231,243,0.6) 0%, transparent 60%),
+                      radial-gradient(50% 50% at 25% 60%, rgba(237,233,254,0.6) 0%, transparent 60%),
+                      linear-gradient(180deg, #F8FAFC 0%, #F1F5FF 100%);
+          color: #0A0F2E;
           font-family: 'Inter', system-ui, sans-serif;
           min-height: 100vh;
           position: relative;
@@ -789,16 +789,16 @@ export default function ShadowPage() {
           width: 100%;
         }
 
-        .shadow-container .page-title { color: #E2E8F0; }
-        .shadow-container .page-subtitle { color: rgba(255,255,255,0.55); }
-        .shadow-container .page-eyebrow { color: #94A3B8; }
+        .shadow-container .page-title { color: #0A0F2E !important; }
+        .shadow-container .page-subtitle { color: #475569 !important; }
+        .shadow-container .page-eyebrow { color: #3B5BFA !important; }
 
         .dot-grid-overlay {
           position: absolute;
           inset: 0;
-          background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+          background-image: radial-gradient(circle, rgba(10,15,46,0.06) 1px, transparent 1px);
           background-size: 32px 32px;
-          opacity: 0.6;
+          opacity: 0.5;
           pointer-events: none;
           z-index: 0;
         }
@@ -827,17 +827,17 @@ export default function ShadowPage() {
         }
 
         .glass-card {
-          background: rgba(255, 255, 255, 0.04);
+          background: rgba(255, 255, 255, 0.82);
           backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid rgba(10, 15, 46, 0.08);
           border-radius: 24px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 4px 20px rgba(10, 15, 46, 0.07);
         }
 
         .nav-bar {
-          background: rgba(8, 8, 8, 0.9);
+          background: rgba(255, 255, 255, 0.88);
           backdrop-filter: blur(16px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          border-bottom: 1px solid rgba(10, 15, 46, 0.08);
           position: sticky;
           top: 0;
           z-index: 1000;
