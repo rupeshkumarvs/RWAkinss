@@ -85,7 +85,7 @@ export default function Navbar() {
             }}>
               Explore Tools <ArrowRight size={15} strokeWidth={2.2} />
             </Link>
-            <Link href="/credit" className="btn-gradient" style={{
+            <Link href="/invoice" className="btn-gradient" style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               borderRadius: 999, padding: '8px 18px', fontSize: 14,
               fontWeight: 600, textDecoration: 'none', color: '#fff',
@@ -148,7 +148,7 @@ export default function Navbar() {
             }}>
               Explore Tools
             </Link>
-            <Link href="/credit" onClick={() => setOpen(false)} className="btn-gradient" style={{
+            <Link href="/invoice" onClick={() => setOpen(false)} className="btn-gradient" style={{
               display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6,
               borderRadius: 999, padding: '12px 20px', fontSize: 15, fontWeight: 600,
               textDecoration: 'none', color: '#fff',
