@@ -353,7 +353,7 @@ export default function OperationsPage() {
                   }}
                 >
                   <span style={{ display: 'block', fontSize: 8, color: '#888', marginBottom: 2 }}>
-                    {isAssistant ? '🧠 KUBRYX AI' : '👤 USER'} • {new Date(thread.timestamp).toLocaleTimeString()}
+                    {isAssistant ? '🧠 RUPHEX AI' : '👤 USER'} • {new Date(thread.timestamp).toLocaleTimeString()}
                   </span>
                   <p style={{ margin: 0, color: '#fff', lineHeight: 1.4 }}>{thread.text}</p>
                 </div>

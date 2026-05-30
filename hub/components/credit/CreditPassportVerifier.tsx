@@ -58,10 +58,10 @@ export default function CreditPassportVerifier({ walletAddress }: { walletAddres
     const mockNFT: NFT = {
       token_address: contractAddress,
       token_id: String(Math.floor(Math.random() * 1000000)),
-      name: 'Kubryx Credit Passport',
+      name: 'Ruphex Credit Passport',
       symbol: 'KCP',
       metadata: JSON.stringify({
-        name: 'Kubryx Credit Passport',
+        name: 'Ruphex Credit Passport',
         description: 'Verified Web3 reputation and ZK credit score soulbound identity.',
         image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=2832&auto=format&fit=crop'
       }),
@@ -133,7 +133,7 @@ export default function CreditPassportVerifier({ walletAddress }: { walletAddres
               </span>
             </div>
             <p style={{ fontSize: 15, fontWeight: 700, color: '#2D1A26', margin: '0 0 4px', fontFamily: "'Syne', sans-serif" }}>
-              {parsedMetadata?.name || passportNFT.name || 'Kubryx Credit Passport'}
+              {parsedMetadata?.name || passportNFT.name || 'Ruphex Credit Passport'}
             </p>
             <p style={{ fontSize: 13, color: 'rgba(45,26,38,0.6)', margin: '0 0 12px', lineHeight: 1.5 }}>
               {parsedMetadata?.description || 'Your ZK Credit Passport has been verified using multi-chain cryptographic state proofs.'}

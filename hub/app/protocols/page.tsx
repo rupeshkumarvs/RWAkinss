@@ -206,7 +206,7 @@ export default function ProtocolsPage() {
         <article className="card" style={{ display: 'flex', flexDirection: 'column', height: 420 }}>
           <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 700 }}>⛓ Multi-Chain Coordination Topology</h3>
           <p style={{ margin: '0 0 16px', fontSize: 12, color: '#888' }}>
-            Visualizes real-time autonomous routing pathways and epoch sync layers managed by Kubryx.
+            Visualizes real-time autonomous routing pathways and epoch sync layers managed by Ruphex.
           </p>
 
           <div style={{ flex: 1, position: 'relative', background: '#040404', borderRadius: 8, border: '1px solid rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -246,7 +246,7 @@ export default function ProtocolsPage() {
                 padding: 6
               }}
             >
-              <strong style={{ fontSize: 9, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Kubryx</strong>
+              <strong style={{ fontSize: 9, color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Ruphex</strong>
               <span style={{ fontSize: 8, color: '#F5C518', fontWeight: 800 }}>CORE v8.0</span>
             </div>
 
@@ -303,7 +303,7 @@ export default function ProtocolsPage() {
         <article className="card" style={{ display: 'flex', flexDirection: 'column', height: 420 }}>
           <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 700 }}>📋 Verified Multi-Chain Contract Registry</h3>
           <p style={{ margin: '0 0 16px', fontSize: 12, color: '#888' }}>
-            List of certified corporate protocol smart contracts managed directly via Kubryx secure key stores.
+            List of certified corporate protocol smart contracts managed directly via Ruphex secure key stores.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1, overflowY: 'auto' }}>

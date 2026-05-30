@@ -750,7 +750,7 @@ export default function CreditDashboard() {
       {/* Navigation */}
       <header className="nav-bar">
         <div className="nav-logo">
-          Kubryx <span className="sparkle-icon">✦</span>
+          Ruphex <span className="sparkle-icon">✦</span>
         </div>
         <div>
           <Link href="/dashboard" style={{
@@ -813,7 +813,7 @@ export default function CreditDashboard() {
           return (
             <div style={{ marginBottom: 32, padding: '20px 24px', borderRadius: 16, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(45,26,38,0.08)', backdropFilter: 'blur(8px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(45,26,38,0.4)', textTransform: 'uppercase' }}>Kubryx Platform Unlocks</span>
+                <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(45,26,38,0.4)', textTransform: 'uppercase' }}>Ruphex Platform Unlocks</span>
                 <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, background: tier.bg, border: `1px solid ${tier.border}`, color: tier.color }}>
                   {tier.name} Tier — {score}/1000
                 </span>
@@ -927,7 +927,7 @@ export default function CreditDashboard() {
                   </p>
                   <p style={{ fontSize: 13, color: 'rgba(45,26,38,0.65)', margin: 0, lineHeight: 1.7, maxWidth: 560 }}>
                     Your wallet does not yet have a Credit Passport NFT minted on QIE Mainnet.
-                    Passports are issued by the Kubryx backend after sufficient on-chain activity is detected —
+                    Passports are issued by the Ruphex backend after sufficient on-chain activity is detected —
                     the score shown below is a <strong>demo preview</strong> until your passport is minted.
                     Interact with QIE Mainnet DeFi protocols to become eligible.
                   </p>
@@ -1290,7 +1290,7 @@ export default function CreditDashboard() {
         whatItIs="A decentralized reputation scoring registry. It aggregates a user's cross-chain transaction history, staking records, and vault balances to mint a Soulbound NFT (SB-NFT) on QIE Mainnet representing their creditworthiness."
         whyUseIt="In Web3, lending is almost entirely over-collateralized (e.g., you must deposit $150 to borrow $100) because there is no identity or credit mechanism. The Credit Passport allows users to leverage their historical reputation to unlock under-collateralized loans."
         whyEfficient="<ul><li><b>Rolling Score Estimator</b>: The client computes score projections locally before dispatching the on-chain minting tx, saving gas costs.</li><li><b>Dynamic Tiering</b>: The UI automatically shifts colors and badges based on the active score tier, providing instant user feedback.</li></ul>"
-        whyBest="It is not just a static badge. The Credit Passport <b>actively unlocks benefits across other Kubryx modules</b>, including lower AI Lending APRs, higher Privacy Vault LTVs, and priority Treasury routing."
+        whyBest="It is not just a static badge. The Credit Passport <b>actively unlocks benefits across other Ruphex modules</b>, including lower AI Lending APRs, higher Privacy Vault LTVs, and priority Treasury routing."
         themeColor="#F5A623"
       />
     </div>

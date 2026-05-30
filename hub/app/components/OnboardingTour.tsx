@@ -11,8 +11,8 @@ type TourStep = {
 
 const TOUR_STEPS: TourStep[] = [
   {
-    title: 'Welcome to Kubryx OS',
-    description: 'Kubryx is a premium, unified blockchain operating system comprising 8 built-in financial and AI tools. Let’s take a 1-minute tour of your command center.',
+    title: 'Welcome to Ruphex OS',
+    description: 'Ruphex is a premium, unified blockchain operating system comprising 8 built-in financial and AI tools. Let’s take a 1-minute tour of your command center.',
   },
   {
     title: 'Multi-Chain Wallet Hub',
@@ -26,7 +26,7 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     title: 'Live SLA & Latency Diagnostics',
-    description: 'View real-time response speeds and SLA uptime statistics for every connected backend. Kubryx measures API roundtrips dynamically.',
+    description: 'View real-time response speeds and SLA uptime statistics for every connected backend. Ruphex measures API roundtrips dynamically.',
     highlightId: 'command-tools-grid',
   },
   {
@@ -36,7 +36,7 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     title: 'Demo & Presentation Safeties',
-    description: 'Kubryx is built to be "always presentation-ready". If a backend or wallet is unavailable, the UI automatically enters Demo Mode with deterministic mock data, ensuring a flawless showcase.',
+    description: 'Ruphex is built to be "always presentation-ready". If a backend or wallet is unavailable, the UI automatically enters Demo Mode with deterministic mock data, ensuring a flawless showcase.',
   },
 ]
 

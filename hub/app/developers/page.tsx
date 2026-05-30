@@ -342,7 +342,7 @@ export default function DevelopersPage() {
             <span style={{ fontSize: 13, color: '#aaa' }}>Developer Portal</span>
           </div>
           <h1 style={{ margin: '6px 0 0', fontSize: 28, fontWeight: 800, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span>🛠️</span> Kubryx Developer Platform
+            <span>🛠️</span> Ruphex Developer Platform
           </h1>
         </div>
       </header>
@@ -767,7 +767,7 @@ export default function DevelopersPage() {
               <div style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: 12 }}>
                 <h2 style={{ fontSize: 18, margin: 0, color: '#fff' }}>Unified Event Schema Browser</h2>
                 <p style={{ margin: '6px 0 0', fontSize: 13, color: '#ccc' }}>
-                  Kubryx orchestrates cross-tool states using standard structured schemas. Review specifications.
+                  Ruphex orchestrates cross-tool states using standard structured schemas. Review specifications.
                 </p>
               </div>
 

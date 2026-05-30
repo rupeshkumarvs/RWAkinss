@@ -420,7 +420,7 @@ function AgentsPageInner() {
         whatItIs="A high-throughput execution environment on Solana where AI agents can be deployed as autonomous smart nodes. Users deploy agent binaries to the registry and fund them with SOL to execute high-frequency tasks like arbitrage, portfolio rebalancing, and data scraping."
         whyUseIt="Running AI agents locally or on centralized servers introduces latency and trust issues. Deploying them directly via a Solana-based coordination protocol ensures 400ms block execution times and cryptographically verifiable state transitions."
         whyEfficient="<ul><li><b>Zero-Knowledge Audits</b>: Agents provide ZK proofs of their runtime integrity, ensuring they haven't been tampered with or front-run by node operators.</li><li><b>Parallel Execution</b>: Solana's Sealevel runtime allows thousands of agents to operate concurrently without network congestion.</li></ul>"
-        whyBest="Kubryx does not just run code; it manages the entire lifecycle—funding, monitoring, rate-limiting, and slashing malicious agents—all visible through this elegant command center."
+        whyBest="Ruphex does not just run code; it manages the entire lifecycle—funding, monitoring, rate-limiting, and slashing malicious agents—all visible through this elegant command center."
         themeColor="#9945FF"
       />
     </div>

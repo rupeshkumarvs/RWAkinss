@@ -353,7 +353,7 @@ export default function IntegrationsPage() {
 
           {/* Layer 2: API Gateway */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, minWidth: 150, alignItems: 'center' }}>
-            <span style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', textAlign: 'center', marginBottom: 4 }}>2. SECURE KUBRYX OS GATEWAY</span>
+            <span style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', textAlign: 'center', marginBottom: 4 }}>2. SECURE RUPHEX OS GATEWAY</span>
             <div style={{ padding: '16px 20px', background: '#0a0a0a', border: '2px solid #F5C518', borderRadius: 8, fontSize: 13, textAlign: 'center', fontWeight: 'bold', color: '#F5C518', boxShadow: '0 0 15px rgba(245,197,24,0.15)' }}>
               Unified API Proxy
               <span style={{ display: 'block', fontSize: 9, color: '#fff', opacity: 0.6, marginTop: 4, fontWeight: 'normal' }}>

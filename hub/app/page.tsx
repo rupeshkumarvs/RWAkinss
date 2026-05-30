@@ -290,7 +290,7 @@ function HowItWorks() {
       num: '03',
       icon: <Wallet size={28} color="#10B981" />,
       title: 'Get Paid Instantly',
-      desc: 'USDC lands in your wallet in seconds. Use it across the full Kubryx financial ecosystem.',
+      desc: 'USDC lands in your wallet in seconds. Use it across the full Ruphex financial ecosystem.',
       color: '#10B981',
     },
   ]
@@ -531,7 +531,7 @@ function DashFrame() {
         <aside style={{ background: '#0C1232', borderRight: '1px solid rgba(255,255,255,0.05)', padding: 16, display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 12, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
             <span style={{ width: 28, height: 28, borderRadius: 8, background: 'linear-gradient(135deg,#3B5BFA,#EC4899)', display: 'grid', placeItems: 'center', fontSize: 13, fontWeight: 900, color: '#fff' }}>K</span>
-            <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Kubryx</span>
+            <span style={{ fontSize: 15, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Ruphex</span>
           </div>
           <nav style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {sideItems.map(([icon, name, active]) => (
@@ -557,7 +557,7 @@ function DashFrame() {
             </div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 16 }}>
-            {[['$2,750', 'Invoice Amount', 'USDC'], ['< 3s', 'Settlement', 'On Arbitrum'], ['0%', 'Fees Taken', 'By Kubryx']].map(([n, label, sub], i) => (
+            {[['$2,750', 'Invoice Amount', 'USDC'], ['< 3s', 'Settlement', 'On Arbitrum'], ['0%', 'Fees Taken', 'By Ruphex']].map(([n, label, sub], i) => (
               <div key={i} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 12, padding: 16 }}>
                 <div style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#475569', fontWeight: 700 }}>{label}</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 6 }}>
@@ -676,7 +676,7 @@ function Footer() {
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 24, paddingBottom: 48, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <span style={{ width: 32, height: 32, borderRadius: 10, display: 'grid', placeItems: 'center', fontSize: 16, fontWeight: 900, color: '#fff', background: 'linear-gradient(135deg, #3B5BFA, #8B5CF6 55%, #EC4899)' }}>K</span>
-            <span style={{ fontSize: 20, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Kubryx</span>
+            <span style={{ fontSize: 20, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>Ruphex</span>
           </Link>
           <Link href="/invoice" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 999, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontWeight: 600, padding: '10px 20px', fontSize: 14, textDecoration: 'none' }}>
             Create Invoice <ArrowRight size={15} strokeWidth={2.4} />
@@ -707,7 +707,7 @@ function Footer() {
         </div>
         <div style={{ padding: '40px 0', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
           <div style={{ fontSize: 'clamp(60px, 14vw, 220px)', fontWeight: 900, letterSpacing: '-0.06em', lineHeight: 1, WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundImage: 'linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.02))', userSelect: 'none' }}>
-            Kubryx
+            Ruphex
           </div>
         </div>
         <div style={{ paddingTop: 32, borderTop: '1px solid rgba(255,255,255,0.1)', fontSize: 12, lineHeight: 1.6, color: 'rgba(148,163,184,0.7)', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'center', maxWidth: 960, margin: '0 auto' }}>

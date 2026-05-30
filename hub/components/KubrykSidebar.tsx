@@ -95,7 +95,7 @@ export default function KubrykSidebar({ collapsed, onToggle, mobileOpen, onMobil
           }}>K</div>
           {(!collapsed || isMobile) && (
             <div>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>Kubryx</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>Ruphex</div>
               <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.14em', marginTop: 2, fontFamily: MONO }}>FINANCIAL OS</div>
             </div>
           )}

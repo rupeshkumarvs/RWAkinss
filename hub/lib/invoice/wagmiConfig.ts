@@ -3,7 +3,7 @@ import { arbitrumSepolia } from 'wagmi/chains';
 import { http } from 'wagmi';
 
 export const wagmiConfig = getDefaultConfig({
-  appName: 'Kubryx Invoice',
+  appName: 'Ruphex Invoice',
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID ?? 'kubryx-invoice',
   chains: [arbitrumSepolia],
   transports: {

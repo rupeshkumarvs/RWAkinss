@@ -9,7 +9,7 @@ export const CONTRACTS = {
   NCRDToken:         '0x7427734468598674645Aa71Ef651218A9Db2be11',
 } as const
 
-// Only the functions Kubryx actually calls are included.
+// Only the functions Ruphex actually calls are included.
 
 export const CREDIT_PASSPORT_ABI = [
   // getScore returns ScoreView { uint16 score; uint8 riskBand; uint64 lastUpdated }

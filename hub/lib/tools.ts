@@ -1,5 +1,5 @@
 // Built by vsrupeshkumar
-// Central registry of every Kubryx tool — names, chains, colors, wallet types.
+// Central registry of every Ruphex tool — names, chains, colors, wallet types.
 
 export interface ToolConfig {
   route: string
@@ -144,5 +144,5 @@ export function getToolColor(route: string): string {
 }
 
 export function getToolName(route: string): string {
-  return getToolByRoute(route)?.name ?? 'Kubryx'
+  return getToolByRoute(route)?.name ?? 'Ruphex'
 }

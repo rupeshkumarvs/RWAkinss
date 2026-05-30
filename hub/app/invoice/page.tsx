@@ -318,7 +318,7 @@ export default function InvoicePage() {
                 }}
               />
               <p style={{ fontFamily: MONO, fontSize: 10, color: '#94A3B8', marginTop: 6, letterSpacing: '0.05em' }}>
-                CLIENT PAYS DIRECTLY TO THIS ADDRESS · KUBRYX NEVER HOLDS CUSTODY
+                CLIENT PAYS DIRECTLY TO THIS ADDRESS · RUPHEX NEVER HOLDS CUSTODY
               </p>
             </div>
           </div>

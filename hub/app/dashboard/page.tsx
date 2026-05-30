@@ -125,7 +125,7 @@ function DashSidebar({
             display: 'grid', placeItems: 'center',
             fontSize: 14, fontWeight: 900, color: '#fff',
           }}>K</div>
-          <span style={{ fontSize: 16, fontWeight: 800, color: INK, letterSpacing: '-0.02em' }}>Kubryx</span>
+          <span style={{ fontSize: 16, fontWeight: 800, color: INK, letterSpacing: '-0.02em' }}>Ruphex</span>
         </div>
 
         {/* Nav items */}
@@ -719,7 +719,7 @@ export default function DashboardPage() {
                 WebkitBackgroundClip: 'text',
                 backgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-              }}>Kubryx</span>.
+              }}>Ruphex</span>.
             </h1>
             <p style={{ fontSize: 14, color: MUTED, margin: '8px 0 0', maxWidth: 580, lineHeight: 1.5 }}>
               {platform.creditScore !== null

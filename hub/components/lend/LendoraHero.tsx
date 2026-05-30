@@ -18,7 +18,7 @@ export default function LendoraHero({
   return (
     <div style={{ background: '#0C0C0C', borderBottom: `1px solid ${BORDER}`, padding: '24px 28px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: MUTED2, fontFamily: MONO, marginBottom: 14 }}>
-        <span>Kubryx</span><span>›</span><span style={{ color: A }}>Protocol Borrow Engine</span>
+        <span>Ruphex</span><span>›</span><span style={{ color: A }}>Protocol Borrow Engine</span>
       </div>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
         <div style={{ minWidth: 0, flex: '1 1 480px' }}>

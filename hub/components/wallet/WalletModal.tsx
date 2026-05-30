@@ -125,7 +125,7 @@ export function WalletModal({ onClose, onConnectEVM, onConnectSolana }: Props) {
           <div className="px-6 pb-5 pt-1">
             <p className="text-xs text-white/20 text-center leading-relaxed">
               Your private keys never leave your wallet.
-              Kubryx only reads your public address.
+              Ruphex only reads your public address.
             </p>
           </div>
         </motion.div>

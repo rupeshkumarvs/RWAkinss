@@ -77,7 +77,7 @@ export async function GET(req: Request) {
     const allNfts = results.flat()
 
     // Detect if a Credit Passport soulbound NFT exists
-    // We check NFT name, symbol, or metadata name for "Credit Passport" or "Kubryx Credit"
+    // We check NFT name, symbol, or metadata name for "Credit Passport" or "Ruphex Credit"
     const creditPassportNft = allNfts.find(n => {
       const name = (n.name ?? '').toLowerCase()
       const symbol = (n.symbol ?? '').toLowerCase()
@@ -97,7 +97,7 @@ export async function GET(req: Request) {
       creditPassport: creditPassportNft ? {
         tokenAddress: creditPassportNft.token_address,
         tokenId: creditPassportNft.token_id,
-        name: creditPassportNft.name || 'Kubryx Credit Passport',
+        name: creditPassportNft.name || 'Ruphex Credit Passport',
         symbol: creditPassportNft.symbol || 'KCP',
         chainName: creditPassportNft.chainName,
         metadata: creditPassportNft.normalized_metadata,

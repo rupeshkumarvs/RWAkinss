@@ -538,7 +538,7 @@ function LendInner() {
       <header className="nav-bar">
         <div className="nav-logo">
           <span className="sparkle-icon">✧</span>
-          Kubryx Lend
+          Ruphex Lend
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: '#6366F1', fontWeight: 600 }}>

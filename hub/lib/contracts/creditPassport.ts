@@ -54,7 +54,7 @@ export async function readCreditScore(address: string): Promise<number> {
 
 /**
  * Returns true if a credit passport NFT has been minted for this wallet.
- * passportIdOf returns the token id (0 = no passport yet — the Kubryx
+ * passportIdOf returns the token id (0 = no passport yet — the Ruphex
  * backend mints passports after on-chain activity is detected).
  */
 export async function readPassportExists(address: string): Promise<boolean> {

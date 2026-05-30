@@ -2,14 +2,14 @@
 import type { Metadata } from 'next'
 import TreasuryNav from './_components/TreasuryNav'
 
-const title = 'Yield Operations Hub — Kubryx'
+const title = 'Yield Operations Hub — Ruphex'
 const description = 'Autonomous Yield Operations Hub & neural workforce management on Solana'
 const url = 'https://kubryx.vercel.app/treasury'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://kubryx.vercel.app'),
   title, description,
-  openGraph: { title, description, url, siteName:'Kubryx', type:'website', images:[{ url:'/og-default.svg', width:1200, height:630 }] },
+  openGraph: { title, description, url, siteName:'Ruphex', type:'website', images:[{ url:'/og-default.svg', width:1200, height:630 }] },
   twitter: { card:'summary_large_image', title, description, images:['/og-default.svg'] },
 }
 

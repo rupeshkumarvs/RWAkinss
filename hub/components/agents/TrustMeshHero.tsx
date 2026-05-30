@@ -33,7 +33,7 @@ export default function TrustMeshHero({
         display: 'flex', alignItems: 'center', gap: 6,
         fontSize: 11, color: MUTED2, fontFamily: MONO, marginBottom: 14,
       }}>
-        <span>Kubryx</span>
+        <span>Ruphex</span>
         <span>›</span>
         <span style={{ color: ACCENT }}>Agent Coordinator</span>
       </div>

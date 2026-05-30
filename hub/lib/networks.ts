@@ -1,5 +1,5 @@
 // Built by vsrupeshkumar
-// All network (chain) configuration for Kubryx wallet connectivity.
+// All network (chain) configuration for Ruphex wallet connectivity.
 // Updated for ETH Mexico 2026 Hackathon: Arbitrum Sepolia ONLY.
 
 export const NETWORKS = {

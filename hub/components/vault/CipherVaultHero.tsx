@@ -31,7 +31,7 @@ export default function CipherVaultHero({
       padding: '24px 28px',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: MUTED2, fontFamily: MONO, marginBottom: 14 }}>
-        <span>Kubryx</span>
+        <span>Ruphex</span>
         <span>›</span>
         <span style={{ color: ACCENT }}>Private vault</span>
       </div>

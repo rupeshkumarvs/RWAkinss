@@ -2,7 +2,7 @@
 import type { Metadata } from 'next'
 import LegacyNav from './_components/LegacyNav'
 
-const title = 'Family Vault — Kubryx'
+const title = 'Family Vault — Ruphex'
 const description = 'Encrypted digital Family Vault on QIE Mainnet — preserve memories for your heirs'
 const url = 'https://kubryx.vercel.app/legacy'
 
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     title,
     description,
     url,
-    siteName: 'Kubryx',
+    siteName: 'Ruphex',
     type: 'website',
     images: [{ url: '/og-default.svg', width: 1200, height: 630 }],
   },

@@ -1931,7 +1931,7 @@ export default function SyncSplitPage() {
         </div>
         {stellarLive && stellarStats && (
           <div style={{ fontSize: 12, padding: '6px 16px', borderRadius: 999, background: 'rgba(244,114,182,0.08)', border: '1px solid rgba(244,114,182,0.25)', color: '#BE185D', fontWeight: 600, marginBottom: 16 }}>
-            ⭐ {stellarStats.totalTransactions} Stellar payments → feeds your Kubryx Credit Score
+            ⭐ {stellarStats.totalTransactions} Stellar payments → feeds your Ruphex Credit Score
           </div>
         )}
         <div className="scroll-indicator" onClick={() => scrollTo('stats')}>
@@ -2535,7 +2535,7 @@ export default function SyncSplitPage() {
             Built on Stellar Soroban · Soroban Testnet
           </div>
           <div className="footer-right-cursive">
-            Part of the Kubryx Sovereign Operations Network • Built by vsrupeshkumar
+            Part of the Ruphex Sovereign Operations Network • Built by vsrupeshkumar
           </div>
         </div>
       </footer>
