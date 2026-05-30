@@ -5,6 +5,7 @@ import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 import { wagmiConfig } from '@/lib/invoice/wagmiConfig';
+import InvoiceEcosystemWrapper from '@/components/invoice/EcosystemWrapper';
 import '@rainbow-me/rainbowkit/styles.css';
 
 export default function InvoiceLayout({ children }: { children: React.ReactNode }) {
@@ -23,7 +24,12 @@ export default function InvoiceLayout({ children }: { children: React.ReactNode 
             fontStack: 'system',
           })}
         >
-          {children}
+          {/* Slim 52px icon sidebar + right slide panel — overlays only */}
+          <InvoiceEcosystemWrapper />
+          {/* Main invoice content — full width with left padding for sidebar */}
+          <div style={{ paddingLeft: 52 }}>
+            {children}
+          </div>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
