@@ -3,6 +3,20 @@
 // Updated for ETH Mexico 2026 Hackathon: Arbitrum Sepolia ONLY.
 
 export const NETWORKS = {
+  ARBITRUM: {
+    chainId: '0xa4b1',
+    chainIdDecimal: 42161,
+    name: 'Arbitrum One',
+    shortName: 'Arbitrum',
+    rpcUrl: 'https://arb1.arbitrum.io/rpc',
+    explorer: 'https://arbiscan.io',
+    explorerTx: 'https://arbiscan.io/tx/',
+    currency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    color: '#28a0f0',
+    type: 'evm' as const,
+    coingeckoId: 'ethereum',
+    selectable: true,
+  },
   ARBITRUM_SEPOLIA: {
     chainId: '0x66eee',
     chainIdDecimal: 421614,
@@ -22,18 +36,18 @@ export const NETWORKS = {
 export type NetworkKey = keyof typeof NETWORKS
 export type NetworkConfig = (typeof NETWORKS)[NetworkKey]
 
-// Which route uses which network (All Arbitrum Sepolia now)
+// Which route uses which network (All Arbitrum now)
 export const TOOL_NETWORKS: Record<string, NetworkKey> = {
-  '/invoice':   'ARBITRUM_SEPOLIA',
-  '/dashboard': 'ARBITRUM_SEPOLIA',
-  '/credit':    'ARBITRUM_SEPOLIA',
-  '/legacy':    'ARBITRUM_SEPOLIA',
-  '/agents':    'ARBITRUM_SEPOLIA',
-  '/vault':     'ARBITRUM_SEPOLIA',
-  '/split':     'ARBITRUM_SEPOLIA',
-  '/lend':      'ARBITRUM_SEPOLIA',
-  '/treasury':  'ARBITRUM_SEPOLIA',
-  '/shadow':    'ARBITRUM_SEPOLIA',
+  '/invoice':   'ARBITRUM',
+  '/dashboard': 'ARBITRUM',
+  '/credit':    'ARBITRUM',
+  '/legacy':    'ARBITRUM',
+  '/agents':    'ARBITRUM',
+  '/vault':     'ARBITRUM',
+  '/split':     'ARBITRUM',
+  '/lend':      'ARBITRUM',
+  '/treasury':  'ARBITRUM',
+  '/shadow':    'ARBITRUM',
 }
 
 // EVM tools (use MetaMask)
@@ -51,7 +65,8 @@ export function getWalletTypeForRoute(route: string): 'evm' | 'solana' {
 
 // Get network config for a route
 export function getNetworkForRoute(route: string): NetworkConfig {
-  return NETWORKS.ARBITRUM_SEPOLIA
+  const key = TOOL_NETWORKS[route] || 'ARBITRUM'
+  return NETWORKS[key as NetworkKey] || NETWORKS.ARBITRUM
 }
 
 // Find an EVM network config by its decimal chain id
@@ -66,6 +81,7 @@ export function getNetworkByChainId(chainId: number | null): NetworkConfig | nul
 // ── Chain selection (in-app chain switcher) ─────────────────────────────────
 
 const SELECTABLE_ORDER: NetworkKey[] = [
+  'ARBITRUM',
   'ARBITRUM_SEPOLIA'
 ]
 
@@ -85,5 +101,6 @@ export function getNetworkByKey(key: NetworkKey): NetworkConfig {
 /** The NetworkKey that backs the resilient `rpcClient` ChainType, if any.
  *  Used to bridge the user's selected chain to the generic RPC read layer. */
 export const NETWORK_KEY_TO_RPC_CHAIN: Partial<Record<NetworkKey, string>> = {
+  ARBITRUM: 'ARBITRUM',
   ARBITRUM_SEPOLIA: 'ARBITRUM_SEPOLIA',
 }
