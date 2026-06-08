@@ -407,15 +407,11 @@ export default function MarketingLanding() {
       {/* Hackathon Banner */}
       <section className="px-6 pb-20 max-w-6xl mx-auto">
         <div className="relative w-full rounded-[2.5rem] overflow-hidden h-64 md:h-80 flex items-center justify-center shadow-[6px_6px_0px_#2D2323] border-2 border-stone-900 bg-white">
-          <div 
-            className="absolute inset-0 bg-cover bg-center opacity-20 md:opacity-30 mix-blend-multiply"
-            style={{ backgroundImage: 'url("/eth-mexico.png")' }}
-          />
           <div className="absolute inset-0 bg-[#FFF9F0]/80" />
-          
+
           <div className="relative z-10 text-center px-6">
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-stone-900">
-              Built for <span className="text-accent">Ethereum Mexico 2026</span> Hackathon
+              Built for <span className="text-accent">The Turing Test Hackathon 2026</span> · Mantle Network
             </h2>
           </div>
         </div>

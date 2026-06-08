@@ -2,8 +2,8 @@
 import type { Metadata } from 'next'
 import TreasuryNav from './_components/TreasuryNav'
 
-const title = 'Yield Operations Hub — Ruphex'
-const description = 'Autonomous Yield Operations Hub & neural workforce management on Solana'
+const title = 'AI RWA Treasury — Kubryx'
+const description = 'Autonomous AI treasury rebalancing USDY and mETH with on-chain risk guardrails on Mantle'
 const url = 'https://kubryx.vercel.app/treasury'
 
 export const metadata: Metadata = {

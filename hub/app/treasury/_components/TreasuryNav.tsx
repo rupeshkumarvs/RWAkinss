@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 
 const ITEMS = [
   { href:'/treasury',                label:'Home',          exact:true  },
+  { href:'/treasury/rwa',            label:'🏦 RWA Vault',  exact:false },
   { href:'/treasury/dashboard',      label:'📊 Dashboard',  exact:true  },
   { href:'/treasury/send',           label:'💸 Send',       exact:true  },
   { href:'/treasury/receive',        label:'📥 Receive',    exact:true  },

@@ -1,0 +1,8 @@
+{
+  "usdy": "",
+  "meth": "",
+  "vault": "",
+  "chainId": 5003,
+  "deployedAt": null,
+  "note": "Populated by invoices/contracts/scripts/deploy-rwa.ts after deployment to Mantle Sepolia. While empty, the Treasury RWA panel renders a demo position and prompts to deploy."
+}

@@ -65,10 +65,10 @@ const DEFAULT_CHRONICLE: ChronicleEpoch[] = [
 ]
 
 const DEFAULT_CLUSTERS: ReasoningCluster[] = [
-  { id: 'cog-01', nodeName: 'QIE Mainnet Observer', attentionWeight: 35, prioritizedAnomaly: 'Regional RPC latency spikes', heuristicRule: 'If average RPC response > 900ms, isolate node and reroute via SG cache.', cognitionScore: 98.4 },
-  { id: 'cog-02', nodeName: 'Solana Devnet Watchdog', attentionWeight: 25, prioritizedAnomaly: 'Mempool congestion variance', heuristicRule: 'If pending queues exceed 1200 tps, elevate transaction gas limits.', cognitionScore: 95.2 },
-  { id: 'cog-03', nodeName: 'Stellar Soroban Auditor', attentionWeight: 20, prioritizedAnomaly: 'Staking yield allocation splits', heuristicRule: 'If APY pool drifts past 15%, suggest multi-party split re-balancing.', cognitionScore: 99.1 },
-  { id: 'cog-04', nodeName: 'Arbitrum One Bridge Guard', attentionWeight: 20, prioritizedAnomaly: 'Suspicious certificate proxy traces', heuristicRule: 'Force zero-metadata key locks if signature keys mismatch registry.', cognitionScore: 92.8 }
+  { id: 'cog-01', nodeName: 'Mantle Yield Observer', attentionWeight: 35, prioritizedAnomaly: 'USDY APY volatility spikes', heuristicRule: 'If USDY yield drops below 4.5%, dynamically shift liquidity to mETH staking pools.', cognitionScore: 98.4 },
+  { id: 'cog-02', nodeName: 'Mantle Network Watchdog', attentionWeight: 25, prioritizedAnomaly: 'Mempool congestion variance', heuristicRule: 'If pending queues exceed 1200 tps, elevate transaction gas limits.', cognitionScore: 95.2 },
+  { id: 'cog-03', nodeName: 'RWA Asset Auditor', attentionWeight: 20, prioritizedAnomaly: 'mETH yield allocation splits', heuristicRule: 'If APY pool drifts past 15%, suggest multi-party split re-balancing.', cognitionScore: 99.1 },
+  { id: 'cog-04', nodeName: 'Mantle Bridge Guard', attentionWeight: 20, prioritizedAnomaly: 'Suspicious certificate proxy traces', heuristicRule: 'Force zero-metadata key locks if signature keys mismatch registry.', cognitionScore: 92.8 }
 ]
 
 const INITIAL_TELEMETRY: LivingTelemetry = {

@@ -1,15 +1,15 @@
-# Kubrtx OS
+# Kubryx OS
 
-**Ethereum Mexico 2026 - AI x Blockchain | w/ Bitso Hackathon Submission**
+**The Turing Test Hackathon 2026 (Mantle Network) - AI x RWA Submission**
 
-One financial OS for Web3, built as a zero-redirection **Chrome Extension Single Page Application (SPA)**. Eight powerful tools — including 100% on-chain invoicing, private trading, DeFi lending, treasury automation, AI agents, split payments, and a unified dashboard — all deployed exclusively on **Arbitrum**.
+One financial OS for Web3, built as a zero-redirection **Chrome Extension Single Page Application (SPA)**. Eight powerful tools — including 100% on-chain invoicing, private trading, DeFi lending, treasury automation, AI agents, split payments, and a unified dashboard — all deployed exclusively on **Mantle Network**.
 
 ---
 
 ## Hackathon Context
 
-This project was built for the **Ethereum Mexico 2026 Hackathon**. 
-- **Core Requirement:** All features and modules run 100% on **Arbitrum** (Arbitrum Sepolia for testnet).
+This project was built for **The Turing Test Hackathon 2026** (Mantle Network). 
+- **Core Requirement:** All features and modules run 100% on **Mantle Network** (Mantle Sepolia for testnet).
 - **Architecture Requirement:** Fully accessible directly through a browser extension without navigating to separate web pages (SPA Side Panel architecture).
 - **No Off-chain Databases:** All data, including invoice metadata and payment statuses, are stored directly on-chain via smart contracts using OpenZeppelin libraries.
 
@@ -19,15 +19,15 @@ This project was built for the **Ethereum Mexico 2026 Hackathon**.
 
 ```mermaid
 graph TD
-    User([Corporate Operator]) --> |Side Panel UI| OS[Kubrtx Chrome Extension]
-    OS --> |RPC / wagmi| ARB[Arbitrum Sepolia Network]
+    User([Corporate Operator]) --> |Side Panel UI| OS[Kubryx Chrome Extension]
+    OS --> |RPC / wagmi| MNT[Mantle Network]
     
-    ARB --> |On-Chain Registry| Invoices[Recibo Smart Contracts]
-    ARB --> |AI Negotiated Terms| Lending[DeFi Lending Markets]
-    ARB --> |Asset Management| Treasury[Yield Operations Hub]
+    MNT --> |On-Chain Registry| Invoices[Recibo Smart Contracts]
+    MNT --> |AI Negotiated Terms| Lending[DeFi Lending Markets (USDY/mETH)]
+    MNT --> |Asset Management| Treasury[Yield Operations Hub]
     
     style OS fill:#1e1e38,stroke:#3b82f6,stroke-width:2px,color:#fff
-    style ARB fill:#13222e,stroke:#06b6d4,stroke-width:2px,color:#fff
+    style MNT fill:#13222e,stroke:#06b6d4,stroke-width:2px,color:#fff
 ```
 
 ---
@@ -35,16 +35,16 @@ graph TD
 ## Premium Feature Guide
 
 ### 1. 100% On-Chain Invoicing (Recibo)
-- **What it is:** A decentralized invoicing tool that stores all invoice metadata (client, amount, due date) directly on Arbitrum smart contracts.
-- **Why it is efficient:** Eliminates off-chain databases. Uses `wagmi` to read and write structs directly to the blockchain. Users can pay invoices with USDC in a single transaction.
+- **What it is:** A decentralized invoicing tool that stores all invoice metadata (client, amount, due date) directly on Mantle smart contracts.
+- **Why it is efficient:** Eliminates off-chain databases. Uses `wagmi` to read and write structs directly to the blockchain. Users can pay invoices with USDC or USDY in a single transaction.
 
 ### 2. Yield Operations Hub (Treasury)
-- **What it is:** An enterprise-grade treasury console to track Arbitrum liquidity, manage payroll streams, perform token swaps, and optimize yield strategies.
+- **What it is:** An enterprise-grade treasury console to track Mantle liquidity, manage payroll streams, perform token swaps, and optimize yield strategies across RWA assets like USDY and mETH.
 - **Why it is the best:** It is an active cockpit rather than a passive dashboard. Built-in AI advisors suggest rebalancing allocations that can be executed in one click.
 
 ### 3. AI-Negotiated Lending (Lendora)
-- **What it is:** An interactive DeFi lending market where users chat with an AI agent to negotiate interest rates, terms, and collateral limits.
-- **Why it is efficient:** Conversations are managed off-chain for zero-latency interactions, while the finalized agreement envelope is cryptographically signed and settled on Arbitrum.
+- **What it is:** An interactive DeFi lending market targeting Mantle RWAs (USDY, mETH). Users chat with an AI agent to negotiate interest rates, terms, and collateral limits.
+- **Why it is efficient:** Conversations are managed off-chain for zero-latency interactions, while the finalized agreement envelope is cryptographically signed and settled on Mantle.
 
 ### 4. Stealth Executive Suite (Shadow Sandbox)
 - **What it is:** A sandboxed simulation cockpit designed to replicate the live node and treasury environment to test risk management.
@@ -60,7 +60,7 @@ Since this is a Chrome Extension SPA, you can install it locally to test the Sid
 3. Open Chrome and navigate to `chrome://extensions/`.
 4. Enable **Developer mode** in the top right corner.
 5. Click **Load unpacked** and select the `chrome-extension/` directory in this repository.
-6. Click the extension icon in your browser to open the Kubrtx Side Panel.
+6. Click the extension icon in your browser to open the Kubryx Side Panel.
 
 ---
 

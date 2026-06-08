@@ -21,7 +21,7 @@ export function NetworkBadge() {
 
   // Find current network name
   const currentNet = isSolana
-    ? NETWORKS.ARBITRUM_SEPOLIA
+    ? NETWORKS.MANTLE_SEPOLIA
     : getNetworkByChainId(evm.chainId)
 
   const name = currentNet?.shortName ?? `Chain ${evm.chainId}`

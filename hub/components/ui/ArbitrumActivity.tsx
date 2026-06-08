@@ -82,16 +82,16 @@ export default function ArbitrumActivity() {
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
         <div>
           <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.18em', color: MUTED2, textTransform: 'uppercase' }}>
-            Arbitrum Activity · On-chain
+            Mantle Activity · On-chain
           </div>
           <div style={{ fontSize: 15, fontWeight: 700, color: INK, marginTop: 2 }}>
-            Your last {data?.count ?? 8} Arbitrum transactions
+            Your last {data?.count ?? 8} Mantle transactions
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 11, color: MUTED, fontFamily: MONO }}>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#28A0F0', boxShadow: '0 0 6px #28A0F0' }} />
-            via Arbiscan
+            via Explorer
           </span>
           <button
             onClick={() => load(address)}
@@ -119,13 +119,13 @@ export default function ArbitrumActivity() {
 
         {error && (
           <div style={{ padding: 16, fontSize: 12, color: '#b91c1c', fontFamily: MONO }}>
-            Arbiscan: {error}
+            Explorer Error: {error}
           </div>
         )}
 
         {data && data.txs.length === 0 && !loading && (
           <div style={{ padding: 16, fontSize: 12, color: MUTED2 }}>
-            No transactions found on Arbitrum for this wallet yet.
+            No transactions found on Mantle for this wallet yet.
           </div>
         )}
 
@@ -192,7 +192,7 @@ export default function ArbitrumActivity() {
                   {tx.valueEth > 0 ? `${tx.direction === 'out' ? '−' : ''}${fmtEth(tx.valueEth)} ETH` : '—'}
                 </div>
                 <div style={{ fontSize: 10, color: '#28A0F0', fontWeight: 700, marginTop: 2 }}>
-                  Arbiscan ↗
+                  Explorer ↗
                 </div>
               </div>
             </a>

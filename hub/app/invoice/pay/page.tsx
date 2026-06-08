@@ -218,7 +218,7 @@ function PaymentContent() {
 
   const buttonConfig = {
     idle: { label: 'Connect your wallet to continue', handler: undefined, disabled: true },
-    wrong_network: { label: 'Switch to Arbitrum Sepolia', handler: () => switchChain({ chainId: ARBITRUM_SEPOLIA_CHAIN_ID }), disabled: false },
+    wrong_network: { label: 'Switch to Mantle Sepolia', handler: () => switchChain({ chainId: ARBITRUM_SEPOLIA_CHAIN_ID }), disabled: false },
     ready: { label: 'Approve USDC →', handler: handleApprove, disabled: false },
     checking_balance: { label: 'Checking balance···', handler: undefined, disabled: true },
     insufficient_balance: { label: 'Insufficient USDC balance', handler: undefined, disabled: true },
@@ -226,7 +226,7 @@ function PaymentContent() {
     approve_confirming: { label: 'Confirming approval···', handler: undefined, disabled: true },
     approve_done: { label: 'Confirm Payment →', handler: handlePay, disabled: false },
     paying: { label: 'Waiting for wallet confirmation···', handler: undefined, disabled: true },
-    pay_confirming: { label: 'Processing on Arbitrum···', handler: undefined, disabled: true },
+    pay_confirming: { label: 'Processing on Mantle···', handler: undefined, disabled: true },
     paid: { label: 'Payment Confirmed ✓', handler: undefined, disabled: true },
     error: { label: 'Retry', handler: () => { resetApprove(); resetPay(); }, disabled: false },
   }[activeError ? 'error' : paymentState];
@@ -290,7 +290,7 @@ function PaymentContent() {
           background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
           borderRadius: 10, fontSize: 13, fontFamily: MONO, color: 'rgba(255,255,255,0.7)',
         }}>
-          SWITCH TO ARBITRUM SEPOLIA ·{' '}
+          SWITCH TO MANTLE SEPOLIA ·{' '}
           <button
             onClick={() => switchChain({ chainId: ARBITRUM_SEPOLIA_CHAIN_ID })}
             style={{ color: '#C8FF00', background: 'none', border: 'none', cursor: 'pointer', fontFamily: MONO, fontSize: 13 }}

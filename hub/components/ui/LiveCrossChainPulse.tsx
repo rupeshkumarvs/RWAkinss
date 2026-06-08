@@ -28,7 +28,7 @@ type Theme = 'light' | 'dark'
 type BlockInfo = { blockNumber: number; latency: number; healthy: boolean }
 
 // Chains read directly here for liveness (Solana is sourced from useTrustMesh).
-const LIVE_CHAINS: ChainType[] = ['QIE', 'ARBITRUM', 'STELLAR']
+const LIVE_CHAINS: ChainType[] = ['QIE', 'MANTLE', 'STELLAR']
 
 // Polls real block/ledger height + latency for the EVM/Stellar chains. getRPCBlockState
 // always resolves (it falls back to deterministic values on total RPC outage), so a
@@ -160,7 +160,7 @@ export default function LiveCrossChainPulse({ compact = false, theme = 'dark' }:
   const blocks = useLiveChainBlocks()
 
   const qie = blocks.QIE
-  const arb = blocks.ARBITRUM
+  const arb = blocks.MANTLE
   const xlm = blocks.STELLAR
 
   // Real per-chain liveness. A chain counts as live only on a genuine RPC read.
@@ -250,7 +250,7 @@ export default function LiveCrossChainPulse({ compact = false, theme = 'dark' }:
 
         <Cell
           theme={theme}
-          chain="Arbitrum One"
+          chain="Mantle Network"
           chainColor="#28A0F0"
           label="Lending Rate"
           value={`${lendingRate}% APR`}

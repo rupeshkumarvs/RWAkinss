@@ -4,12 +4,12 @@ import { validateEnvironment } from '../security-isolation'
 import { trackRPCFailure } from '../observability'
 
 export type ChainType =
-  | 'QIE' | 'SOLANA' | 'STELLAR' | 'ARBITRUM'
+  | 'QIE' | 'SOLANA' | 'STELLAR' | 'MANTLE' | 'MANTLE_SEPOLIA'
   | 'ETHEREUM' | 'POLYGON' | 'BSC' | 'OPTIMISM'
 
 // EVM chains share the same JSON-RPC method set (eth_getBalance, eth_blockNumber…),
 // so generic reads can treat any of these uniformly.
-export const EVM_CHAINS: ChainType[] = ['QIE', 'ARBITRUM', 'ETHEREUM', 'POLYGON', 'BSC', 'OPTIMISM']
+export const EVM_CHAINS: ChainType[] = ['QIE', 'MANTLE', 'MANTLE_SEPOLIA', 'ETHEREUM', 'POLYGON', 'BSC', 'OPTIMISM']
 export function isEvmChain(chain: ChainType): boolean {
   return EVM_CHAINS.includes(chain)
 }
@@ -45,9 +45,13 @@ export const RPC_NODES: Record<ChainType, RPCNode[]> = {
     { url: process.env.NEXT_PUBLIC_STELLAR_RPC || 'https://soroban-testnet.stellar.org', latency: 0, healthy: true },
     { url: 'https://friendbot.stellar.org', latency: 0, healthy: true }
   ],
-  ARBITRUM: [
-    { url: process.env.NEXT_PUBLIC_ARBITRUM_RPC || 'https://arb1.arbitrum.io/rpc', latency: 0, healthy: true },
-    { url: 'https://arbitrum.meowrpc.com', latency: 0, healthy: true }
+  MANTLE: [
+    { url: process.env.NEXT_PUBLIC_MANTLE_RPC || 'https://rpc.mantle.xyz', latency: 0, healthy: true },
+    { url: 'https://rpc.ankr.com/mantle', latency: 0, healthy: true }
+  ],
+  MANTLE_SEPOLIA: [
+    { url: process.env.NEXT_PUBLIC_MANTLE_SEPOLIA_RPC || 'https://rpc.sepolia.mantle.xyz', latency: 0, healthy: true },
+    { url: 'https://rpc.ankr.com/mantle_sepolia', latency: 0, healthy: true }
   ],
   ETHEREUM: [
     { url: process.env.NEXT_PUBLIC_ETHEREUM_RPC || 'https://eth.llamarpc.com', latency: 0, healthy: true },

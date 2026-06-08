@@ -19,7 +19,7 @@ let currentHeartbeats: HeartbeatStatus[] = [
   { chain: 'QIE', blockNumber: 42104, healthy: true, latency: 12 },
   { chain: 'SOLANA', blockNumber: 1054238, healthy: true, latency: 45 },
   { chain: 'STELLAR', blockNumber: 42104, healthy: true, latency: 50 },
-  { chain: 'ARBITRUM', blockNumber: 1042, healthy: true, latency: 125 }
+  { chain: 'MANTLE', blockNumber: 1042, healthy: true, latency: 125 }
 ]
 
 let isPollingStarted = false
@@ -32,7 +32,7 @@ export function startCoordinatedPolling() {
   setInterval(async () => {
     const nextStates: HeartbeatStatus[] = []
     
-    for (const chain of ['QIE', 'SOLANA', 'STELLAR', 'ARBITRUM'] as ChainType[]) {
+    for (const chain of ['QIE', 'SOLANA', 'STELLAR', 'MANTLE'] as ChainType[]) {
       try {
         const state = await getRPCBlockState(chain)
         if (state.avgLatency > 2000) {

@@ -78,16 +78,9 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'invalid address' }, { status: 400 })
   }
 
-  const apiKey = process.env.ARBISCAN_API_KEY
-  if (!apiKey) {
-    return NextResponse.json({ error: 'ARBISCAN_API_KEY not configured' }, { status: 503 })
-  }
-
-  // Arbiscan has migrated to a unified V2 endpoint on api.etherscan.io.
-  // Try V2 first; if it fails, fall back to the legacy api.arbiscan.io
-  // endpoint which still accepts the same key.
-  const v2 = `https://api.etherscan.io/v2/api?chainid=42161&module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${encodeURIComponent(apiKey)}`
-  const v1 = `https://api.arbiscan.io/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc&apikey=${encodeURIComponent(apiKey)}`
+  // Mantle Sepolia Explorer uses Blockscout, no strict API key required for basic rate limits.
+  const v2 = `https://explorer.sepolia.mantle.xyz/api?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=${limit}&sort=desc`
+  const v1 = v2
 
   async function tryEndpoint(url: string): Promise<{ rows: ArbiscanTx[] | null; err?: string }> {
     const ctrl = new AbortController()
@@ -136,7 +129,7 @@ export async function GET(req: Request) {
         direction: dir,
         status: tx.isError === '1' || tx.txreceipt_status === '0' ? 'failed' : 'success',
         method: prettyMethod(tx),
-        explorerUrl: `https://arbiscan.io/tx/${tx.hash}`,
+        explorerUrl: `https://explorer.sepolia.mantle.xyz/tx/${tx.hash}`,
       }
     })
 

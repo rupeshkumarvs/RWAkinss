@@ -1,34 +1,34 @@
 // Built by vsrupeshkumar
 // All network (chain) configuration for Ruphex wallet connectivity.
-// Updated for ETH Mexico 2026 Hackathon: Arbitrum Sepolia ONLY.
+// Updated for The Turing Test Hackathon 2026: Mantle Sepolia ONLY.
 
 export const NETWORKS = {
-  ARBITRUM: {
-    chainId: '0xa4b1',
-    chainIdDecimal: 42161,
-    name: 'Arbitrum One',
-    shortName: 'Arbitrum',
-    rpcUrl: 'https://arb1.arbitrum.io/rpc',
-    explorer: 'https://arbiscan.io',
-    explorerTx: 'https://arbiscan.io/tx/',
-    currency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    color: '#28a0f0',
+  MANTLE: {
+    chainId: '0x1388',
+    chainIdDecimal: 5000,
+    name: 'Mantle Network',
+    shortName: 'Mantle',
+    rpcUrl: 'https://rpc.mantle.xyz',
+    explorer: 'https://explorer.mantle.xyz',
+    explorerTx: 'https://explorer.mantle.xyz/tx/',
+    currency: { name: 'Mantle', symbol: 'MNT', decimals: 18 },
+    color: '#000000',
     type: 'evm' as const,
-    coingeckoId: 'ethereum',
+    coingeckoId: 'mantle',
     selectable: true,
   },
-  ARBITRUM_SEPOLIA: {
-    chainId: '0x66eee',
-    chainIdDecimal: 421614,
-    name: 'Arbitrum Sepolia',
-    shortName: 'Arb Sepolia',
-    rpcUrl: 'https://sepolia-rollup.arbitrum.io/rpc',
-    explorer: 'https://sepolia.arbiscan.io',
-    explorerTx: 'https://sepolia.arbiscan.io/tx/',
-    currency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
-    color: '#28a0f0',
+  MANTLE_SEPOLIA: {
+    chainId: '0x138b',
+    chainIdDecimal: 5003,
+    name: 'Mantle Sepolia Testnet',
+    shortName: 'Mantle Sepolia',
+    rpcUrl: 'https://rpc.sepolia.mantle.xyz',
+    explorer: 'https://explorer.sepolia.mantle.xyz',
+    explorerTx: 'https://explorer.sepolia.mantle.xyz/tx/',
+    currency: { name: 'Mantle', symbol: 'MNT', decimals: 18 },
+    color: '#000000',
     type: 'evm' as const,
-    coingeckoId: 'ethereum',
+    coingeckoId: 'mantle',
     selectable: true,
   },
 }
@@ -37,17 +37,17 @@ export type NetworkKey = keyof typeof NETWORKS
 export type NetworkConfig = (typeof NETWORKS)[NetworkKey]
 
 export const TOOL_NETWORKS: Record<string, NetworkKey> = {
-  '/invoice':   'ARBITRUM_SEPOLIA',
-  '/dashboard': 'ARBITRUM_SEPOLIA',
-  '/credit':    'ARBITRUM_SEPOLIA',
-  '/legacy':    'ARBITRUM_SEPOLIA',
-  '/agents':    'ARBITRUM_SEPOLIA',
-  '/vault':     'ARBITRUM_SEPOLIA',
-  '/split':     'ARBITRUM_SEPOLIA',
-  '/lend':      'ARBITRUM_SEPOLIA',
-  '/treasury':  'ARBITRUM_SEPOLIA',
-  '/shadow':    'ARBITRUM_SEPOLIA',
-  '/ext':       'ARBITRUM_SEPOLIA',
+  '/invoice':   'MANTLE_SEPOLIA',
+  '/dashboard': 'MANTLE_SEPOLIA',
+  '/credit':    'MANTLE_SEPOLIA',
+  '/legacy':    'MANTLE_SEPOLIA',
+  '/agents':    'MANTLE_SEPOLIA',
+  '/vault':     'MANTLE_SEPOLIA',
+  '/split':     'MANTLE_SEPOLIA',
+  '/lend':      'MANTLE_SEPOLIA',
+  '/treasury':  'MANTLE_SEPOLIA',
+  '/shadow':    'MANTLE_SEPOLIA',
+  '/ext':       'MANTLE_SEPOLIA',
 }
 
 // EVM tools (use MetaMask)
@@ -64,8 +64,8 @@ export function getWalletTypeForRoute(route: string): 'evm' | 'solana' {
 }
 
 export function getNetworkForRoute(route: string): NetworkConfig {
-  const key = TOOL_NETWORKS[route] || 'ARBITRUM_SEPOLIA'
-  return NETWORKS[key as NetworkKey] || NETWORKS.ARBITRUM_SEPOLIA
+  const key = TOOL_NETWORKS[route] || 'MANTLE_SEPOLIA'
+  return NETWORKS[key as NetworkKey] || NETWORKS.MANTLE_SEPOLIA
 }
 
 // Find an EVM network config by its decimal chain id
@@ -80,8 +80,8 @@ export function getNetworkByChainId(chainId: number | null): NetworkConfig | nul
 // ── Chain selection (in-app chain switcher) ─────────────────────────────────
 
 const SELECTABLE_ORDER: NetworkKey[] = [
-  'ARBITRUM',
-  'ARBITRUM_SEPOLIA'
+  'MANTLE',
+  'MANTLE_SEPOLIA'
 ]
 
 export type SelectableChain = NetworkConfig & { key: NetworkKey }
@@ -100,6 +100,6 @@ export function getNetworkByKey(key: NetworkKey): NetworkConfig {
 /** The NetworkKey that backs the resilient `rpcClient` ChainType, if any.
  *  Used to bridge the user's selected chain to the generic RPC read layer. */
 export const NETWORK_KEY_TO_RPC_CHAIN: Partial<Record<NetworkKey, string>> = {
-  ARBITRUM: 'ARBITRUM',
-  ARBITRUM_SEPOLIA: 'ARBITRUM_SEPOLIA',
+  MANTLE: 'MANTLE',
+  MANTLE_SEPOLIA: 'MANTLE_SEPOLIA',
 }
