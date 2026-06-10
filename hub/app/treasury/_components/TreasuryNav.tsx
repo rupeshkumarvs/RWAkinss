@@ -32,14 +32,14 @@ export default function TreasuryNav() {
     <nav style={{
       display:'flex', gap:4, padding:'10px 20px',
       borderBottom:'1px solid rgba(59,130,246,0.15)',
-      flexWrap:'wrap', background:'rgba(5,5,15,0.85)',
+      flexWrap:'wrap', background:'rgba(255,255,255,0.85)',
       backdropFilter:'blur(14px)', position:'sticky', top:0, zIndex:40,
       alignItems:'center',
     }}>
       <span style={{ fontSize:11, fontWeight:800, color:BLUE, letterSpacing:'0.1em', marginRight:8, display:'flex', alignItems:'center', gap:4 }}>
         <span style={{ fontSize:14 }}>⚡</span>YIELD OPERATIONS HUB
       </span>
-      <span style={{ fontSize:9, color:'rgba(255,255,255,0.2)', marginRight:4, letterSpacing:'0.05em' }}>Neural OS v4.2</span>
+      <span style={{ fontSize:9, color:'#94A3B8', marginRight:4, letterSpacing:'0.05em' }}>Neural OS v4.2</span>
       {ITEMS.map(item => {
         const active = item.exact ? pathname === item.href : pathname.startsWith(item.href)
         return (
@@ -47,8 +47,8 @@ export default function TreasuryNav() {
             padding:'4px 10px', borderRadius:16, fontSize:10,
             fontWeight: active ? 700 : 400, textDecoration:'none',
             background: active ? `rgba(59,130,246,0.12)` : 'transparent',
-            border:`1px solid ${active ? 'rgba(59,130,246,0.35)' : 'rgba(255,255,255,0.07)'}`,
-            color: active ? BLUE : 'rgba(255,255,255,0.45)',
+            border:`1px solid ${active ? 'rgba(59,130,246,0.35)' : '#E2E8F0'}`,
+            color: active ? BLUE : '#64748B',
             transition:'all 0.2s', whiteSpace:'nowrap',
           }}>
             {item.label}

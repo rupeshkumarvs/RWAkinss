@@ -13,9 +13,9 @@ import { getCreditTier } from '@/lib/platform/scoring'
 import { PlatformModeBadge } from '@/components/ui/PlatformModeBadge'
 
 const TEAL = '#00E5CC'
-const BG = '#080810'
-const CARD = 'rgba(255,255,255,0.03)'
-const BDR = 'rgba(255,255,255,0.07)'
+const BG = '#ffffff'
+const CARD = '#ffffff'
+const BDR = '#E2E8F0'
 const MONO = '"JetBrains Mono","Fira Code",monospace'
 
 type FeedItem = { id: string; agent: string; action: string; ts: string }
@@ -28,9 +28,9 @@ function AddrCell({ addr }: { addr: string }) {
   }
   const short = addr.length > 20 ? `${addr.slice(0,8)}...${addr.slice(-6)}` : addr
   return (
-    <span style={{ display:'inline-flex', alignItems:'center', gap:6, fontFamily:MONO, fontSize:11, color:'rgba(255,255,255,0.5)' }}>
+    <span style={{ display:'inline-flex', alignItems:'center', gap:6, fontFamily:MONO, fontSize:11, color:'#64748B' }}>
       {short}
-      <button onClick={copy} style={{ background:'none', border:'none', cursor:'pointer', fontSize:10, color:copied ? TEAL : 'rgba(255,255,255,0.3)', padding:0 }}>
+      <button onClick={copy} style={{ background:'none', border:'none', cursor:'pointer', fontSize:10, color:copied ? TEAL : '#94A3B8', padding:0 }}>
         {copied ? '✓' : '⎘'}
       </button>
     </span>
@@ -81,14 +81,14 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#fff', fontFamily: '"Inter",system-ui,sans-serif' }}>
+    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#0A0F2E', fontFamily: '"Inter",system-ui,sans-serif' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
         <div>
           <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>YIELD OPERATIONS HUB / DASHBOARD</div>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>Yield Operations Hub Dashboard</h1>
-          <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Your organization's real-time financial overview</p>
+          <p style={{ margin: '6px 0 0', fontSize: 13, color: '#64748B' }}>Your organization's real-time financial overview</p>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {[
@@ -111,13 +111,13 @@ export default function DashboardPage() {
         style={{ background: 'linear-gradient(135deg, rgba(0,229,204,0.06), rgba(168,85,247,0.04))', border: `1px solid rgba(0,229,204,0.2)`, borderRadius: 16, padding: '28px 32px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 16 }}
       >
         <div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', marginBottom: 8 }}>Total Yield Operations Hub Value</div>
+          <div style={{ fontSize: 12, color: '#64748B', marginBottom: 8 }}>Total Yield Operations Hub Value</div>
           <div style={{ fontSize: 42, fontWeight: 900, color: TEAL, fontFamily: MONO, letterSpacing: '-0.02em' }}>
             ${ticker.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div style={{ fontSize: 13, color: '#22C55E', marginTop: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
             <span>↑ +{(p?.change24hPercent ?? 0).toFixed(1) || '5.2'}%</span>
-            <span style={{ color: 'rgba(255,255,255,0.3)' }}>24h · +${(p?.change24h ?? 0).toLocaleString() || '61,574'}</span>
+            <span style={{ color: '#94A3B8' }}>24h · +${(p?.change24h ?? 0).toLocaleString() || '61,574'}</span>
           </div>
         </div>
         <div style={{ fontSize: 48 }}>💰</div>
@@ -130,9 +130,9 @@ export default function DashboardPage() {
             style={{ background: CARD, border: `1px solid ${BDR}`, borderRadius: 12, padding: '16px 18px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>{k.label}</div>
+                <div style={{ fontSize: 10, color: '#64748B', marginBottom: 6 }}>{k.label}</div>
                 <div style={{ fontSize: 22, fontWeight: 700, color: k.color, fontFamily: MONO }}>{loading ? '—' : k.value}</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.3)', marginTop: 3 }}>{k.sub}</div>
+                <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 3 }}>{k.sub}</div>
               </div>
               <span style={{ fontSize: 20 }}>{k.icon}</span>
             </div>
@@ -154,19 +154,19 @@ export default function DashboardPage() {
               <span style={{ fontSize: 11, fontWeight: 700, color: tier.color, fontFamily: MONO, letterSpacing: '0.05em' }}>
                 {tier.name.toUpperCase()} TIER
               </span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', fontFamily: MONO }}>
-                {platform.creditScore !== null ? platform.creditScore : '—'}<span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>/1000</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: '#0A0F2E', fontFamily: MONO }}>
+                {platform.creditScore !== null ? platform.creditScore : '—'}<span style={{ fontSize: 10, color: '#64748B' }}>/1000</span>
               </span>
             </div>
-            <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.1)' }} />
+            <div style={{ width: 1, height: 24, background: '#E2E8F0' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, flexWrap: 'wrap' }}>
               {signals.length ? signals.map(s => (
                 <span key={s.label} style={{ fontSize: 10, padding: '2px 10px', borderRadius: 999, background: `${s.color}15`, border: `1px solid ${s.color}33`, color: s.color, fontFamily: MONO }}>
                   {s.label} · {s.note}
                 </span>
-              )) : <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>Connect vault, treasury & payments to boost your credit score</span>}
+              )) : <span style={{ fontSize: 11, color: '#94A3B8' }}>Connect vault, treasury & payments to boost your credit score</span>}
             </div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontFamily: MONO }}>{tier.treasuryTier}</div>
+            <div style={{ fontSize: 10, color: '#94A3B8', fontFamily: MONO }}>{tier.treasuryTier}</div>
             <PlatformModeBadge />
           </div>
         )
@@ -183,28 +183,28 @@ export default function DashboardPage() {
               <thead>
                 <tr style={{ borderBottom: `1px solid ${BDR}` }}>
                   {['Asset', 'Amount', 'USD Value', 'Network', '% Portfolio', 'Actions'].map(h => (
-                    <th key={h} style={{ textAlign: 'left', padding: '6px 8px', fontSize: 10, color: 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{h}</th>
+                    <th key={h} style={{ textAlign: 'left', padding: '6px 8px', fontSize: 10, color: '#94A3B8', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {(p?.assets || []).map(a => (
-                  <tr key={a.symbol} style={{ borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
+                  <tr key={a.symbol} style={{ borderBottom: `1px solid #ffffff` }}>
                     <td style={{ padding: '10px 8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ width: 10, height: 10, borderRadius: '50%', background: a.color, display: 'inline-block' }} />
                         <div>
                           <div style={{ fontWeight: 700, color: a.color, fontFamily: MONO }}>{a.symbol}</div>
-                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{a.name}</div>
+                          <div style={{ fontSize: 10, color: '#94A3B8' }}>{a.name}</div>
                         </div>
                       </div>
                     </td>
-                    <td style={{ padding: '10px 8px', fontFamily: MONO, color: 'rgba(255,255,255,0.8)' }}>{a.amount.toLocaleString()}</td>
+                    <td style={{ padding: '10px 8px', fontFamily: MONO, color: '#1E293B' }}>{a.amount.toLocaleString()}</td>
                     <td style={{ padding: '10px 8px', fontFamily: MONO, fontWeight: 600 }}>${a.usdValue.toLocaleString()}</td>
-                    <td style={{ padding: '10px 8px', color: 'rgba(255,255,255,0.5)', fontSize: 11 }}>{a.network}</td>
+                    <td style={{ padding: '10px 8px', color: '#64748B', fontSize: 11 }}>{a.network}</td>
                     <td style={{ padding: '10px 8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)', minWidth: 60 }}>
+                        <div style={{ flex: 1, height: 4, borderRadius: 2, background: '#F1F5F9', minWidth: 60 }}>
                           <div style={{ height: 4, borderRadius: 2, background: a.color, width: `${a.percentage}%` }} />
                         </div>
                         <span style={{ fontSize: 11, color: a.color, fontFamily: MONO, minWidth: 36 }}>{a.percentage}%</span>
@@ -220,7 +220,7 @@ export default function DashboardPage() {
                   </tr>
                 ))}
                 {loading && [...Array(4)].map((_, i) => (
-                  <tr key={i}><td colSpan={6} style={{ padding: '10px 8px', color: 'rgba(255,255,255,0.15)', fontFamily: MONO }}>Loading...</td></tr>
+                  <tr key={i}><td colSpan={6} style={{ padding: '10px 8px', color: '#CBD5E1', fontFamily: MONO }}>Loading...</td></tr>
                 ))}
               </tbody>
             </table>
@@ -237,7 +237,7 @@ export default function DashboardPage() {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {agents.map(a => (
-              <div key={a.id} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.02)', borderRadius: 10, borderLeft: `3px solid ${a.color}` }}>
+              <div key={a.id} style={{ padding: '10px 12px', background: '#F8FAFC', borderRadius: 10, borderLeft: `3px solid ${a.color}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: a.color }}>{a.name}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -245,9 +245,9 @@ export default function DashboardPage() {
                     <span style={{ fontSize: 9, color: a.status === 'online' ? '#22C55E' : '#EF4444' }}>{a.status}</span>
                   </div>
                 </div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.35)', marginBottom: 3 }}>{a.role}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', lineHeight: 1.4 }}>{a.lastActivity}</div>
-                <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)', marginTop: 3, fontFamily: MONO }}>{a.operations.toLocaleString()} ops</div>
+                <div style={{ fontSize: 9, color: '#94A3B8', marginBottom: 3 }}>{a.role}</div>
+                <div style={{ fontSize: 9, color: '#64748B', lineHeight: 1.4 }}>{a.lastActivity}</div>
+                <div style={{ fontSize: 9, color: '#CBD5E1', marginTop: 3, fontFamily: MONO }}>{a.operations.toLocaleString()} ops</div>
               </div>
             ))}
           </div>
@@ -268,9 +268,9 @@ export default function DashboardPage() {
               <div key={f.id} style={{ padding: '8px 10px', background: 'rgba(255,255,255,0.015)', borderRadius: 6, borderLeft: `2px solid ${TEAL}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
                   <span style={{ fontSize: 10, color: TEAL, fontFamily: MONO }}>{f.agent}</span>
-                  <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.25)' }}>{f.ts}</span>
+                  <span style={{ fontSize: 9, color: '#CBD5E1' }}>{f.ts}</span>
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.65)' }}>{f.action}</div>
+                <div style={{ fontSize: 11, color: '#475569' }}>{f.action}</div>
               </div>
             ))}
           </div>
@@ -288,12 +288,12 @@ export default function DashboardPage() {
               { href:'/treasury/tax',         label:'🧾 Tax Report',   color:'#F59E0B', desc:'FIFO capital gains, short/long-term' },
               { href:'/treasury/analytics',   label:'📉 Analytics',    color:'#6366F1', desc:'Volume, flows & network breakdown' },
               { href:'/treasury/payroll',     label:'💰 Payroll',      color:'#10B981', desc:'Manage streaming payments' },
-              { href:'/treasury/settings',    label:'⚙️ Settings',     color:'rgba(255,255,255,0.5)', desc:'Configure preferences' },
+              { href:'/treasury/settings',    label:'⚙️ Settings',     color:'#64748B', desc:'Configure preferences' },
             ].map(a => (
               <Link key={a.href} href={a.href}>
-                <div style={{ padding: '12px', background: 'rgba(255,255,255,0.02)', border: `1px solid ${BDR}`, borderRadius: 10, cursor: 'pointer', transition: 'all 0.15s' }}>
+                <div style={{ padding: '12px', background: '#F8FAFC', border: `1px solid ${BDR}`, borderRadius: 10, cursor: 'pointer', transition: 'all 0.15s' }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: a.color, marginBottom: 4 }}>{a.label}</div>
-                  <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{a.desc}</div>
+                  <div style={{ fontSize: 10, color: '#94A3B8' }}>{a.desc}</div>
                 </div>
               </Link>
             ))}

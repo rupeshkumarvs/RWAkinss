@@ -52,7 +52,7 @@ const STATS = [
 const SUPPORTED = [
   { name:'Mantle',   symbol:'MNT',   color:'#6366F1' },
   { name:'Ethereum', symbol:'ETH',   color:'#60A5FA' },
-  { name:'Mantle', symbol:'ARB',   color:'#06B6D4' },
+  { name:'Arbitrum', symbol:'ARB',   color:'#06B6D4' },
   { name:'Polygon',  symbol:'MATIC', color:'#8B5CF6' },
   { name:'Base',     symbol:'BASE',  color:'#3B82F6' },
   { name:'Optimism', symbol:'OP',    color:'#EF4444' },
@@ -649,13 +649,13 @@ export default function TreasuryLanding() {
               )}
               <button
                 onClick={trustmesh.refresh}
-                style={{ fontSize: 11, padding: '3px 10px', borderRadius: 99, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.55)', cursor: 'pointer' }}
+                style={{ fontSize: 11, padding: '3px 10px', borderRadius: 99, background: '#F1F5F9', border: '1px solid #E2E8F0', color: '#475569', cursor: 'pointer' }}
               >
                 ↻ Refresh
               </button>
             </div>
             {lastUpdated && (
-              <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>
+              <span style={{ fontSize: 11, color: '#94A3B8' }}>
                 Last updated: {secsAgo(lastUpdated)}
               </span>
             )}
@@ -756,8 +756,8 @@ export default function TreasuryLanding() {
                       padding: '12px 24px',
                       borderRadius: '12px',
                       border: `1px solid rgba(59, 130, 246, 0.25)`,
-                      background: 'rgba(13, 20, 44, 0.65)',
-                      color: '#F8FAFC',
+                      background: 'rgba(59, 130, 246, 0.08)',
+                      color: '#1E40AF',
                       fontSize: '14px',
                       fontWeight: 600,
                       cursor: 'pointer',

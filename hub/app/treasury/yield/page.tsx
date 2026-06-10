@@ -6,9 +6,9 @@ import { toast } from 'sonner'
 import { fetchYieldData, setYieldStrategy } from '@/lib/palmflow-api'
 
 const TEAL = '#00E5CC'
-const BG = '#080810'
-const CARD = 'rgba(255,255,255,0.03)'
-const BDR = 'rgba(255,255,255,0.07)'
+const BG = '#ffffff'
+const CARD = '#ffffff'
+const BDR = '#E2E8F0'
 const MONO = '"JetBrains Mono","Fira Code",monospace'
 
 const STRATEGIES = [
@@ -75,12 +75,12 @@ export default function YieldPage() {
   const activeStrat = STRATEGIES.find(s => s.key === yieldData.strategy) || STRATEGIES[1]
 
   return (
-    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#fff', fontFamily: '"Inter",system-ui,sans-serif' }}>
+    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#0A0F2E', fontFamily: '"Inter",system-ui,sans-serif' }}>
 
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>YIELD OPERATIONS HUB / YIELD OPTIMIZER</div>
         <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>Yield Optimizer</h1>
-        <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Autonomous DeFi yield optimization across Mantle protocols</p>
+        <p style={{ margin: '6px 0 0', fontSize: 13, color: '#64748B' }}>Autonomous DeFi yield optimization across Mantle protocols</p>
       </div>
 
       {/* KPIs */}
@@ -92,7 +92,7 @@ export default function YieldPage() {
           { label: 'Strategy', value: loading ? '—' : activeStrat.name, color: '#A855F7' },
         ].map(k => (
           <div key={k.label} style={{ background: CARD, border: `1px solid ${BDR}`, borderRadius: 10, padding: '14px 16px' }}>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 6 }}>{k.label}</div>
+            <div style={{ fontSize: 10, color: '#64748B', marginBottom: 6 }}>{k.label}</div>
             <div style={{ fontSize: 22, fontWeight: 700, color: k.color, fontFamily: MONO }}>{k.value}</div>
           </div>
         ))}
@@ -109,7 +109,7 @@ export default function YieldPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
                   <div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: isActive ? TEAL : '#fff' }}>{s.name}</div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginTop: 2 }}>{s.desc}</div>
+                    <div style={{ fontSize: 11, color: '#64748B', marginTop: 2 }}>{s.desc}</div>
                   </div>
                   {isActive && (
                     <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 20, background: 'rgba(0,229,204,0.1)', border: '1px solid rgba(0,229,204,0.3)', color: TEAL }}>ACTIVE</span>
@@ -117,11 +117,11 @@ export default function YieldPage() {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14 }}>
                   <div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>APY</div>
+                    <div style={{ fontSize: 10, color: '#64748B' }}>APY</div>
                     <div style={{ fontSize: 22, fontWeight: 800, color: '#22C55E', fontFamily: MONO }}>{s.apy}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)' }}>Risk</div>
+                    <div style={{ fontSize: 10, color: '#64748B' }}>Risk</div>
                     <div style={{ fontSize: 16, fontWeight: 700, color: s.riskColor }}>{s.risk}</div>
                   </div>
                 </div>
@@ -129,10 +129,10 @@ export default function YieldPage() {
                   {s.allocation.map(a => (
                     <div key={a.protocol} style={{ marginBottom: 6 }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3, fontSize: 11 }}>
-                        <span style={{ color: 'rgba(255,255,255,0.6)' }}>{a.protocol}</span>
+                        <span style={{ color: '#475569' }}>{a.protocol}</span>
                         <span style={{ color: a.color, fontFamily: MONO }}>{a.pct}%</span>
                       </div>
-                      <div style={{ height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.06)' }}>
+                      <div style={{ height: 4, borderRadius: 2, background: '#F1F5F9' }}>
                         <div style={{ height: 4, borderRadius: 2, background: a.color, width: `${a.pct}%` }} />
                       </div>
                     </div>
@@ -141,7 +141,7 @@ export default function YieldPage() {
                 <button
                   onClick={() => handleStrategy(s.key)}
                   disabled={isActive || switching === s.key}
-                  style={{ width: '100%', padding: '9px', borderRadius: 8, border: `1px solid ${isActive ? 'rgba(0,229,204,0.3)' : BDR}`, background: isActive ? 'rgba(0,229,204,0.08)' : 'transparent', color: isActive ? TEAL : 'rgba(255,255,255,0.6)', fontSize: 12, fontWeight: isActive ? 700 : 400, cursor: isActive ? 'default' : 'pointer' }}
+                  style={{ width: '100%', padding: '9px', borderRadius: 8, border: `1px solid ${isActive ? 'rgba(0,229,204,0.3)' : BDR}`, background: isActive ? 'rgba(0,229,204,0.08)' : 'transparent', color: isActive ? TEAL : '#475569', fontSize: 12, fontWeight: isActive ? 700 : 400, cursor: isActive ? 'default' : 'pointer' }}
                 >
                   {isActive ? '✓ Active Strategy' : switching === s.key ? 'Switching...' : 'Switch to ' + s.name}
                 </button>
@@ -155,13 +155,13 @@ export default function YieldPage() {
       <div style={{ background: CARD, border: `1px solid ${BDR}`, borderRadius: 12, padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <div style={{ fontSize: 14, fontWeight: 600 }}>Auto-Optimization</div>
-          <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginTop: 4 }}>
+          <div style={{ fontSize: 12, color: '#64748B', marginTop: 4 }}>
             AI rebalances your strategy daily based on market conditions
           </div>
         </div>
         <div
           onClick={() => { setAutoOpt(p => !p); toast.success(autoOpt ? 'Auto-optimization disabled' : 'Auto-optimization enabled') }}
-          style={{ width: 48, height: 26, borderRadius: 13, background: autoOpt ? 'rgba(0,229,204,0.3)' : 'rgba(255,255,255,0.1)', border: `1px solid ${autoOpt ? TEAL : BDR}`, cursor: 'pointer', position: 'relative', transition: 'all 0.2s' }}
+          style={{ width: 48, height: 26, borderRadius: 13, background: autoOpt ? 'rgba(0,229,204,0.3)' : '#E2E8F0', border: `1px solid ${autoOpt ? TEAL : BDR}`, cursor: 'pointer', position: 'relative', transition: 'all 0.2s' }}
         >
           <div style={{ position: 'absolute', top: 3, left: autoOpt ? 24 : 3, width: 18, height: 18, borderRadius: '50%', background: autoOpt ? TEAL : '#666', transition: 'left 0.2s' }} />
         </div>

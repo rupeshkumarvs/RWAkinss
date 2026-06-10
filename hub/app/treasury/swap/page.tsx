@@ -9,9 +9,9 @@ import { PF_SWAP_ROUTES } from '@/lib/palmflow-fallbacks'
 import type { PFSwapRoute } from '@/lib/palmflow-api'
 
 const TEAL = '#00E5CC'
-const BG = '#080810'
-const CARD = 'rgba(255,255,255,0.03)'
-const BDR = 'rgba(255,255,255,0.07)'
+const BG = '#ffffff'
+const CARD = '#ffffff'
+const BDR = '#E2E8F0'
 const MONO = '"JetBrains Mono","Fira Code",monospace'
 
 const ASSETS = ['MNT','ETH','USDC','USDT','DAI','MATIC','USDC']
@@ -67,13 +67,13 @@ export default function SwapPage() {
   const routeColor = (i: number) => [TEAL, '#22C55E', '#F59E0B'][i] || '#fff'
 
   return (
-    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#fff', fontFamily: '"Inter",system-ui,sans-serif' }}>
+    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#0A0F2E', fontFamily: '"Inter",system-ui,sans-serif' }}>
       <div style={{ maxWidth: 960, margin: '0 auto' }}>
 
         <div style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>YIELD OPERATIONS HUB / SWAP</div>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>Swap Assets</h1>
-          <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>AI-optimized DEX routing across Mantle, Ethereum and more</p>
+          <p style={{ margin: '6px 0 0', fontSize: 13, color: '#64748B' }}>AI-optimized DEX routing across Mantle, Ethereum and more</p>
         </div>
 
         {txHash && (
@@ -82,7 +82,7 @@ export default function SwapPage() {
             <span style={{ fontSize:20 }}>✅</span>
             <div>
               <div style={{ fontSize:13, fontWeight:700, color:'#22C55E' }}>Swap Executed!</div>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,0.5)', fontFamily:MONO, marginTop:2 }}>Tx: {txHash}</div>
+              <div style={{ fontSize:11, color:'#64748B', fontFamily:MONO, marginTop:2 }}>Tx: {txHash}</div>
             </div>
           </motion.div>
         )}
@@ -94,25 +94,25 @@ export default function SwapPage() {
             <div style={{ background:'rgba(168,85,247,0.04)', border:'1px solid rgba(168,85,247,0.2)', borderRadius:14, padding:'22px', marginBottom:14 }}>
               <div style={{ fontSize:13, fontWeight:700, color:'#A855F7', marginBottom:14 }}>🔀 Execution Path</div>
               {quoting ? (
-                <div style={{ color:'rgba(255,255,255,0.3)', fontSize:12, textAlign:'center', padding:'16px 0' }}>Getting best price...</div>
+                <div style={{ color:'#94A3B8', fontSize:12, textAlign:'center', padding:'16px 0' }}>Getting best price...</div>
               ) : (
                 <>
                   <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:16, flexWrap:'wrap' }}>
                     <span style={{ padding:'6px 12px', background:'rgba(0,229,204,0.1)', borderRadius:8, fontSize:12, fontWeight:700, color:TEAL, fontFamily:MONO }}>{fromAsset}</span>
                     {selectedRoute.steps.map((s, i) => (
                       <span key={i} style={{ display:'contents' }}>
-                        <span style={{ color:'rgba(255,255,255,0.3)', fontSize:14 }}>→</span>
+                        <span style={{ color:'#94A3B8', fontSize:14 }}>→</span>
                         <span style={{ padding:'5px 10px', background:'rgba(168,85,247,0.08)', border:'1px solid rgba(168,85,247,0.2)', borderRadius:6, fontSize:10, color:'#A855F7' }}>{s.protocol}</span>
                       </span>
                     ))}
-                    <span style={{ color:'rgba(255,255,255,0.3)', fontSize:14 }}>→</span>
+                    <span style={{ color:'#94A3B8', fontSize:14 }}>→</span>
                     <span style={{ padding:'6px 12px', background:'rgba(34,197,94,0.1)', borderRadius:8, fontSize:12, fontWeight:700, color:'#22C55E', fontFamily:MONO }}>{toAsset}</span>
                   </div>
                   <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:14 }}>
                     {selectedRoute.steps.map((s, i) => (
-                      <div key={i} style={{ padding:'10px 12px', background:'rgba(255,255,255,0.03)', borderRadius:8 }}>
+                      <div key={i} style={{ padding:'10px 12px', background:'#ffffff', borderRadius:8 }}>
                         <div style={{ fontSize:12, fontWeight:600, color:'#A855F7' }}>{s.protocol}</div>
-                        <div style={{ display:'flex', justifyContent:'space-between', fontSize:10, color:'rgba(255,255,255,0.4)', marginTop:3 }}>
+                        <div style={{ display:'flex', justifyContent:'space-between', fontSize:10, color:'#64748B', marginTop:3 }}>
                           <span>{s.network}</span>
                           <span>Impact: {s.priceImpact}% · Fee: ${s.fee}</span>
                         </div>
@@ -126,8 +126,8 @@ export default function SwapPage() {
                     { label:'Confidence', value:`${selectedRoute.confidence}%` },
                   ].map(r => (
                     <div key={r.label} style={{ display:'flex', justifyContent:'space-between', fontSize:11, marginBottom:5 }}>
-                      <span style={{ color:'rgba(255,255,255,0.4)' }}>{r.label}</span>
-                      <span style={{ color:'#fff', fontFamily:MONO }}>{r.value}</span>
+                      <span style={{ color:'#64748B' }}>{r.label}</span>
+                      <span style={{ color: '#0A0F2E', fontFamily:MONO }}>{r.value}</span>
                     </div>
                   ))}
                 </>
@@ -141,12 +141,12 @@ export default function SwapPage() {
               </button>
               {showRoutes && routes.map((r, i) => (
                 <div key={r.id} onClick={() => setSelectedRoute(r)}
-                  style={{ padding:'11px 12px', background: r.id === selectedRoute.id ? `rgba(0,229,204,0.06)` : 'rgba(255,255,255,0.02)', border:`1px solid ${r.id === selectedRoute.id ? 'rgba(0,229,204,0.3)' : BDR}`, borderRadius:10, marginBottom:8, cursor:'pointer' }}>
+                  style={{ padding:'11px 12px', background: r.id === selectedRoute.id ? `rgba(0,229,204,0.06)` : '#F8FAFC', border:`1px solid ${r.id === selectedRoute.id ? 'rgba(0,229,204,0.3)' : BDR}`, borderRadius:10, marginBottom:8, cursor:'pointer' }}>
                   <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
                     <span style={{ fontSize:12, fontWeight:700, color:routeColor(i) }}>{r.label}</span>
                     {r.id === selectedRoute.id && <span style={{ fontSize:9, color:TEAL }}>SELECTED</span>}
                   </div>
-                  <div style={{ fontSize:10, color:'rgba(255,255,255,0.4)', display:'flex', gap:12 }}>
+                  <div style={{ fontSize:10, color:'#64748B', display:'flex', gap:12 }}>
                     <span>Cost: ${r.totalCost}</span>
                     <span>Impact: {r.steps[0]?.priceImpact}%</span>
                     <span>~{r.executionTime}s</span>
@@ -162,22 +162,22 @@ export default function SwapPage() {
               <div style={{ fontSize:14, fontWeight:600, marginBottom:20 }}>Swap</div>
 
               {/* From */}
-              <div style={{ background:'rgba(255,255,255,0.03)', borderRadius:12, padding:'16px', marginBottom:8 }}>
-                <label style={{ fontSize:11, color:'rgba(255,255,255,0.4)', marginBottom:8, display:'block', fontWeight:600 }}>SELL</label>
+              <div style={{ background:'#ffffff', borderRadius:12, padding:'16px', marginBottom:8 }}>
+                <label style={{ fontSize:11, color:'#64748B', marginBottom:8, display:'block', fontWeight:600 }}>SELL</label>
                 <div style={{ display:'flex', gap:10, alignItems:'center' }}>
                   <input type="number" value={fromAmount} onChange={e => setFromAmount(e.target.value)} placeholder="0.00" min="0" step="any"
-                    style={{ flex:1, background:'none', border:'none', outline:'none', fontSize:28, fontWeight:700, color:'#fff', fontFamily:MONO, width:0 }} />
+                    style={{ flex:1, background:'none', border:'none', outline:'none', fontSize:28, fontWeight:700, color: '#0A0F2E', fontFamily:MONO, width:0 }} />
                   <div>
                     <select value={fromAsset} onChange={e => setFromAsset(e.target.value)}
                       style={{ padding:'8px 12px', borderRadius:8, border:`1px solid rgba(0,229,204,0.3)`, background:'rgba(0,229,204,0.08)', color:TEAL, fontSize:13, fontWeight:700, outline:'none', cursor:'pointer' }}>
                       {ASSETS.map(a => <option key={a}>{a}</option>)}
                     </select>
-                    <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', textAlign:'right', marginTop:3 }}>≈ ${(Number(fromAmount||0) * fromPrice).toLocaleString()}</div>
+                    <div style={{ fontSize:10, color:'#94A3B8', textAlign:'right', marginTop:3 }}>≈ ${(Number(fromAmount||0) * fromPrice).toLocaleString()}</div>
                   </div>
                 </div>
-                <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:6 }}>
+                <div style={{ fontSize:10, color:'#94A3B8', marginTop:6 }}>
                   Network:
-                  <select value={fromNetwork} onChange={e => setFromNetwork(e.target.value)} style={{ marginLeft:6, background:'none', border:'none', color:'rgba(255,255,255,0.5)', fontSize:10, outline:'none', cursor:'pointer' }}>
+                  <select value={fromNetwork} onChange={e => setFromNetwork(e.target.value)} style={{ marginLeft:6, background:'none', border:'none', color:'#64748B', fontSize:10, outline:'none', cursor:'pointer' }}>
                     {NETWORKS.map(n => <option key={n}>{n}</option>)}
                   </select>
                 </div>
@@ -192,8 +192,8 @@ export default function SwapPage() {
               </div>
 
               {/* To */}
-              <div style={{ background:'rgba(255,255,255,0.03)', borderRadius:12, padding:'16px', marginBottom:20 }}>
-                <label style={{ fontSize:11, color:'rgba(255,255,255,0.4)', marginBottom:8, display:'block', fontWeight:600 }}>BUY</label>
+              <div style={{ background:'#ffffff', borderRadius:12, padding:'16px', marginBottom:20 }}>
+                <label style={{ fontSize:11, color:'#64748B', marginBottom:8, display:'block', fontWeight:600 }}>BUY</label>
                 <div style={{ display:'flex', gap:10, alignItems:'center' }}>
                   <div style={{ flex:1, fontSize:28, fontWeight:700, color:'#22C55E', fontFamily:MONO }}>{expectedOut}</div>
                   <div>
@@ -201,37 +201,37 @@ export default function SwapPage() {
                       style={{ padding:'8px 12px', borderRadius:8, border:'1px solid rgba(34,197,94,0.3)', background:'rgba(34,197,94,0.08)', color:'#22C55E', fontSize:13, fontWeight:700, outline:'none', cursor:'pointer' }}>
                       {ASSETS.map(a => <option key={a}>{a}</option>)}
                     </select>
-                    <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', textAlign:'right', marginTop:3 }}>≈ ${(Number(expectedOut||0) * toPrice).toLocaleString()}</div>
+                    <div style={{ fontSize:10, color:'#94A3B8', textAlign:'right', marginTop:3 }}>≈ ${(Number(expectedOut||0) * toPrice).toLocaleString()}</div>
                   </div>
                 </div>
-                <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:6 }}>
+                <div style={{ fontSize:10, color:'#94A3B8', marginTop:6 }}>
                   Network:
-                  <select value={toNetwork} onChange={e => setToNetwork(e.target.value)} style={{ marginLeft:6, background:'none', border:'none', color:'rgba(255,255,255,0.5)', fontSize:10, outline:'none', cursor:'pointer' }}>
+                  <select value={toNetwork} onChange={e => setToNetwork(e.target.value)} style={{ marginLeft:6, background:'none', border:'none', color:'#64748B', fontSize:10, outline:'none', cursor:'pointer' }}>
                     {NETWORKS.map(n => <option key={n}>{n}</option>)}
                   </select>
                 </div>
               </div>
 
               {/* Details */}
-              <div style={{ background:'rgba(255,255,255,0.02)', borderRadius:10, padding:'14px', marginBottom:20 }}>
+              <div style={{ background:'#F8FAFC', borderRadius:10, padding:'14px', marginBottom:20 }}>
                 {[
                   { label:'Price Impact', value:`${selectedRoute.steps[0]?.priceImpact || 0.2}%`, color:'#22C55E' },
-                  { label:'Minimum Received', value:`${minOut} ${toAsset}`, color:'#fff' },
+                  { label:'Minimum Received', value:`${minOut} ${toAsset}`, color: '#0A0F2E' },
                   { label:'Route', value:selectedRoute.label, color:'#A855F7' },
                   { label:'Total Fee', value:`$${selectedRoute.totalCost}`, color:TEAL },
                   { label:'Slippage', value:`${slippage}%`, color:'#F59E0B' },
                 ].map(d => (
                   <div key={d.label} style={{ display:'flex', justifyContent:'space-between', fontSize:12, marginBottom:7 }}>
-                    <span style={{ color:'rgba(255,255,255,0.4)' }}>{d.label}</span>
+                    <span style={{ color:'#64748B' }}>{d.label}</span>
                     <span style={{ color:d.color, fontFamily:MONO, fontWeight:600 }}>{d.value}</span>
                   </div>
                 ))}
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginTop:8, borderTop:`1px solid ${BDR}`, paddingTop:8 }}>
-                  <span style={{ fontSize:11, color:'rgba(255,255,255,0.4)' }}>Slippage Tolerance</span>
+                  <span style={{ fontSize:11, color:'#64748B' }}>Slippage Tolerance</span>
                   <div style={{ display:'flex', gap:6 }}>
                     {['0.1','0.5','1.0'].map(v => (
                       <button key={v} type="button" onClick={() => setSlippage(v)}
-                        style={{ padding:'3px 9px', borderRadius:6, border:`1px solid ${slippage===v?TEAL:BDR}`, background:slippage===v?'rgba(0,229,204,0.1)':'transparent', color:slippage===v?TEAL:'rgba(255,255,255,0.4)', fontSize:10, cursor:'pointer' }}>
+                        style={{ padding:'3px 9px', borderRadius:6, border:`1px solid ${slippage===v?TEAL:BDR}`, background:slippage===v?'rgba(0,229,204,0.1)':'transparent', color:slippage===v?TEAL:'#64748B', fontSize:10, cursor:'pointer' }}>
                         {v}%
                       </button>
                     ))}

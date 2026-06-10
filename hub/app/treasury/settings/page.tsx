@@ -7,9 +7,9 @@ import { fetchSettings, updateSettings, fetchWallets } from '@/lib/palmflow-api'
 import type { PFSettings, PFWallet } from '@/lib/palmflow-api'
 
 const TEAL = '#00E5CC'
-const BG = '#080810'
-const CARD = 'rgba(255,255,255,0.03)'
-const BDR = 'rgba(255,255,255,0.07)'
+const BG = '#ffffff'
+const CARD = '#ffffff'
+const BDR = '#E2E8F0'
 const MONO = '"JetBrains Mono","Fira Code",monospace'
 
 const TABS = ['Account', 'Payment', 'Security', 'Notifications', 'Advanced'] as const
@@ -21,7 +21,7 @@ const ASSETS   = ['USDC', 'MNT', 'ETH', 'USDC', 'USDT', 'DAI']
 function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   return (
     <div onClick={() => onChange(!value)}
-      style={{ width:44, height:24, borderRadius:12, background:value?'rgba(0,229,204,0.25)':'rgba(255,255,255,0.08)', border:`1px solid ${value?TEAL:BDR}`, cursor:'pointer', position:'relative', transition:'all 0.2s', flexShrink:0 }}>
+      style={{ width:44, height:24, borderRadius:12, background:value?'rgba(0,229,204,0.25)':'#E2E8F0', border:`1px solid ${value?TEAL:BDR}`, cursor:'pointer', position:'relative', transition:'all 0.2s', flexShrink:0 }}>
       <div style={{ position:'absolute', top:3, left:value?22:3, width:16, height:16, borderRadius:'50%', background:value?TEAL:'#555', transition:'left 0.2s' }} />
     </div>
   )
@@ -29,18 +29,18 @@ function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) =>
 
 function Row({ label, desc, children }: { label: string; desc?: string; children: React.ReactNode }) {
   return (
-    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 0', borderBottom:`1px solid rgba(255,255,255,0.04)`, gap:16, flexWrap:'wrap' }}>
+    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'14px 0', borderBottom:`1px solid #F8FAFC`, gap:16, flexWrap:'wrap' }}>
       <div style={{ flex:1 }}>
         <div style={{ fontSize:13, fontWeight:500 }}>{label}</div>
-        {desc && <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)', marginTop:3 }}>{desc}</div>}
+        {desc && <div style={{ fontSize:11, color:'#94A3B8', marginTop:3 }}>{desc}</div>}
       </div>
       {children}
     </div>
   )
 }
 
-const inp: React.CSSProperties = { padding:'8px 12px', borderRadius:8, border:`1px solid ${BDR}`, background:'rgba(255,255,255,0.04)', color:'#fff', fontSize:13, outline:'none', minWidth:180 }
-const sel: React.CSSProperties = { ...inp, background:'#0e0e1a', cursor:'pointer' }
+const inp: React.CSSProperties = { padding:'8px 12px', borderRadius:8, border:`1px solid ${BDR}`, background:'#F8FAFC', color: '#0A0F2E', fontSize:13, outline:'none', minWidth:180 }
+const sel: React.CSSProperties = { ...inp, background:'#ffffff', cursor:'pointer' }
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('Account')
@@ -66,24 +66,24 @@ export default function SettingsPage() {
     setSaving(false)
   }
 
-  if (!settings) return <div style={{ background:BG, minHeight:'100vh', color:'rgba(255,255,255,0.3)', display:'flex', alignItems:'center', justifyContent:'center' }}>Loading settings...</div>
+  if (!settings) return <div style={{ background:BG, minHeight:'100vh', color:'#94A3B8', display:'flex', alignItems:'center', justifyContent:'center' }}>Loading settings...</div>
 
   return (
-    <div style={{ background:BG, minHeight:'100vh', padding:'24px', color:'#fff', fontFamily:'"Inter",system-ui,sans-serif' }}>
+    <div style={{ background:BG, minHeight:'100vh', padding:'24px', color: '#0A0F2E', fontFamily:'"Inter",system-ui,sans-serif' }}>
 
       <div style={{ maxWidth:800, margin:'0 auto' }}>
 
         <div style={{ marginBottom:28 }}>
           <div style={{ fontSize:11, color:TEAL, fontFamily:MONO, letterSpacing:'0.1em', marginBottom:4 }}>YIELD OPERATIONS HUB / SETTINGS</div>
           <h1 style={{ margin:0, fontSize:24, fontWeight:700 }}>Settings</h1>
-          <p style={{ margin:'6px 0 0', fontSize:13, color:'rgba(255,255,255,0.4)' }}>Configure your Yield Operations Hub preferences and security</p>
+          <p style={{ margin:'6px 0 0', fontSize:13, color:'#64748B' }}>Configure your Yield Operations Hub preferences and security</p>
         </div>
 
         {/* Tab bar */}
-        <div style={{ display:'flex', gap:4, marginBottom:24, background:'rgba(255,255,255,0.02)', borderRadius:10, padding:4, flexWrap:'wrap' }}>
+        <div style={{ display:'flex', gap:4, marginBottom:24, background:'#F8FAFC', borderRadius:10, padding:4, flexWrap:'wrap' }}>
           {TABS.map(t => (
             <button key={t} onClick={() => setActiveTab(t)}
-              style={{ flex:1, minWidth:80, padding:'8px 14px', borderRadius:7, border:'none', background:activeTab===t?'rgba(0,229,204,0.12)':'transparent', color:activeTab===t?TEAL:'rgba(255,255,255,0.45)', fontSize:12, fontWeight:activeTab===t?700:400, cursor:'pointer', transition:'all 0.15s' }}>
+              style={{ flex:1, minWidth:80, padding:'8px 14px', borderRadius:7, border:'none', background:activeTab===t?'rgba(0,229,204,0.12)':'transparent', color:activeTab===t?TEAL:'#64748B', fontSize:12, fontWeight:activeTab===t?700:400, cursor:'pointer', transition:'all 0.15s' }}>
               {t}
             </button>
           ))}
@@ -108,12 +108,12 @@ export default function SettingsPage() {
 
             <div style={{ fontSize:14, fontWeight:600, marginTop:24, marginBottom:16, color:TEAL }}>Connected Wallets</div>
             {wallets.map(w => (
-              <div key={w.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px 0', borderBottom:`1px solid rgba(255,255,255,0.04)`, flexWrap:'wrap', gap:8 }}>
+              <div key={w.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'12px 0', borderBottom:`1px solid #F8FAFC`, flexWrap:'wrap', gap:8 }}>
                 <div>
                   <div style={{ fontSize:13, fontWeight:600 }}>{w.label}</div>
                   <div style={{ fontSize:10, color:TEAL, marginTop:2 }}>{w.network}</div>
-                  <div style={{ fontSize:10, fontFamily:MONO, color:'rgba(255,255,255,0.4)', marginTop:2 }}>{w.address}</div>
-                  <div style={{ fontSize:10, color:'rgba(255,255,255,0.35)', marginTop:2 }}>{w.balance} {w.symbol} · ${w.usdValue.toLocaleString()}</div>
+                  <div style={{ fontSize:10, fontFamily:MONO, color:'#64748B', marginTop:2 }}>{w.address}</div>
+                  <div style={{ fontSize:10, color:'#94A3B8', marginTop:2 }}>{w.balance} {w.symbol} · ${w.usdValue.toLocaleString()}</div>
                 </div>
                 <button style={{ padding:'5px 12px', borderRadius:8, border:'1px solid rgba(239,68,68,0.3)', background:'rgba(239,68,68,0.06)', color:'#FCA5A5', fontSize:11, cursor:'pointer' }}>
                   Disconnect
@@ -154,7 +154,7 @@ export default function SettingsPage() {
             </>}
 
             <div style={{ fontSize:14, fontWeight:600, marginTop:24, marginBottom:16, color:TEAL }}>Recurring Payments</div>
-            <div style={{ padding:'16px', background:'rgba(255,255,255,0.02)', borderRadius:10, fontSize:12, color:'rgba(255,255,255,0.4)' }}>
+            <div style={{ padding:'16px', background:'#F8FAFC', borderRadius:10, fontSize:12, color:'#64748B' }}>
               No recurring payments configured.{' '}
               <a href="/treasury/payroll" style={{ color:TEAL, textDecoration:'none' }}>Set up payroll streams →</a>
             </div>
@@ -189,9 +189,9 @@ export default function SettingsPage() {
             </Row>
 
             <div style={{ fontSize:14, fontWeight:600, marginTop:24, marginBottom:16, color:TEAL }}>Session Management</div>
-            <div style={{ padding:'14px', background:'rgba(255,255,255,0.02)', borderRadius:10, marginBottom:10, fontSize:12 }}>
+            <div style={{ padding:'14px', background:'#F8FAFC', borderRadius:10, marginBottom:10, fontSize:12 }}>
               <div style={{ color:'#22C55E', marginBottom:4 }}>● Current Session (This device)</div>
-              <div style={{ color:'rgba(255,255,255,0.4)' }}>Last active: Just now · Browser · {typeof window !== 'undefined' ? navigator.platform : 'Unknown'}</div>
+              <div style={{ color:'#64748B' }}>Last active: Just now · Browser · {typeof window !== 'undefined' ? navigator.platform : 'Unknown'}</div>
             </div>
             <button onClick={() => toast.success('All other sessions logged out')}
               style={{ padding:'8px 16px', borderRadius:8, border:'1px solid rgba(239,68,68,0.3)', background:'rgba(239,68,68,0.06)', color:'#FCA5A5', fontSize:11, cursor:'pointer' }}>
@@ -228,7 +228,7 @@ export default function SettingsPage() {
               <input placeholder="https://your-app.com/webhook" style={{ ...inp, width:'100%', boxSizing:'border-box' as any }} />
             </div>
             <button onClick={() => toast.success('Webhook test sent')}
-              style={{ padding:'7px 16px', borderRadius:8, border:`1px solid ${BDR}`, background:'rgba(255,255,255,0.04)', color:'rgba(255,255,255,0.5)', fontSize:11, cursor:'pointer' }}>
+              style={{ padding:'7px 16px', borderRadius:8, border:`1px solid ${BDR}`, background:'#F8FAFC', color:'#64748B', fontSize:11, cursor:'pointer' }}>
               Test Webhook
             </button>
           </>}
@@ -259,24 +259,24 @@ export default function SettingsPage() {
             <div style={{ fontSize:14, fontWeight:600, marginTop:24, marginBottom:16, color:TEAL }}>API & Developer</div>
             <Row label="API Key">
               <div style={{ display:'flex', gap:6, alignItems:'center' }}>
-                <span style={{ fontFamily:MONO, fontSize:11, color:'rgba(255,255,255,0.4)' }}>
+                <span style={{ fontFamily:MONO, fontSize:11, color:'#64748B' }}>
                   {apiKeyVisible ? 'pf_live_sk_9x2mK7vR...8nQj' : '••••••••••••••••••••'}
                 </span>
-                <button onClick={() => setApiKeyVisible(p=>!p)} style={{ padding:'3px 8px', borderRadius:6, border:`1px solid ${BDR}`, background:'transparent', color:'rgba(255,255,255,0.4)', fontSize:10, cursor:'pointer' }}>
+                <button onClick={() => setApiKeyVisible(p=>!p)} style={{ padding:'3px 8px', borderRadius:6, border:`1px solid ${BDR}`, background:'transparent', color:'#64748B', fontSize:10, cursor:'pointer' }}>
                   {apiKeyVisible ? 'Hide' : 'Show'}
                 </button>
                 <button onClick={() => { navigator.clipboard.writeText('pf_live_sk_9x2mK7vR8nQj'); toast.success('API key copied') }}
-                  style={{ padding:'3px 8px', borderRadius:6, border:`1px solid ${BDR}`, background:'transparent', color:'rgba(255,255,255,0.4)', fontSize:10, cursor:'pointer' }}>
+                  style={{ padding:'3px 8px', borderRadius:6, border:`1px solid ${BDR}`, background:'transparent', color:'#64748B', fontSize:10, cursor:'pointer' }}>
                   Copy
                 </button>
               </div>
             </Row>
-            <div style={{ fontSize:11, color:'rgba(255,255,255,0.3)', marginTop:4 }}>Rate limit: 1,000 requests/hour</div>
+            <div style={{ fontSize:11, color:'#94A3B8', marginTop:4 }}>Rate limit: 1,000 requests/hour</div>
 
             <div style={{ fontSize:14, fontWeight:600, marginTop:24, marginBottom:16, color:'#EF4444' }}>Danger Zone</div>
             <div style={{ padding:'16px', background:'rgba(239,68,68,0.04)', border:'1px solid rgba(239,68,68,0.2)', borderRadius:10 }}>
               <div style={{ fontSize:13, marginBottom:10 }}>Delete Account</div>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,0.4)', marginBottom:12 }}>This action is irreversible. All data will be permanently deleted.</div>
+              <div style={{ fontSize:11, color:'#64748B', marginBottom:12 }}>This action is irreversible. All data will be permanently deleted.</div>
               <input placeholder='Type "DELETE" to confirm' value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)}
                 style={{ ...inp, marginBottom:10, width:'100%', boxSizing:'border-box' as any }} />
               <button disabled={deleteConfirm !== 'DELETE'} onClick={() => toast.error('Account deletion initiated (demo — no action taken)')}
@@ -290,7 +290,7 @@ export default function SettingsPage() {
         {/* Save / Cancel */}
         <div style={{ display:'flex', gap:10, justifyContent:'flex-end' }}>
           <button onClick={() => { fetchSettings().then(setSettings); toast.info('Changes reverted') }}
-            style={{ padding:'10px 20px', borderRadius:8, border:`1px solid ${BDR}`, background:'transparent', color:'rgba(255,255,255,0.4)', fontSize:13, cursor:'pointer' }}>
+            style={{ padding:'10px 20px', borderRadius:8, border:`1px solid ${BDR}`, background:'transparent', color:'#64748B', fontSize:13, cursor:'pointer' }}>
             Reset
           </button>
           <button onClick={save} disabled={saving}

@@ -8,9 +8,9 @@ import { fetchWallets, suggestRoute, sendPayment } from '@/lib/palmflow-api'
 import type { PFWallet, PFSwapRoute } from '@/lib/palmflow-api'
 
 const TEAL = '#00E5CC'
-const BG = '#080810'
-const CARD = 'rgba(255,255,255,0.03)'
-const BDR = 'rgba(255,255,255,0.07)'
+const BG = '#ffffff'
+const CARD = '#ffffff'
+const BDR = '#E2E8F0'
 const MONO = '"JetBrains Mono","Fira Code",monospace'
 
 const ASSETS = ['USDC','MNT','ETH','USDC','USDT','DAI','MATIC']
@@ -19,13 +19,13 @@ const NETWORKS = ['Mantle','Ethereum','Polygon','Base','Optimism']
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ marginBottom: 16 }}>
-      <label style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', display: 'block', marginBottom: 6, fontWeight: 600, letterSpacing: '0.04em' }}>{label}</label>
+      <label style={{ fontSize: 11, color: '#64748B', display: 'block', marginBottom: 6, fontWeight: 600, letterSpacing: '0.04em' }}>{label}</label>
       {children}
     </div>
   )
 }
-const inp: React.CSSProperties = { width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BDR}`, background: 'rgba(255,255,255,0.04)', color: '#fff', fontSize: 13, outline: 'none', boxSizing: 'border-box' }
-const sel: React.CSSProperties = { ...inp, background: '#0e0e1a' }
+const inp: React.CSSProperties = { width: '100%', padding: '10px 12px', borderRadius: 8, border: `1px solid ${BDR}`, background: '#F8FAFC', color: '#0A0F2E', fontSize: 13, outline: 'none', boxSizing: 'border-box' }
+const sel: React.CSSProperties = { ...inp, background: '#ffffff' }
 
 type SendState = { fromWallet: string; toAddress: string; asset: string; amount: string; network: string; memo: string }
 
@@ -67,13 +67,13 @@ export default function SendPage() {
   const fee = route?.totalCost || 0.25
 
   return (
-    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#fff', fontFamily: '"Inter",system-ui,sans-serif' }}>
+    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#0A0F2E', fontFamily: '"Inter",system-ui,sans-serif' }}>
       <div style={{ maxWidth: 960, margin: '0 auto' }}>
 
         <div style={{ marginBottom: 24 }}>
           <div style={{ fontSize: 11, color: TEAL, fontFamily: MONO, letterSpacing: '0.1em', marginBottom: 4 }}>YIELD OPERATIONS HUB / SEND</div>
           <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>Send Payment</h1>
-          <p style={{ margin: '6px 0 0', fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>AI-optimized routing across any blockchain</p>
+          <p style={{ margin: '6px 0 0', fontSize: 13, color: '#64748B' }}>AI-optimized routing across any blockchain</p>
         </div>
 
         {txHash && (
@@ -82,7 +82,7 @@ export default function SendPage() {
             <span style={{ fontSize: 20 }}>✅</span>
             <div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#22C55E' }}>Payment Sent!</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', fontFamily: MONO, marginTop: 2 }}>Tx: {txHash}</div>
+              <div style={{ fontSize: 11, color: '#64748B', fontFamily: MONO, marginTop: 2 }}>Tx: {txHash}</div>
             </div>
           </motion.div>
         )}
@@ -126,7 +126,7 @@ export default function SendPage() {
                   <button type="button" onClick={() => selectedWallet && setForm(p => ({ ...p, amount: String(selectedWallet.balance) }))}
                     style={{ position:'absolute', right:8, top:'50%', transform:'translateY(-50%)', padding:'3px 8px', borderRadius:6, border:`1px solid ${BDR}`, background:'rgba(0,229,204,0.08)', color:TEAL, fontSize:10, cursor:'pointer' }}>MAX</button>
                 </div>
-                {form.amount && <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 4, fontFamily: MONO }}>≈ ${usdEquiv} USD</div>}
+                {form.amount && <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 4, fontFamily: MONO }}>≈ ${usdEquiv} USD</div>}
               </Field>
 
               <Field label="MEMO (OPTIONAL)">
@@ -139,7 +139,7 @@ export default function SendPage() {
                 {advanced ? '▲' : '▼'} Advanced Options
               </button>
               {advanced && (
-                <div style={{ padding:'12px', background:'rgba(255,255,255,0.02)', borderRadius:8, marginBottom:12, display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+                <div style={{ padding:'12px', background:'#F8FAFC', borderRadius:8, marginBottom:12, display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
                   <Field label="SLIPPAGE TOLERANCE">
                     <select value={slippage} onChange={e => setSlippage(e.target.value)} style={sel}>
                       {['0.1','0.5','1.0','2.0','5.0'].map(v => <option key={v} value={v}>{v}%</option>)}
@@ -157,7 +157,7 @@ export default function SendPage() {
                   {sending ? 'Sending...' : '💸 Send Payment'}
                 </button>
                 <button type="button" onClick={() => setForm({ fromWallet:'', toAddress:'', asset:'USDC', amount:'', network:'Mantle', memo:'' })}
-                  style={{ flex: 1, padding: '12px', borderRadius: 10, border: `1px solid ${BDR}`, background: 'transparent', color: 'rgba(255,255,255,0.4)', fontSize: 13, cursor: 'pointer' }}>
+                  style={{ flex: 1, padding: '12px', borderRadius: 10, border: `1px solid ${BDR}`, background: 'transparent', color: '#64748B', fontSize: 13, cursor: 'pointer' }}>
                   Clear
                 </button>
               </div>
@@ -168,16 +168,16 @@ export default function SendPage() {
           <div>
             <div style={{ background: 'rgba(168,85,247,0.05)', border: '1px solid rgba(168,85,247,0.2)', borderRadius: 14, padding: '22px', marginBottom: 14 }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#A855F7', marginBottom: 4 }}>🤖 AI Route Suggestion</div>
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 14 }}>Nomad agent optimizing your route...</div>
+              <div style={{ fontSize: 11, color: '#64748B', marginBottom: 14 }}>Nomad agent optimizing your route...</div>
               {routeLoading ? (
-                <div style={{ textAlign:'center', color:'rgba(255,255,255,0.3)', fontSize:12, padding:'20px 0' }}>Optimizing route...</div>
+                <div style={{ textAlign:'center', color:'#94A3B8', fontSize:12, padding:'20px 0' }}>Optimizing route...</div>
               ) : route ? (
                 <>
                   <div style={{ display:'flex', flexDirection:'column', gap:8, marginBottom:14 }}>
                     {route.steps.map((s, i) => (
-                      <div key={i} style={{ padding:'10px 12px', background:'rgba(255,255,255,0.03)', borderRadius:8 }}>
+                      <div key={i} style={{ padding:'10px 12px', background:'#ffffff', borderRadius:8 }}>
                         <div style={{ fontSize:12, fontWeight:600, color:'#A855F7' }}>{s.protocol}</div>
-                        <div style={{ fontSize:10, color:'rgba(255,255,255,0.4)', marginTop:2 }}>
+                        <div style={{ fontSize:10, color:'#64748B', marginTop:2 }}>
                           {s.network} · Impact: {s.priceImpact}% · Fee: ${s.fee}
                         </div>
                       </div>
@@ -185,19 +185,19 @@ export default function SendPage() {
                   </div>
                   {[
                     { label:'Estimated Cost', value:`$${route.totalCost}`, color:TEAL },
-                    { label:'Execution Time', value:`~${route.executionTime}s`, color:'#fff' },
+                    { label:'Execution Time', value:`~${route.executionTime}s`, color: '#0A0F2E' },
                     { label:'Expected Output', value:`${route.expectedOutput.toLocaleString()} ${form.asset}`, color:'#22C55E' },
                     { label:'Confidence', value:`${route.confidence}%`, color:'#22C55E' },
                     { label:'Slippage', value:`${route.slippage}%`, color:'#F59E0B' },
                   ].map(r => (
                     <div key={r.label} style={{ display:'flex', justifyContent:'space-between', fontSize:12, marginBottom:6 }}>
-                      <span style={{ color:'rgba(255,255,255,0.45)' }}>{r.label}</span>
+                      <span style={{ color:'#64748B' }}>{r.label}</span>
                       <span style={{ color:r.color, fontFamily:MONO, fontWeight:600 }}>{r.value}</span>
                     </div>
                   ))}
                 </>
               ) : (
-                <div style={{ fontSize:12, color:'rgba(255,255,255,0.25)', textAlign:'center', padding:'12px 0' }}>
+                <div style={{ fontSize:12, color:'#CBD5E1', textAlign:'center', padding:'12px 0' }}>
                   Fill in recipient and amount to see AI route
                 </div>
               )}
@@ -214,9 +214,9 @@ export default function SendPage() {
                 { label:'Total Cost', value: form.amount ? `${form.amount} ${form.asset} + $${fee}` : '—' },
               ].map(s => (
                 <div key={s.label} style={{ display:'flex', justifyContent:'space-between', alignItems:'baseline', marginBottom:8, fontSize:12 }}>
-                  <span style={{ color:'rgba(255,255,255,0.45)' }}>{s.label}</span>
+                  <span style={{ color:'#64748B' }}>{s.label}</span>
                   <div style={{ textAlign:'right' }}>
-                    <div style={{ color:'#fff', fontFamily:MONO }}>{s.value}</div>
+                    <div style={{ color: '#0A0F2E', fontFamily:MONO }}>{s.value}</div>
                     {s.note && <div style={{ fontSize:9, color:TEAL }}>{s.note}</div>}
                   </div>
                 </div>

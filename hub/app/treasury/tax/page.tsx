@@ -9,14 +9,14 @@ import type { PFTaxSummary, PFTaxLot } from '@/lib/palmflow-api'
 import { computeTaxLots } from '@/lib/portfolio/tracker'
 
 const TEAL  = '#00E5CC'
-const BG    = '#080810'
-const CARD  = 'rgba(255,255,255,0.03)'
-const BDR   = 'rgba(255,255,255,0.07)'
+const BG    = '#ffffff'
+const CARD  = '#ffffff'
+const BDR   = '#E2E8F0'
 const MONO  = '"JetBrains Mono","Fira Code",monospace'
 const GRN   = '#22C55E'
 const RED   = '#EF4444'
 const GOLD  = '#F59E0B'
-const MUTED = 'rgba(255,255,255,0.4)'
+const MUTED = '#64748B'
 
 const CURRENT_YEAR = new Date().getFullYear()
 
@@ -51,7 +51,7 @@ function SummaryCard({ label, value, sub, color, note }: SummaryCardProps) {
       <div style={{ fontSize: 10, color: MUTED, marginBottom: 6 }}>{label}</div>
       <div style={{ fontSize: 20, fontWeight: 700, color, fontFamily: MONO }}>{value}</div>
       <div style={{ fontSize: 10, color: MUTED, marginTop: 3 }}>{sub}</div>
-      {note && <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.2)', marginTop: 4 }}>{note}</div>}
+      {note && <div style={{ fontSize: 9, color: '#94A3B8', marginTop: 4 }}>{note}</div>}
     </div>
   )
 }
@@ -119,7 +119,7 @@ export default function TaxPage() {
   const s = summary
 
   return (
-    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#fff', fontFamily: '"Inter",system-ui,sans-serif' }}>
+    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#0A0F2E', fontFamily: '"Inter",system-ui,sans-serif' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
@@ -160,7 +160,7 @@ export default function TaxPage() {
           <SummaryCard label="Total Tax Lots" value={loading ? '—' : String(s?.lots.length ?? 0)} sub="FIFO matched disposals" color={TEAL} />
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-          <SummaryCard label="Total Proceeds" value={loading ? '—' : fmtUsd((s?.lots ?? []).reduce((a, l) => a + l.proceeds, 0))} sub="sum of all disposals" color="rgba(255,255,255,0.7)" />
+          <SummaryCard label="Total Proceeds" value={loading ? '—' : fmtUsd((s?.lots ?? []).reduce((a, l) => a + l.proceeds, 0))} sub="sum of all disposals" color="#334155" />
         </motion.div>
       </div>
 
@@ -207,7 +207,7 @@ export default function TaxPage() {
               </thead>
               <tbody>
                 {visibleLots.map(lot => (
-                  <tr key={lot.id} style={{ borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
+                  <tr key={lot.id} style={{ borderBottom: `1px solid #ffffff` }}>
                     <td style={{ padding: '10px 10px', fontWeight: 700 }}>{lot.asset}</td>
                     <td style={{ padding: '10px 10px', fontFamily: MONO }}>{lot.amount.toLocaleString('en-US', { maximumFractionDigits: 6 })}</td>
                     <td style={{ padding: '10px 10px', color: MUTED, fontSize: 11 }}>{lot.buyDate}</td>
@@ -219,7 +219,7 @@ export default function TaxPage() {
                     <td style={{ padding: '10px 10px', fontFamily: MONO, fontWeight: 700, color: gainColor(lot.gain) }}>{fmtUsd(lot.gain, true)}</td>
                     <td style={{ padding: '10px 10px', fontFamily: MONO, color: gainColor(lot.gainPct) }}>{lot.gainPct >= 0 ? '+' : ''}{lot.gainPct.toFixed(1)}%</td>
                     <td style={{ padding: '10px 10px' }}>
-                      <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', color: MUTED }}>{lot.network}</span>
+                      <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#F8FAFC', color: MUTED }}>{lot.network}</span>
                     </td>
                   </tr>
                 ))}

@@ -16,13 +16,13 @@ import {
 } from '@/lib/portfolio/tracker'
 
 const TEAL  = '#00E5CC'
-const BG    = '#080810'
-const CARD  = 'rgba(255,255,255,0.03)'
-const BDR   = 'rgba(255,255,255,0.07)'
+const BG    = '#ffffff'
+const CARD  = '#ffffff'
+const BDR   = '#E2E8F0'
 const MONO  = '"JetBrains Mono","Fira Code",monospace'
 const GRN   = '#22C55E'
 const RED   = '#EF4444'
-const MUTED = 'rgba(255,255,255,0.4)'
+const MUTED = '#64748B'
 
 function fmtUsd(n: number, signed = false) {
   const abs = Math.abs(n)
@@ -97,7 +97,7 @@ export default function PnLPage() {
   }
 
   return (
-    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#fff', fontFamily: '"Inter",system-ui,sans-serif' }}>
+    <div style={{ background: BG, minHeight: '100vh', padding: '24px', color: '#0A0F2E', fontFamily: '"Inter",system-ui,sans-serif' }}>
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
@@ -126,7 +126,7 @@ export default function PnLPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 12, marginBottom: 20 }}>
         {[
           { label: 'Total Portfolio Value', value: loading ? '—' : `$${totalValue.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`, sub: 'live market value', color: TEAL },
-          { label: 'Total Cost Basis',      value: loading ? '—' : `$${totalCost.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`, sub: 'what you paid',    color: 'rgba(255,255,255,0.7)' },
+          { label: 'Total Cost Basis',      value: loading ? '—' : `$${totalCost.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`, sub: 'what you paid',    color: '#334155' },
           { label: 'Unrealized P&L',        value: loading ? '—' : fmtUsd(totalUnrealized, true), sub: fmtPct(totalUnrPct),  color: pnlColor(totalUnrealized) },
           { label: 'Realized P&L',          value: loading ? '—' : fmtUsd(totalRealized, true),   sub: `${liveTrades.length} trades`, color: pnlColor(totalRealized) },
           { label: 'Total P&L',             value: loading ? '—' : fmtUsd(totalPnL, true),        sub: 'unrealized + realized', color: pnlColor(totalPnL) },
@@ -160,7 +160,7 @@ export default function PnLPage() {
               {loading ? (
                 <tr><td colSpan={9} style={{ padding: '24px', textAlign: 'center', color: MUTED, fontSize: 12 }}>Loading positions…</td></tr>
               ) : liveAssets.map(a => (
-                <tr key={a.symbol} style={{ borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
+                <tr key={a.symbol} style={{ borderBottom: `1px solid #ffffff` }}>
                   <td style={{ padding: '10px 10px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ width: 10, height: 10, borderRadius: '50%', background: a.color, display: 'inline-block', flexShrink: 0 }} />
@@ -190,7 +190,7 @@ export default function PnLPage() {
                     {a.isStable ? '—' : fmtPct(a.unrealizedPnLPct)}
                   </td>
                   <td style={{ padding: '10px 10px' }}>
-                    <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', color: MUTED }}>{a.network}</span>
+                    <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#F8FAFC', color: MUTED }}>{a.network}</span>
                   </td>
                 </tr>
               ))}
@@ -229,7 +229,7 @@ export default function PnLPage() {
               </thead>
               <tbody>
                 {visibleTrades.map(t => (
-                  <tr key={t.id} style={{ borderBottom: `1px solid rgba(255,255,255,0.03)` }}>
+                  <tr key={t.id} style={{ borderBottom: `1px solid #ffffff` }}>
                     <td style={{ padding: '10px 10px' }}>
                       <div style={{ fontWeight: 600 }}>{t.fromAsset} → {t.toAsset}</div>
                       <div style={{ fontSize: 10, color: MUTED, fontFamily: MONO }}>{short(t.txHash)}</div>
@@ -241,7 +241,7 @@ export default function PnLPage() {
                     <td style={{ padding: '10px 10px', fontFamily: MONO, color: pnlColor(t.realizedPnLPct) }}>{fmtPct(t.realizedPnLPct)}</td>
                     <td style={{ padding: '10px 10px', color: MUTED, fontSize: 11 }}>{t.timestamp}</td>
                     <td style={{ padding: '10px 10px' }}>
-                      <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: 'rgba(255,255,255,0.05)', color: MUTED }}>{t.network}</span>
+                      <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 10, background: '#F8FAFC', color: MUTED }}>{t.network}</span>
                     </td>
                   </tr>
                 ))}
