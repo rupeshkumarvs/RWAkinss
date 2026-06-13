@@ -1,7 +1,10 @@
 {
   "amm": "0xf5b9806E801206f1812d98fbBdfC93bae9073f27",
   "chainId": 5003,
-  "deployedAt": 1781207649,
+  "compliance": "0xF52742f7513154022Cc0098Bc40579820ECEc82e",
+  "creditPassport": "0xbBbA2951E75C5E5176AfDcb51E9c1683BF24de10",
+  "deployedAt": 1781338657,
+  "lending": "0x2Fc1D8DAe6e9BE86649a48DEc950c7C641136E44",
   "meth": "0x04f2EB2B407f5ffa8366b59cCf79DDc4C05fd9aa",
   "usdy": "0x4d05328eb6DDaA2d5bD3fef959180cD67b71d6De",
   "vault": "0x528C4c70DC67cc90A4364f2bfb846a750d1eff21"

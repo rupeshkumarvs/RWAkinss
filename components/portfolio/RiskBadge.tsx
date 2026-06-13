@@ -1,4 +1,4 @@
-// Built by vsrupeshkumar
+﻿// Built by vsrupeshkumar
 'use client'
 
 import type { RiskLevel } from '@/lib/intent'
@@ -6,7 +6,7 @@ import type { RiskLevel } from '@/lib/intent'
 const STYLES: Record<RiskLevel, { label: string; color: string; bg: string; border: string }> = {
   low: { label: 'Low risk', color: '#34d399', bg: 'rgba(52,211,153,0.12)', border: 'rgba(52,211,153,0.3)' },
   medium: { label: 'Medium risk', color: '#fbbf24', bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.3)' },
-  high: { label: 'High risk', color: '#a78bfa', bg: 'rgba(167,139,250,0.14)', border: 'rgba(167,139,250,0.32)' },
+  high: { label: 'High risk', color: '#3f9a73', bg: 'rgba(63,154,115,0.14)', border: 'rgba(63,154,115,0.32)' },
 }
 
 /** Color-coded risk pill driven by the saved wealth rules. */

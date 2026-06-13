@@ -1,4 +1,4 @@
-// Built by vsrupeshkumar
+﻿// Built by vsrupeshkumar
 // 3-item navigation for the agent app (onboarding → portfolio → activity).
 // Renders a slim left rail on desktop and a bottom tab bar on mobile. Pages that
 // include it should add className="agent-shell" to their root so content clears
@@ -7,14 +7,23 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { PieChart, Activity, Settings } from 'lucide-react'
+import { PieChart, Activity, Bot, Settings, Gauge, Sparkles, Coins, ShieldCheck } from 'lucide-react'
 
-const TEAL = '#2dd4bf'
+const TEAL = '#2f6b54'
+const PURPLE = '#3f9a73'
 
 const ITEMS = [
-  { href: '/portfolio', label: 'Portfolio', Icon: PieChart },
-  { href: '/activity', label: 'Activity', Icon: Activity },
-  { href: '/onboarding', label: 'Settings', Icon: Settings },
+  { href: '/portfolio', label: 'Portfolio', Icon: PieChart, color: TEAL },
+  { href: '/activity', label: 'Activity', Icon: Activity, color: TEAL },
+  { href: '/onboarding', label: 'AI CFO', Icon: Bot, color: TEAL },
+  { href: '/settings', label: 'Settings', Icon: Settings, color: TEAL },
+] as const
+
+const SUITE = [
+  { href: '/insurance-risk-system', label: 'Risk', Icon: Gauge, color: PURPLE },
+  { href: '/credit', label: 'Credit', Icon: Sparkles, color: PURPLE },
+  { href: '/lend', label: 'Borrow', Icon: Coins, color: PURPLE },
+  { href: '/compliance', label: 'KYC', Icon: ShieldCheck, color: PURPLE },
 ] as const
 
 function isActive(pathname: string | null, href: string) {
@@ -28,28 +37,51 @@ export function AgentNav() {
     <>
       {/* Desktop left rail */}
       <nav className="kbx-rail" aria-label="Primary">
-        {ITEMS.map(({ href, label, Icon }) => {
+        {ITEMS.map(({ href, label, Icon, color }) => {
           const active = isActive(pathname, href)
           return (
             <Link
               key={href}
               href={href}
-              style={{ ...railItem, color: active ? TEAL : 'rgba(255,255,255,0.5)', background: active ? 'rgba(45,212,191,0.1)' : 'transparent' }}
+              style={{ ...railItem, color: active ? color : 'var(--rwa-text-muted)', background: active ? `${color}1a` : 'transparent' }}
             >
               <Icon size={20} />
               <span style={{ fontSize: 10, fontWeight: 600 }}>{label}</span>
             </Link>
           )
         })}
-      </nav>
-
-      {/* Mobile bottom tab bar */}
-      <nav className="kbx-bottom" aria-label="Primary">
-        {ITEMS.map(({ href, label, Icon }) => {
+        <div style={{ width: 40, height: 1, background: 'var(--rwa-border)', margin: '6px 0' }} />
+        {SUITE.map(({ href, label, Icon, color }) => {
           const active = isActive(pathname, href)
           return (
-            <Link key={href} href={href} style={{ ...tabItem, color: active ? TEAL : 'rgba(255,255,255,0.5)' }}>
+            <Link
+              key={href}
+              href={href}
+              style={{ ...railItem, color: active ? color : 'var(--rwa-text-faint)', background: active ? `${color}1a` : 'transparent' }}
+            >
+              <Icon size={18} />
+              <span style={{ fontSize: 10, fontWeight: 600 }}>{label}</span>
+            </Link>
+          )
+        })}
+      </nav>
+
+      {/* Mobile bottom tab bar — core 3 + suite shortcut */}
+      <nav className="kbx-bottom" aria-label="Primary">
+        {ITEMS.map(({ href, label, Icon, color }) => {
+          const active = isActive(pathname, href)
+          return (
+            <Link key={href} href={href} style={{ ...tabItem, color: active ? color : 'var(--rwa-text-muted)' }}>
               <Icon size={20} />
+              <span style={{ fontSize: 11, fontWeight: 600 }}>{label}</span>
+            </Link>
+          )
+        })}
+        {SUITE.map(({ href, label, Icon, color }) => {
+          const active = isActive(pathname, href)
+          return (
+            <Link key={href} href={href} style={{ ...tabItem, color: active ? color : 'var(--rwa-text-faint)' }}>
+              <Icon size={18} />
               <span style={{ fontSize: 11, fontWeight: 600 }}>{label}</span>
             </Link>
           )
@@ -58,23 +90,28 @@ export function AgentNav() {
 
       <style>{`
         .kbx-rail {
-          position: fixed; left: 0; top: 0; bottom: 0; width: 76px; z-index: 40;
-          display: none; flex-direction: column; align-items: center; gap: 8px;
-          padding: 20px 0; background: rgba(8,8,8,0.92); border-right: 1px solid rgba(255,255,255,0.06);
-          backdrop-filter: blur(12px);
+          position: fixed; left: 0; top: 0; bottom: 0; width: 80px; z-index: 40;
+          display: none; flex-direction: column; align-items: center; gap: 4px;
+          padding: 20px 0;
+          background: var(--rwa-rail-bg, rgba(8,8,8,0.95));
+          border-right: 1px solid var(--rwa-rail-border, rgba(255,255,255,0.06));
+          backdrop-filter: blur(12px); overflow-y: auto;
+          transition: background 0.25s, border-color 0.25s;
         }
         .kbx-bottom {
           position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
           display: flex; justify-content: space-around; align-items: center;
-          padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
-          background: rgba(8,8,8,0.92); border-top: 1px solid rgba(255,255,255,0.08);
-          backdrop-filter: blur(12px);
+          padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+          background: var(--rwa-rail-bg, rgba(8,8,8,0.95));
+          border-top: 1px solid var(--rwa-rail-border, rgba(255,255,255,0.08));
+          backdrop-filter: blur(12px); overflow-x: auto; gap: 2px;
+          transition: background 0.25s, border-color 0.25s;
         }
-        .agent-shell { padding-bottom: 76px; }
+        .agent-shell { padding-bottom: 72px; }
         @media (min-width: 768px) {
           .kbx-rail { display: flex; }
           .kbx-bottom { display: none; }
-          .agent-shell { padding-bottom: 0; padding-left: 76px; }
+          .agent-shell { padding-bottom: 0; padding-left: 80px; }
         }
       `}</style>
     </>

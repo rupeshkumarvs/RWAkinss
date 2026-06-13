@@ -1,4 +1,4 @@
-// Built by vsrupeshkumar
+﻿// Built by vsrupeshkumar
 'use client'
 
 import {
@@ -37,8 +37,8 @@ export function PortfolioLineChart({ data }: { data: ActivityPoint[] }) {
         <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
           <defs>
             <linearGradient id="kubryxValue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#2dd4bf" stopOpacity={0.35} />
-              <stop offset="100%" stopColor="#2dd4bf" stopOpacity={0} />
+              <stop offset="0%" stopColor="#2f6b54" stopOpacity={0.35} />
+              <stop offset="100%" stopColor="#2f6b54" stopOpacity={0} />
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
@@ -59,7 +59,7 @@ export function PortfolioLineChart({ data }: { data: ActivityPoint[] }) {
             domain={['dataMin', 'dataMax']}
           />
           <Tooltip content={<ChartTooltip />} />
-          <Area type="monotone" dataKey="value" stroke="#2dd4bf" strokeWidth={2} fill="url(#kubryxValue)" />
+          <Area type="monotone" dataKey="value" stroke="#2f6b54" strokeWidth={2} fill="url(#kubryxValue)" />
         </AreaChart>
       </ResponsiveContainer>
     </div>

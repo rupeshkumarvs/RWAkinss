@@ -7,8 +7,8 @@ import { ArrowUp, Sparkles, Check, Loader2 } from 'lucide-react'
 import { useWallet } from '@/context/WalletContext'
 import { parseIntent, summarizeRules, saveIntentLocal, type WealthRules } from '@/lib/intent'
 
-const TEAL = '#2dd4bf'
-const PURPLE = '#a78bfa'
+const TEAL = '#2f6b54'
+const PURPLE = '#3f9a73'
 
 type Phase = 'idle' | 'thinking' | 'answered' | 'saving'
 
@@ -116,8 +116,8 @@ export function IntentChat() {
             marginBottom: 16,
             padding: 18,
             borderRadius: 16,
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            background: 'var(--rwa-surface)',
+            border: '1px solid var(--rwa-border)',
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
@@ -126,11 +126,11 @@ export function IntentChat() {
           </div>
 
           {phase === 'thinking' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--rwa-text-muted)', fontSize: 14 }}>
               <Loader2 size={15} className="animate-spin" /> Analyzing your goals…
             </div>
           ) : (
-            <p style={{ fontSize: 15, lineHeight: 1.6, color: 'rgba(255,255,255,0.9)', margin: 0 }}>
+            <p style={{ fontSize: 15, lineHeight: 1.6, color: 'var(--rwa-text)', margin: 0 }}>
               {answer}
               {answer.length < fullRef.current.length && <span style={{ opacity: 0.5 }}>▋</span>}
             </p>
@@ -162,8 +162,8 @@ export function IntentChat() {
         style={{
           position: 'relative',
           borderRadius: 16,
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          background: 'var(--rwa-surface)',
+          border: '1px solid var(--rwa-border)',
           padding: 14,
         }}
       >
@@ -182,14 +182,14 @@ export function IntentChat() {
             background: 'transparent',
             border: 'none',
             outline: 'none',
-            color: '#fff',
+            color: 'var(--rwa-text)',
             fontSize: 15,
             lineHeight: 1.6,
             fontFamily: 'inherit',
           }}
         />
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 }}>
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)' }}>⌘/Ctrl + Enter to send</span>
+          <span style={{ fontSize: 11, color: 'var(--rwa-text-faint)' }}>⌘/Ctrl + Enter to send</span>
           <button
             onClick={send}
             disabled={!input.trim() || phase === 'thinking' || phase === 'saving'}
@@ -241,7 +241,7 @@ const confirmBtn: React.CSSProperties = {
   fontSize: 14,
   fontWeight: 700,
   color: '#080808',
-  background: '#2dd4bf',
+  background: '#2f6b54',
   cursor: 'pointer',
 }
 

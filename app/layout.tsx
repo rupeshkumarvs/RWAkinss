@@ -30,7 +30,17 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${jakarta.variable} ${mono.variable}`} suppressHydrationWarning>
-      <body style={{ fontFamily: 'var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif', background: '#080808' }}>
+      <head>
+        {/* Luxury hero fonts — Clash Display + Satoshi (Fontshare), Fira Code (Google) */}
+        <link rel="preconnect" href="https://api.fontshare.com" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=satoshi@400,500,700&display=swap" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap" />
+        {/* Restore saved theme before first paint to avoid flash */}
+        <script dangerouslySetInnerHTML={{ __html: `try{document.documentElement.setAttribute('data-theme',localStorage.getItem('rwakins-theme')||'light')}catch(e){}` }} />
+      </head>
+      <body style={{ fontFamily: "'Satoshi', var(--font-jakarta), 'Plus Jakarta Sans', system-ui, sans-serif", background: '#080808' }}>
         <WalletProvider>{children}</WalletProvider>
         <Toaster
           position="bottom-right"

@@ -1,5 +1,8 @@
 ﻿/* Built by vsrupeshkumar */
 @import "tailwindcss";
+/* Luxury hero fonts (Clash Display, Satoshi, Fira Code) are loaded via <link>
+   tags in app/layout.tsx — Tailwind expands its @import inline, so external
+   @import rules cannot follow it here. */
 
 :root {
   --navy: #0A0F2E;
@@ -23,6 +26,14 @@
     radial-gradient(70% 55% at 78% 8%, rgba(189,214,236,0.55) 0%, rgba(189,214,236,0) 60%),
     radial-gradient(60% 50% at 18% 0%, rgba(213,228,243,0.5) 0%, rgba(213,228,243,0) 60%),
     linear-gradient(180deg, #eef4fa 0%, #f6fafd 45%, #ffffff 100%);
+  /* Same as the hero, but with the vertical light rays — used as the page
+     background on every app screen so the whole hub matches the hero. */
+  --hero-sky:
+    repeating-linear-gradient(95deg, rgba(255,255,255,0) 0px, rgba(255,255,255,0) 60px, rgba(255,255,255,0.5) 78px, rgba(255,255,255,0) 96px),
+    radial-gradient(70% 60% at 72% 6%, rgba(189,214,236,0.6) 0%, rgba(189,214,236,0) 60%),
+    radial-gradient(55% 50% at 20% 0%, rgba(213,228,243,0.55) 0%, rgba(213,228,243,0) 60%),
+    radial-gradient(80% 70% at 50% 110%, rgba(224,238,250,0.7) 0%, rgba(224,238,250,0) 65%),
+    linear-gradient(180deg, #eef4fa 0%, #f6fafd 50%, #ffffff 100%);
 }
 
 html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
@@ -263,14 +274,38 @@ body { background: var(--cloud-bg); background-attachment: fixed; color: #0A0F2E
   }
 }
 
-/* ── Dark mode ──────────────────────────────────────────────────────────────
-   The app is authored in the light "hero" palette with hardcoded inline styles,
-   so dark mode is applied as a single root-level filter (toggled via the
-   sun/moon ThemeToggle, which adds `.dark-mode` to <html>). Media + the toggle
-   itself are counter-inverted so they keep their true colours. */
+/* ── Theme CSS variables ────────────────────────────────────────────────────
+   All agent-shell pages reference these vars in their inline styles so a
+   single data-theme attribute flip on <html> changes the entire app. */
+:root,
+[data-theme="dark"] {
+  --rwa-bg: #080808;
+  --rwa-surface: rgba(255,255,255,0.03);
+  --rwa-surface-2: rgba(255,255,255,0.05);
+  --rwa-border: rgba(255,255,255,0.08);
+  --rwa-text: #ffffff;
+  --rwa-text-muted: rgba(255,255,255,0.5);
+  --rwa-text-faint: rgba(255,255,255,0.3);
+  --rwa-rail-bg: rgba(8,8,8,0.95);
+  --rwa-rail-border: rgba(255,255,255,0.06);
+}
+[data-theme="light"] {
+  /* Cloud-sky light theme — matches the Turing Test hackathon banner + hero */
+  --rwa-bg: var(--hero-sky);
+  --rwa-surface: rgba(255,255,255,0.72);
+  --rwa-surface-2: rgba(255,255,255,0.92);
+  --rwa-border: rgba(15,23,42,0.1);
+  --rwa-text: #0A0F2E;
+  --rwa-text-muted: rgba(10,15,46,0.62);
+  --rwa-text-faint: rgba(10,15,46,0.4);
+  --rwa-rail-bg: rgba(255,255,255,0.82);
+  --rwa-rail-border: rgba(15,23,42,0.08);
+}
+
+/* Legacy dark-mode filter (landing page only) */
 html.dark-mode {
   filter: invert(1) hue-rotate(180deg);
-  background: #ffffff; /* inverts to near-black → solid dark backdrop */
+  background: #ffffff;
 }
 html.dark-mode img,
 html.dark-mode video,
@@ -279,4 +314,116 @@ html.dark-mode svg image,
 html.dark-mode [data-no-invert],
 html.dark-mode .no-invert {
   filter: invert(1) hue-rotate(180deg);
+}
+
+/* ── Luxury hero (black / gold / silver DeFi theme) ──────────────────────────
+   Used by the RWAkins landing page. Self-contained `cb-` namespace so it never
+   collides with the agent-shell theme variables above. */
+
+@keyframes cb-blob-1 {
+  0%,100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: translate(0,0) rotate(0deg); }
+  33%     { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; transform: translate(-30px,40px) rotate(120deg); }
+  66%     { border-radius: 50% 60% 30% 70% / 30% 70% 50% 50%; transform: translate(40px,-20px) rotate(240deg); }
+}
+@keyframes cb-blob-2 {
+  0%,100% { border-radius: 50% 50% 30% 70% / 60% 40% 60% 40%; transform: translate(0,0); }
+  50%     { border-radius: 30% 70% 60% 40% / 40% 60% 40% 60%; transform: translate(60px,-30px) rotate(180deg); }
+}
+@keyframes cb-blob-3 {
+  0%,100% { border-radius: 60% 40% 50% 50% / 50% 60% 40% 50%; transform: translate(0,0) scale(1); }
+  50%     { border-radius: 40% 60% 70% 30% / 60% 50% 50% 40%; transform: translate(-40px,30px) scale(1.1); }
+}
+@keyframes cb-spin { to { transform: rotate(360deg); } }
+@keyframes cb-shimmer { 0% { background-position: 200% center; } 100% { background-position: -200% center; } }
+@keyframes cb-fade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+.cb-blob-1 { animation: cb-blob-1 14s ease-in-out infinite; }
+.cb-blob-2 { animation: cb-blob-2 18s ease-in-out infinite; }
+.cb-blob-3 { animation: cb-blob-3 24s ease-in-out infinite; }
+.cb-spin   { animation: cb-spin 8s linear infinite; }
+
+/* Animated gold shimmer on the headline accent line */
+.cb-shimmer-text {
+  background: linear-gradient(100deg, #C8860A 0%, #F5C518 25%, #FFF3C4 50%, #F5C518 75%, #C8860A 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+  animation: cb-shimmer 6s linear infinite;
+}
+.cb-gold-text {
+  background: linear-gradient(135deg, #FFD700, #E8A800);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+
+/* Gold pill CTA */
+.cb-btn-gold {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 30px; border-radius: 999px; border: none; cursor: pointer;
+  font-family: 'Satoshi', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #0A0E18; text-decoration: none;
+  background: linear-gradient(135deg, #FFD700, #F5C518 45%, #E8A800);
+  box-shadow: 0 8px 24px -8px rgba(245,197,24,0.6);
+  transition: transform .25s, box-shadow .25s, filter .25s;
+}
+.cb-btn-gold:hover { transform: translateY(-2px); box-shadow: 0 14px 34px -8px rgba(245,197,24,0.78); filter: brightness(1.06); }
+
+.cb-btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 26px; border-radius: 999px; cursor: pointer;
+  font-family: 'Satoshi', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600; font-size: 14px; color: rgba(255,255,255,0.85); text-decoration: none;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.14);
+  transition: transform .25s, border-color .25s, background .25s;
+}
+.cb-btn-ghost:hover { transform: translateY(-2px); border-color: rgba(245,197,24,0.4); background: rgba(255,255,255,0.08); }
+
+/* Card hover — gold lift */
+.cb-card { transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s, background .35s; }
+.cb-card:hover { transform: translateY(-5px); border-color: rgba(245,197,24,0.35); background: rgba(245,197,24,0.04); }
+
+/* Nav link gold underline */
+.cb-navlink { position: relative; color: rgba(255,255,255,0.7); text-decoration: none; font-size: 14px; font-weight: 600; transition: color .2s; }
+.cb-navlink:hover { color: #fff; }
+.cb-navlink::after { content: ''; position: absolute; left: 0; bottom: -5px; height: 2px; width: 0; background: linear-gradient(90deg, #FFD700, #E8A800); transition: width .25s; }
+.cb-navlink:hover::after { width: 100%; }
+
+/* ── Light cloud theme helpers (landing hero + hackathon look) ──────────────── */
+.cb-btn-green {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 30px; border-radius: 999px; border: none; cursor: pointer;
+  font-family: 'Satoshi', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700; font-size: 14px; letter-spacing: 0.02em;
+  color: #fff; text-decoration: none;
+  background: linear-gradient(135deg, #163b2c, #2f6b54 55%, #3f9a73);
+  box-shadow: 0 12px 30px -10px rgba(22,59,44,0.5);
+  transition: transform .25s, box-shadow .25s, filter .25s;
+}
+.cb-btn-green:hover { transform: translateY(-2px); box-shadow: 0 18px 40px -12px rgba(22,59,44,0.62); filter: brightness(1.07); }
+
+.cb-btn-light-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 26px; border-radius: 999px; cursor: pointer;
+  font-family: 'Satoshi', 'Plus Jakarta Sans', sans-serif;
+  font-weight: 600; font-size: 14px; color: #0A0F2E; text-decoration: none;
+  background: #fff; border: 1px solid #E5E7EB;
+  transition: transform .25s, border-color .25s;
+}
+.cb-btn-light-ghost:hover { transform: translateY(-2px); border-color: #2f6b54; }
+
+.cb-card-light { transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .35s, box-shadow .35s; }
+.cb-card-light:hover { transform: translateY(-5px); border-color: rgba(47,107,84,0.4); box-shadow: 0 24px 60px -20px rgba(15,23,42,0.18); }
+
+.cb-navlink-light { position: relative; color: #475569; text-decoration: none; font-size: 14px; font-weight: 600; transition: color .2s; }
+.cb-navlink-light:hover { color: #163b2c; }
+.cb-navlink-light::after { content: ''; position: absolute; left: 0; bottom: -5px; height: 2px; width: 0; background: linear-gradient(90deg, #163b2c, #3f9a73); transition: width .25s; }
+.cb-navlink-light:hover::after { width: 100%; }
+
+/* ── Hub-wide hero typography ─────────────────────────────────────────────────
+   Every app screen inherits the hero's display headings (Clash Display) so the
+   whole hub feels like one product. Inline font-family (the landing) still wins. */
+.agent-shell h1, .agent-shell h2, .agent-shell h3 {
+  font-family: 'Clash Display', 'Plus Jakarta Sans', sans-serif;
+  letter-spacing: -0.02em;
 }

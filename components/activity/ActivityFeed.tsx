@@ -1,4 +1,4 @@
-// Built by vsrupeshkumar
+﻿// Built by vsrupeshkumar
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -6,7 +6,7 @@ import { Activity, ShieldCheck } from 'lucide-react'
 import { ActivityCard } from './ActivityCard'
 import type { AgentActivity } from '@/app/api/activity/route'
 
-const TEAL = '#2dd4bf'
+const TEAL = '#2f6b54'
 const PAGE = 10
 
 /**
@@ -49,17 +49,17 @@ export function ActivityFeed({ wallet }: { wallet: string }) {
 
   if (activities.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '64px 24px', borderRadius: 18, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <div style={{ textAlign: 'center', padding: '64px 24px', borderRadius: 18, background: 'var(--rwa-surface)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div
           style={{
             width: 52, height: 52, borderRadius: 14, margin: '0 auto 16px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(45,212,191,0.1)', border: '1px solid rgba(45,212,191,0.25)',
+            background: 'rgba(47,107,84,0.1)', border: '1px solid rgba(47,107,84,0.25)',
           }}
         >
           <Activity size={22} color={TEAL} />
         </div>
-        <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', maxWidth: 420, margin: '0 auto', lineHeight: 1.6 }}>
+        <p style={{ fontSize: 15, color: 'var(--rwa-text-muted)', maxWidth: 420, margin: '0 auto', lineHeight: 1.6 }}>
           Your CFO is watching the market. Actions will appear here when the agent rebalances your portfolio.
         </p>
       </div>
@@ -98,7 +98,7 @@ export function ActivityFeed({ wallet }: { wallet: string }) {
             onClick={() => setVisible((v) => v + PAGE)}
             style={{
               padding: '9px 20px', borderRadius: 10, fontSize: 13, fontWeight: 600,
-              color: '#fff', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer',
+              color: '#fff', background: 'var(--rwa-surface)', border: '1px solid rgba(255,255,255,0.12)', cursor: 'pointer',
             }}
           >
             Load more ({activities.length - visible})
@@ -111,16 +111,16 @@ export function ActivityFeed({ wallet }: { wallet: string }) {
 
 function SkeletonCard() {
   return (
-    <div style={{ padding: 18, borderRadius: 16, background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)' }}>
+    <div style={{ padding: 18, borderRadius: 16, background: 'var(--rwa-surface)', border: '1px solid rgba(255,255,255,0.07)' }}>
       <div className="animate-pulse">
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div style={{ width: 96, height: 18, borderRadius: 999, background: 'rgba(255,255,255,0.07)' }} />
-          <div style={{ width: 80, height: 14, borderRadius: 6, background: 'rgba(255,255,255,0.06)' }} />
+          <div style={{ width: 96, height: 18, borderRadius: 999, background: 'var(--rwa-border)' }} />
+          <div style={{ width: 80, height: 14, borderRadius: 6, background: 'var(--rwa-surface)' }} />
         </div>
-        <div style={{ width: '90%', height: 14, borderRadius: 6, background: 'rgba(255,255,255,0.07)', marginBottom: 8 }} />
-        <div style={{ width: '60%', height: 14, borderRadius: 6, background: 'rgba(255,255,255,0.06)', marginBottom: 16 }} />
-        <div style={{ width: '100%', height: 7, borderRadius: 999, background: 'rgba(255,255,255,0.05)', marginBottom: 6 }} />
-        <div style={{ width: '100%', height: 7, borderRadius: 999, background: 'rgba(255,255,255,0.05)' }} />
+        <div style={{ width: '90%', height: 14, borderRadius: 6, background: 'var(--rwa-border)', marginBottom: 8 }} />
+        <div style={{ width: '60%', height: 14, borderRadius: 6, background: 'var(--rwa-surface)', marginBottom: 16 }} />
+        <div style={{ width: '100%', height: 7, borderRadius: 999, background: 'var(--rwa-surface)', marginBottom: 6 }} />
+        <div style={{ width: '100%', height: 7, borderRadius: 999, background: 'var(--rwa-surface)' }} />
       </div>
     </div>
   )

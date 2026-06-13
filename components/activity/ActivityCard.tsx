@@ -1,11 +1,11 @@
-// Built by vsrupeshkumar
+﻿// Built by vsrupeshkumar
 'use client'
 
 import { ArrowRight, ExternalLink, RefreshCw, Eye, AlertTriangle } from 'lucide-react'
 import type { AgentActivity, ActionType, Allocation } from '@/app/api/activity/route'
 
-const TEAL = '#2dd4bf'
-const PURPLE = '#a78bfa'
+const TEAL = '#2f6b54'
+const PURPLE = '#3f9a73'
 // Mantle Sepolia explorer used across the project (deploy script + vaultClient).
 const EXPLORER_TX = 'https://sepolia.mantlescan.xyz/tx/'
 
@@ -36,12 +36,12 @@ function truncHash(h: string) {
 function Bar({ label, a }: { label: string; a: Allocation }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-      <span style={{ width: 42, fontSize: 10, color: 'rgba(255,255,255,0.35)' }}>{label}</span>
+      <span style={{ width: 42, fontSize: 10, color: 'var(--rwa-text-faint)' }}>{label}</span>
       <div style={{ flex: 1, display: 'flex', height: 7, borderRadius: 999, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ width: `${a.usdy}%`, background: TEAL }} />
         <div style={{ width: `${a.meth}%`, background: PURPLE }} />
       </div>
-      <span style={{ width: 70, textAlign: 'right', fontSize: 10, color: 'rgba(255,255,255,0.4)', fontVariantNumeric: 'tabular-nums' }}>
+      <span style={{ width: 70, textAlign: 'right', fontSize: 10, color: 'var(--rwa-text-faint)', fontVariantNumeric: 'tabular-nums' }}>
         {a.usdy.toFixed(0)}/{a.meth.toFixed(0)}
       </span>
     </div>
@@ -66,7 +66,7 @@ export function ActivityCard({ action }: { action: AgentActivity }) {
       style={{
         padding: 18,
         borderRadius: 16,
-        background: 'rgba(255,255,255,0.025)',
+        background: 'var(--rwa-surface)',
         border: '1px solid rgba(255,255,255,0.07)',
       }}
     >
@@ -80,18 +80,18 @@ export function ActivityCard({ action }: { action: AgentActivity }) {
         >
           {b.icon} {b.label}
         </span>
-        <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{fmtTime(action.timestamp)}</span>
+        <span style={{ fontSize: 12, color: 'var(--rwa-text-faint)' }}>{fmtTime(action.timestamp)}</span>
       </div>
 
       {/* Narrative */}
-      <p style={{ fontSize: 14, lineHeight: 1.55, color: 'rgba(255,255,255,0.85)', margin: 0 }}>{action.narrative}</p>
+      <p style={{ fontSize: 14, lineHeight: 1.55, color: 'var(--rwa-text)', margin: 0 }}>{action.narrative}</p>
 
       {/* Asset movement */}
       {hasMovement && (
         <div
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 10, marginTop: 12, padding: '7px 12px',
-            borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 10, background: 'var(--rwa-surface)', border: '1px solid rgba(255,255,255,0.07)',
             fontSize: 13, fontVariantNumeric: 'tabular-nums',
           }}
         >
@@ -122,11 +122,11 @@ export function ActivityCard({ action }: { action: AgentActivity }) {
             }}
           >
             <ExternalLink size={12} /> {truncHash(action.txHash)}
-            <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 500, fontFamily: 'inherit' }}>· View on Mantle Explorer</span>
+            <span style={{ color: 'var(--rwa-text-faint)', fontWeight: 500, fontFamily: 'inherit' }}>· View on Mantle Explorer</span>
           </a>
         ) : (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>
-            <span style={{ width: 6, height: 6, borderRadius: 999, background: 'rgba(255,255,255,0.3)' }} />
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--rwa-text-faint)' }}>
+            <span style={{ width: 6, height: 6, borderRadius: 999, background: 'var(--rwa-text-faint)' }} />
             Sample action — deploy the vault to log this rebalance on-chain
           </span>
         )}

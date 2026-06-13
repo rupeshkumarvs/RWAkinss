@@ -11,15 +11,15 @@ import { AgentNav } from '@/components/shell/AgentNav'
 import { IntentChat } from '@/components/onboarding/IntentChat'
 import { Wallet, ShieldCheck, Bot } from 'lucide-react'
 
-const TEAL = '#2dd4bf'
-const PURPLE = '#a78bfa'
+const TEAL = '#2f6b54'
+const PURPLE = '#3f9a73'
 
 export default function OnboardingPage() {
   const { evm } = useWallet()
   const connected = evm.isConnected
 
   return (
-    <div className="agent-shell" style={{ minHeight: '100vh', background: '#080808', color: '#fff' }}>
+    <div className="agent-shell" style={{ minHeight: '100vh', background: 'var(--rwa-bg)', color: 'var(--rwa-text)', transition: 'background 0.25s, color 0.25s' }}>
       <AgentNav />
       {/* Navbar */}
       <header
@@ -28,10 +28,10 @@ export default function OnboardingPage() {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '16px 24px',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid var(--rwa-rail-border)',
         }}
       >
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#fff', textDecoration: 'none' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--rwa-text)', textDecoration: 'none' }}>
           <LogoMark />
           <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: '-0.01em' }}>RWAkins</span>
         </Link>
@@ -55,8 +55,8 @@ export default function OnboardingPage() {
               fontSize: 12,
               fontWeight: 700,
               color: TEAL,
-              background: 'rgba(45,212,191,0.1)',
-              border: '1px solid rgba(45,212,191,0.25)',
+              background: 'rgba(47,107,84,0.1)',
+              border: '1px solid rgba(47,107,84,0.25)',
               marginBottom: 20,
             }}
           >
@@ -68,7 +68,7 @@ export default function OnboardingPage() {
               manage your treasury
             </span>
           </h1>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.55)', maxWidth: 520, margin: '0 auto', lineHeight: 1.6 }}>
+          <p style={{ fontSize: 16, color: 'var(--rwa-text-muted)', maxWidth: 520, margin: '0 auto', lineHeight: 1.6 }}>
             Connect your wallet, describe your goals in plain English, and RWAkins allocates between USDY and mETH —
             with every risk rule enforced on-chain.
           </p>
@@ -79,8 +79,8 @@ export default function OnboardingPage() {
             style={{
               padding: 32,
               borderRadius: 20,
-              background: 'rgba(255,255,255,0.03)',
-              border: '1px solid rgba(255,255,255,0.08)',
+              background: 'var(--rwa-surface)',
+              border: '1px solid var(--rwa-border)',
               textAlign: 'center',
             }}
           >
@@ -93,14 +93,14 @@ export default function OnboardingPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                background: 'rgba(45,212,191,0.1)',
-                border: '1px solid rgba(45,212,191,0.25)',
+                background: 'rgba(47,107,84,0.1)',
+                border: '1px solid rgba(47,107,84,0.25)',
               }}
             >
               <Wallet size={24} color={TEAL} />
             </div>
             <h2 style={{ fontSize: 19, fontWeight: 700, margin: '0 0 8px' }}>Connect your wallet to begin</h2>
-            <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', margin: '0 0 22px' }}>
+            <p style={{ fontSize: 14, color: 'var(--rwa-text-muted)', margin: '0 0 22px' }}>
               MetaMask or any injected wallet on Mantle Sepolia (chain 5003).
             </p>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -122,7 +122,7 @@ export default function OnboardingPage() {
 
 function Feature({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 13, color: 'var(--rwa-text-muted)' }}>
       <span style={{ color: TEAL }}>{icon}</span>
       {text}
     </span>

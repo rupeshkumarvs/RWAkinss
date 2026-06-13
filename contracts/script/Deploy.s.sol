@@ -4,6 +4,9 @@ pragma solidity ^0.8.24;
 import {MockRWAToken} from "../src/MockRWAToken.sol";
 import {RWAkinsVault} from "../src/RWAkinsVault.sol";
 import {RWAkinsAMM} from "../src/RWAkinsAMM.sol";
+import {RWAkinsCompliance} from "../src/RWAkinsCompliance.sol";
+import {RWAkinsCreditPassport} from "../src/RWAkinsCreditPassport.sol";
+import {RWAkinsLending} from "../src/RWAkinsLending.sol";
 
 /// Minimal Foundry cheatcode interface — avoids a forge-std dependency so the
 /// project deploys with zero `forge install` / network steps.
@@ -63,16 +66,51 @@ contract Deploy {
         usdy.mint(deployer, 10_000 ether);
         meth.mint(deployer, 3 ether);
 
+        // ── AI × RWA credit suite ────────────────────────────────────────────
+        // Compliance (KYC + mandate + audit trail + risk record). attestor + agent
+        // both default to the deployer so the demo can attest + log immediately.
+        RWAkinsCompliance compliance = new RWAkinsCompliance(deployer, deployer);
+        // KYC the deployer (tier 2 = accredited, US) so the lending demo is live.
+        compliance.attestKYC(deployer, 2, bytes32("USA"), 0);
+
+        // Soulbound credit passport — scorer key = deployer (the AI credit engine).
+        RWAkinsCreditPassport credit = new RWAkinsCreditPassport(deployer);
+
+        // Lending market: borrow USDY against USDY/mETH, credit-gated LTV, KYC-gated.
+        RWAkinsLending lending =
+            new RWAkinsLending(address(usdy), address(meth), address(amm), address(compliance), address(credit), deployer);
+        // Seed a USDY lending reserve so loans can actually disburse on testnet.
+        usdy.mint(address(lending), 250_000 ether);
+
         vm.stopBroadcast();
 
-        _writeDeployment(address(usdy), address(meth), address(vault), address(amm));
+        _writeDeployment(
+            address(usdy),
+            address(meth),
+            address(vault),
+            address(amm),
+            address(compliance),
+            address(credit),
+            address(lending)
+        );
     }
 
-    function _writeDeployment(address usdy, address meth, address vault, address amm) internal {
+    function _writeDeployment(
+        address usdy,
+        address meth,
+        address vault,
+        address amm,
+        address compliance,
+        address credit,
+        address lending
+    ) internal {
         string memory obj = "rwakins";
         vm.serializeAddress(obj, "usdy", usdy);
         vm.serializeAddress(obj, "meth", meth);
         vm.serializeAddress(obj, "amm", amm);
+        vm.serializeAddress(obj, "compliance", compliance);
+        vm.serializeAddress(obj, "creditPassport", credit);
+        vm.serializeAddress(obj, "lending", lending);
         vm.serializeUint(obj, "chainId", block.chainid);
         vm.serializeUint(obj, "deployedAt", block.timestamp);
         string memory out = vm.serializeAddress(obj, "vault", vault);

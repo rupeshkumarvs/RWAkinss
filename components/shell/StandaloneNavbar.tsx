@@ -8,8 +8,8 @@ import Link from 'next/link'
 import { WalletButton } from '@/components/onboarding/WalletButton'
 import { NotificationBell } from '@/components/shell/NotificationBell'
 
-const TEAL = '#2dd4bf'
-const PURPLE = '#a78bfa'
+const TEAL = '#2f6b54'
+const PURPLE = '#3f9a73'
 
 export function LogoMark({ size = 28 }: { size?: number }) {
   return (
@@ -43,15 +43,16 @@ export function StandaloneNavbar({ subtitle, showBell = false }: { subtitle?: st
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '14px 24px',
-        background: 'rgba(8,8,8,0.85)',
+        background: 'var(--rwa-rail-bg)',
         backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        borderBottom: '1px solid var(--rwa-rail-border)',
+        transition: 'background 0.25s, border-color 0.25s',
       }}
     >
-      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#fff', textDecoration: 'none' }}>
+      <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--rwa-text)', textDecoration: 'none' }}>
         <LogoMark />
         <span style={{ fontWeight: 800, fontSize: 17 }}>RWAkins</span>
-        {subtitle && <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginLeft: 4 }}>{subtitle}</span>}
+        {subtitle && <span style={{ fontSize: 12, color: 'var(--rwa-text-muted)', marginLeft: 4 }}>{subtitle}</span>}
       </Link>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         {showBell && <NotificationBell />}

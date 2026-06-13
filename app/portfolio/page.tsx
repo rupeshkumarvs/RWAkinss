@@ -1,4 +1,4 @@
-// Built by vsrupeshkumar
+﻿// Built by vsrupeshkumar
 // SCREEN 2 — Portfolio dashboard: live on-chain position, allocation, yield, and
 // the active AI-CFO wealth rules. Standalone route with its own sticky navbar.
 // Reads real balances via lib/rwa/vaultClient when the vault is deployed; before
@@ -18,6 +18,7 @@ import { rwaRebalanceSkill } from '@/lib/skills/rwaRebalanceSkill'
 import { loadIntent, summarizeRules, type WealthRules } from '@/lib/intent'
 import { StandaloneNavbar } from '@/components/shell/StandaloneNavbar'
 import { AgentNav } from '@/components/shell/AgentNav'
+import { ToolDock } from '@/components/shell/ToolDock'
 import { WalletButton, SwitchToMantleBanner } from '@/components/onboarding/WalletButton'
 import { MetricCard } from '@/components/portfolio/MetricCard'
 import { RiskBadge } from '@/components/portfolio/RiskBadge'
@@ -25,8 +26,8 @@ import { PortfolioChart } from '@/components/portfolio/PortfolioChart'
 import { PortfolioLineChart } from '@/components/portfolio/PortfolioLineChart'
 import type { ActivityPoint } from '@/app/api/activity/route'
 
-const TEAL = '#2dd4bf'
-const PURPLE = '#a78bfa'
+const TEAL = '#2f6b54'
+const PURPLE = '#3f9a73'
 const USDY_PRICE = 1.0 // USDY is a ~$1 stable yield token (testnet mock pegged for the demo)
 const ETH_FALLBACK = 3200
 
@@ -305,12 +306,13 @@ export default function PortfolioPage() {
   }, [evm.address, m.methFrac, apy, isDemo, triggering, router, rules])
 
   return (
-    <div className="agent-shell" style={{ minHeight: '100vh', background: '#080808', color: '#fff' }}>
+    <div className="agent-shell" style={{ minHeight: '100vh', background: 'var(--rwa-bg)', color: 'var(--rwa-text)', transition: 'background 0.25s, color 0.25s' }}>
       <AgentNav />
       {/* Sticky navbar (shared with /onboarding + /activity) */}
       <StandaloneNavbar subtitle="Portfolio" showBell />
 
       <main style={{ maxWidth: 1120, margin: '0 auto', padding: '24px 20px 80px' }}>
+        <ToolDock />
         <div style={{ marginBottom: 16 }}>
           <SwitchToMantleBanner />
         </div>
@@ -356,11 +358,11 @@ export default function PortfolioPage() {
                 style={{
                   marginBottom: 20, padding: '12px 16px', borderRadius: 12, fontSize: 13.5,
                   display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
-                  color: PURPLE, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.25)',
+                  color: PURPLE, background: 'rgba(63,154,115,0.08)', border: '1px solid rgba(63,154,115,0.25)',
                 }}
               >
                 <Sparkles size={15} />
-                <span style={{ color: 'rgba(255,255,255,0.85)' }}>
+                <span style={{ color: 'var(--rwa-text)' }}>
                   Your saved target is <strong>{(rules.targetUsdyBps / 100).toFixed(0)}% USDY / {(rules.targetMethBps / 100).toFixed(0)}% mETH</strong>,
                   but you&apos;re currently at <strong>{(100 - chainMethBps / 100).toFixed(0)}% / {(chainMethBps / 100).toFixed(0)}%</strong>.
                   Hit <strong>Run Rebalance</strong> to apply your policy on-chain.
@@ -451,7 +453,7 @@ function WealthRulesPanel({ rules }: { rules: WealthRules | null }) {
     <Panel title="Active Wealth Rules">
       {!rules ? (
         <div style={{ textAlign: 'center', padding: '24px 12px' }}>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, marginBottom: 16 }}>
+          <p style={{ color: 'var(--rwa-text-muted)', fontSize: 14, marginBottom: 16 }}>
             No AI CFO policy set for this wallet yet.
           </p>
           <Link
@@ -465,7 +467,7 @@ function WealthRulesPanel({ rules }: { rules: WealthRules | null }) {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
             <RiskBadge level={rules.riskLevel} />
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.55)' }}>{summarizeRules(rules)}</span>
+            <span style={{ fontSize: 13, color: 'var(--rwa-text-muted)' }}>{summarizeRules(rules)}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12 }}>
             <Rule label="Default asset" value={rules.defaultAsset} />
@@ -474,7 +476,7 @@ function WealthRulesPanel({ rules }: { rules: WealthRules | null }) {
             <Rule label="Rebalancing" value={rules.autoRebalance ? `Auto · ${rules.rebalanceThresholdPct}% drift` : 'Manual'} />
           </div>
           {rules.rawIntent && (
-            <p style={{ marginTop: 16, fontSize: 13, color: 'rgba(255,255,255,0.45)', fontStyle: 'italic' }}>
+            <p style={{ marginTop: 16, fontSize: 13, color: 'var(--rwa-text-muted)', fontStyle: 'italic' }}>
               “{rules.rawIntent}”
             </p>
           )}
@@ -490,25 +492,25 @@ function WealthRulesPanel({ rules }: { rules: WealthRules | null }) {
 function LiveDataBadge({ market, methPrice }: { market: MarketSnapshot | null; methPrice: number | null }) {
   const fmtUsd0 = (n: number) => n.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
   const pill = (label: string, value: string, accent?: string) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '6px 12px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{label}</span>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '6px 12px', borderRadius: 10, background: 'var(--rwa-surface)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <span style={{ fontSize: 10, color: 'var(--rwa-text-muted)', textTransform: 'uppercase', letterSpacing: 0.4 }}>{label}</span>
       <span style={{ fontSize: 13, fontWeight: 700, color: accent ?? '#fff' }}>{value}</span>
     </div>
   )
   const up = market ? market.eth24hChange >= 0 : true
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 20, padding: '10px 14px', borderRadius: 14, background: 'rgba(45,212,191,0.04)', border: '1px solid rgba(45,212,191,0.18)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 20, padding: '10px 14px', borderRadius: 14, background: 'rgba(47,107,84,0.04)', border: '1px solid rgba(47,107,84,0.18)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 7, paddingRight: 6 }}>
         <span style={{ width: 8, height: 8, borderRadius: '50%', background: TEAL, boxShadow: `0 0 8px ${TEAL}`, animation: 'pulse 1.8s ease-in-out infinite' }} />
         <span style={{ fontSize: 11, fontWeight: 800, color: TEAL, letterSpacing: 0.6 }}>LIVE</span>
       </div>
       {pill('mETH price', methPrice != null ? fmtUsd0(methPrice) : market ? fmtUsd0(market.ethPrice) : '—', TEAL)}
-      <span style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', alignSelf: 'flex-end', paddingBottom: 3 }}>synced on-chain</span>
+      <span style={{ fontSize: 10, color: 'var(--rwa-text-muted)', alignSelf: 'flex-end', paddingBottom: 3 }}>synced on-chain</span>
       {pill('USDY APY', market ? `${market.usdyApy.toFixed(2)}%` : '—')}
       {pill('mETH APY', market ? `${market.methApy.toFixed(2)}%` : '—')}
       {pill('ETH 24h', market ? `${up ? '+' : ''}${market.eth24hChange.toFixed(1)}%` : '—', up ? '#34d399' : '#f87171')}
       {pill('Volatility', market ? `${market.volatility.toFixed(0)}%` : '—', PURPLE)}
-      <span style={{ marginLeft: 'auto', fontSize: 10, color: 'rgba(255,255,255,0.3)' }}>
+      <span style={{ marginLeft: 'auto', fontSize: 10, color: 'var(--rwa-text-faint)' }}>
         CoinGecko · DefiLlama · Mantle
       </span>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.35}}`}</style>
@@ -518,9 +520,9 @@ function LiveDataBadge({ market, methPrice }: { market: MarketSnapshot | null; m
 
 function Rule({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ padding: 12, borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
-      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', marginBottom: 4 }}>{label}</div>
-      <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>{value}</div>
+    <div style={{ padding: 12, borderRadius: 12, background: 'var(--rwa-surface)', border: '1px solid var(--rwa-border)' }}>
+      <div style={{ fontSize: 11, color: 'var(--rwa-text-muted)', marginBottom: 4 }}>{label}</div>
+      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--rwa-text)' }}>{value}</div>
     </div>
   )
 }
@@ -532,13 +534,13 @@ function ConnectPrompt() {
         style={{
           width: 56, height: 56, borderRadius: 16, margin: '0 auto 18px',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'rgba(45,212,191,0.1)', border: '1px solid rgba(45,212,191,0.25)',
+          background: 'rgba(47,107,84,0.1)', border: '1px solid rgba(47,107,84,0.25)',
         }}
       >
         <Wallet size={24} color={TEAL} />
       </div>
       <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 8px' }}>Connect your wallet</h2>
-      <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', margin: '0 0 22px' }}>
+      <p style={{ fontSize: 14, color: 'var(--rwa-text-muted)', margin: '0 0 22px' }}>
         Connect on Mantle Testnet to see your live RWA portfolio.
       </p>
       <div style={{ display: 'flex', justifyContent: 'center' }}>
@@ -553,8 +555,8 @@ function ConnectPrompt() {
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section style={{ padding: 20, borderRadius: 18, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
-      <h3 style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.04em', margin: '0 0 16px' }}>{title}</h3>
+    <section style={{ padding: 20, borderRadius: 18, background: 'var(--rwa-surface)', border: '1px solid rgba(255,255,255,0.07)' }}>
+      <h3 style={{ fontSize: 13, fontWeight: 700, color: 'var(--rwa-text-muted)', letterSpacing: '0.04em', margin: '0 0 16px' }}>{title}</h3>
       {children}
     </section>
   )
@@ -562,7 +564,7 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 
 function Legend({ color, label }: { color: string; label: string }) {
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'rgba(255,255,255,0.6)' }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--rwa-text-muted)' }}>
       <span style={{ width: 9, height: 9, borderRadius: 3, background: color }} /> {label}
     </span>
   )
@@ -573,13 +575,13 @@ function FundPanel({ funding, onFund }: { funding: { busy: boolean; step?: strin
     <div
       style={{
         marginBottom: 20, padding: '16px 20px', borderRadius: 14,
-        background: 'rgba(45,212,191,0.05)', border: '1px solid rgba(45,212,191,0.25)',
+        background: 'rgba(47,107,84,0.05)', border: '1px solid rgba(47,107,84,0.25)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
       }}
     >
       <div>
         <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>Fund your vault to activate the AI CFO</div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', maxWidth: 460 }}>
+        <div style={{ fontSize: 12, color: 'var(--rwa-text-muted)', maxWidth: 460 }}>
           The agent rebalances what the vault custodies. Deposit test USDY once (we’ll mint it for you on Mantle Sepolia), then the AI CFO can rebalance on-chain.
         </div>
         {funding.err && <div style={{ fontSize: 12, color: '#fbbf24', marginTop: 6 }}>{funding.err}</div>}
@@ -590,7 +592,7 @@ function FundPanel({ funding, onFund }: { funding: { busy: boolean; step?: strin
         style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
           padding: '10px 20px', borderRadius: 10, border: 'none', cursor: funding.busy ? 'not-allowed' : 'pointer',
-          background: funding.busy ? 'rgba(45,212,191,0.3)' : '#2dd4bf', color: '#080808',
+          background: funding.busy ? 'rgba(47,107,84,0.3)' : '#2f6b54', color: '#080808',
           fontWeight: 800, fontSize: 13, whiteSpace: 'nowrap', opacity: funding.busy ? 0.8 : 1,
         }}
       >
@@ -614,25 +616,25 @@ function RebalanceTrigger({ loading, triggering, result, onTrigger }: TriggerPro
       <div
         style={{
           marginBottom: 20, padding: '16px 20px', borderRadius: 14,
-          background: 'rgba(45,212,191,0.06)', border: '1px solid rgba(45,212,191,0.3)',
+          background: 'rgba(47,107,84,0.06)', border: '1px solid rgba(47,107,84,0.3)',
           display: 'flex', flexDirection: 'column', gap: 8,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#2dd4bf', fontWeight: 700, fontSize: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#2f6b54', fontWeight: 700, fontSize: 14 }}>
           <CheckCircle size={16} /> AI CFO executed rebalance
         </div>
-        <p style={{ margin: 0, fontSize: 13, color: 'rgba(255,255,255,0.75)', lineHeight: 1.5 }}>{result.narrative}</p>
+        <p style={{ margin: 0, fontSize: 13, color: 'var(--rwa-text-muted)', lineHeight: 1.5 }}>{result.narrative}</p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {result.txHash && (
             <a
               href={`https://sepolia.mantlescan.xyz/tx/${result.txHash}`}
               target="_blank" rel="noopener noreferrer"
-              style={{ fontSize: 12, color: '#2dd4bf', textDecoration: 'none', fontFamily: 'monospace' }}
+              style={{ fontSize: 12, color: '#2f6b54', textDecoration: 'none', fontFamily: 'monospace' }}
             >
               {result.txHash.slice(0, 18)}…{result.txHash.slice(-6)} ↗
             </a>
           )}
-          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>Redirecting to Activity feed…</span>
+          <span style={{ fontSize: 12, color: 'var(--rwa-text-muted)' }}>Redirecting to Activity feed…</span>
         </div>
       </div>
     )
@@ -651,13 +653,13 @@ function RebalanceTrigger({ loading, triggering, result, onTrigger }: TriggerPro
     <div
       style={{
         marginBottom: 20, padding: '14px 20px', borderRadius: 14,
-        background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.08)',
+        background: 'var(--rwa-surface)', border: '1px solid rgba(255,255,255,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
       }}
     >
       <div>
         <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 2 }}>AI CFO Agent</div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)' }}>
+        <div style={{ fontSize: 12, color: 'var(--rwa-text-muted)' }}>
           Fetches live market data, evaluates your wealth rules, and executes a rebalance on Mantle.
         </div>
       </div>
@@ -667,7 +669,7 @@ function RebalanceTrigger({ loading, triggering, result, onTrigger }: TriggerPro
         style={{
           display: 'inline-flex', alignItems: 'center', gap: 8,
           padding: '10px 20px', borderRadius: 10, border: 'none', cursor: loading || triggering ? 'not-allowed' : 'pointer',
-          background: loading || triggering ? 'rgba(45,212,191,0.3)' : '#2dd4bf',
+          background: loading || triggering ? 'rgba(47,107,84,0.3)' : '#2f6b54',
           color: '#080808', fontWeight: 800, fontSize: 13, whiteSpace: 'nowrap',
           transition: 'opacity 0.15s',
           opacity: loading || triggering ? 0.7 : 1,

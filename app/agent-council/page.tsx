@@ -1,4 +1,4 @@
-// Built by vsrupeshkumar
+﻿// Built by vsrupeshkumar
 // Agent Council Orchestration — the RWAkins differentiator. Three tabs:
 //   Live Council    — convene the 4-agent debate on the current live market
 //   Decision History — REAL on-chain Rebalanced events for the connected wallet
@@ -17,8 +17,8 @@ import RebalancePipeline, { type PipelineState } from '@/components/aiCouncil/Re
 import { COUNCIL_AGENTS, type CouncilResult, type AgentVote } from '@/lib/aiCouncil/agents'
 import type { AgentActivity } from '@/app/api/activity/route'
 
-const TEAL = '#2dd4bf'
-const PURPLE = '#a78bfa'
+const TEAL = '#2f6b54'
+const PURPLE = '#3f9a73'
 const BG = '#080808'
 const CARD = 'rgba(255,255,255,0.03)'
 const BORDER = 'rgba(255,255,255,0.08)'
@@ -182,7 +182,7 @@ function LiveTab({
       </div>
 
       {aiRationale && (
-        <div style={{ padding: '14px 16px', borderRadius: 12, marginBottom: 20, background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.25)' }}>
+        <div style={{ padding: '14px 16px', borderRadius: 12, marginBottom: 20, background: 'rgba(63,154,115,0.08)', border: '1px solid rgba(63,154,115,0.25)' }}>
           <div style={{ fontSize: 11, color: PURPLE, fontWeight: 700, marginBottom: 6, letterSpacing: '0.1em' }}>🤖 AI RATIONALE (GPT-4o-mini)</div>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 1.6 }}>{aiRationale}</div>
           {byreal && <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 8 }}>{byreal.rationale}</div>}

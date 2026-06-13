@@ -1,4 +1,4 @@
-// Built by vsrupeshkumar
+﻿// Built by vsrupeshkumar
 // Navbar bell that surfaces what the AUTONOMOUS heartbeat did while the user was
 // away. Polls /api/notifications for the connected wallet, shows an unread badge,
 // and on open lists each action ("Your AI CFO rebalanced your portfolio at 3:47
@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Bell, ExternalLink } from 'lucide-react'
 import { useWallet } from '@/context/WalletContext'
 
-const TEAL = '#2dd4bf'
+const TEAL = '#2f6b54'
 const POLL_MS = 30_000 // refresh the unread list
 const CHECK_MS = 120_000 // ask the agent whether a live reminder is warranted
 
@@ -24,8 +24,8 @@ interface AgentNotification {
 }
 
 const TYPE_TAG: Record<string, { label: string; color: string }> = {
-  rebalance: { label: 'Rebalanced', color: '#2dd4bf' },
-  recommendation: { label: 'Action needed', color: '#a78bfa' },
+  rebalance: { label: 'Rebalanced', color: '#2f6b54' },
+  recommendation: { label: 'Action needed', color: '#3f9a73' },
   info: { label: 'Update', color: 'rgba(255,255,255,0.4)' },
 }
 
@@ -108,7 +108,7 @@ export function NotificationBell() {
       <button
         aria-label="Notifications"
         onClick={toggle}
-        style={{ position: 'relative', color: 'rgba(255,255,255,0.6)', background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+        style={{ position: 'relative', color: 'var(--rwa-text-muted)', background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
       >
         <Bell size={18} />
         {unread > 0 && (
@@ -145,8 +145,8 @@ export function NotificationBell() {
                 key={n.id}
                 style={{
                   padding: '10px 12px', borderRadius: 10, marginBottom: 4,
-                  background: n.read ? 'transparent' : 'rgba(45,212,191,0.06)',
-                  border: `1px solid ${n.read ? 'rgba(255,255,255,0.05)' : 'rgba(45,212,191,0.18)'}`,
+                  background: n.read ? 'transparent' : 'rgba(47,107,84,0.06)',
+                  border: `1px solid ${n.read ? 'rgba(255,255,255,0.05)' : 'rgba(47,107,84,0.18)'}`,
                 }}
               >
                 {(() => {

@@ -8,7 +8,7 @@ import { ConnectButton } from '@/components/wallet/ConnectButton'
 
 const MANTLE_SEPOLIA_DECIMAL = 5003
 const MANTLE_SEPOLIA_HEX = '0x138b'
-const TEAL = '#2dd4bf'
+const TEAL = '#2f6b54'
 
 function truncate(a: string) {
   return `${a.slice(0, 6)}...${a.slice(-4)}`
@@ -27,8 +27,8 @@ export function MantleBadge() {
         fontSize: 11,
         fontWeight: 600,
         color: TEAL,
-        background: 'rgba(45,212,191,0.1)',
-        border: '1px solid rgba(45,212,191,0.28)',
+        background: 'rgba(47,107,84,0.1)',
+        border: '1px solid rgba(47,107,84,0.28)',
         whiteSpace: 'nowrap',
       }}
     >
@@ -70,7 +70,7 @@ export function WalletButton() {
           padding: '8px 12px',
           borderRadius: 999,
           background: 'rgba(255,255,255,0.06)',
-          border: '1px solid rgba(45,212,191,0.25)',
+          border: '1px solid rgba(47,107,84,0.25)',
           color: '#fff',
         }}
       >

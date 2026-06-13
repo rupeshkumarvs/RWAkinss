@@ -1,10 +1,10 @@
-// Built by vsrupeshkumar
+﻿// Built by vsrupeshkumar
 'use client'
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 
-const USDY_COLOR = '#2dd4bf' // teal
-const METH_COLOR = '#a78bfa' // purple
+const USDY_COLOR = '#2f6b54' // teal
+const METH_COLOR = '#3f9a73' // purple
 
 export interface AllocationSlice {
   name: 'USDY' | 'mETH'

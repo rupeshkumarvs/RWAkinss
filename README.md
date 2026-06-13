@@ -127,7 +127,25 @@ forge script script/Deploy.s.sol \
   --broadcast
 ```
 
-This deploys MockRWAToken (USDY), MockRWAToken (mETH), and RWAkinsVault to Mantle Sepolia. Contract addresses are written to `lib/rwa-deployed.json` automatically.
+This deploys the full stack to Mantle Sepolia — the two `MockRWAToken`s (USDY, mETH), `RWAkinsAMM`, `RWAkinsVault`, plus the **AI × RWA credit suite**: `RWAkinsCompliance`, `RWAkinsCreditPassport`, and `RWAkinsLending`. All addresses are written to `lib/rwa-deployed.json` automatically, and the pages flip from "Preview · deploy pending" to "Live on Mantle" the moment they're populated.
+
+> **Privileged writes (KYC attestation, credit scoring, risk anchoring, audit logging)** are signed server-side by the verifier/agent key. Set `AGENT_PRIVATE_KEY` to the **deploy key** (the script sets it as the on-chain `attestor` + `agent` + `scorer`). Without it the suite still computes real AI scores over live data and degrades to a decision-only response with `txHash: null` — it never fabricates a hash.
+
+---
+
+## The AI × RWA credit suite
+
+The vault is one half of an end-to-end on-chain credit loop. **Earn → build reputation → borrow**, every step KYC-gated, risk-scored, and recorded on Mantle:
+
+| Tool | Route | What's real on-chain |
+| --- | --- | --- |
+| **Compliance** | `/compliance` | KYC tier + jurisdiction attested on-chain (`RWAkinsCompliance.attestKYC`); self-sovereign investment mandate; a hard-gate AI compliance check whose verdict is appended to the audit trail. Sanctioned-jurisdiction + KYC gates are enforced in **code**, never by the model. |
+| **Audit Trail** | `/compliance/audit-trail` | A tamper-evident, per-wallet monotonic log of every agent decision + risk score, read straight from contract events — each linked to its Mantle tx. |
+| **AI Risk System** | `/insurance-risk-system` | A 5-dimension risk score (concentration, market/vol, liquidity, leverage, yield sustainability), computed deterministically and **anchored on-chain** via `recordRisk`. |
+| **Credit Passport** | `/credit` | A **soulbound (non-transferable) ERC-721** carrying a 300-900 credit score the AI engine computes from real on-chain behaviour. |
+| **AI Lending** | `/lend` | Borrow USDY against USDY/mETH. The AI negotiates the APR; the **credit passport score sets the LTV**; `RWAkinsCompliance.isVerified()` is enforced on-chain before any loan opens. |
+
+Engines are pure + auditable (`lib/creditSuite/*`, "signal-then-code" like the rebalance brain); the AI overlay (`/api/{compliance,risk,credit,lend}/*`) adds natural-language judgement but never moves a hard gate.
 
 ### 4. Run the frontend
 
