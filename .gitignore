@@ -30,6 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# dev server log (noisy, regenerated locally)
+.next-dev.log
+
 # env files (can opt-in for committing if needed)
 .env*
 
