@@ -1,0 +1,41 @@
+name: Autonomous Heartbeat
+
+# Drives the RWAkins AI CFO's autonomous heartbeat. Vercel's Hobby plan caps
+# crons at once/day, so the real-time 5-minute cadence lives here instead. The
+# heartbeat endpoint is idempotent and gas-gated (it only writes/rebalances when
+# live market data actually drifted), so a best-effort schedule is safe — and
+# GitHub's scheduler running a few minutes late is fine for an autonomous agent.
+#
+# Required repository secrets (Settings -> Secrets and variables -> Actions):
+#   HEARTBEAT_URL  = https://<your-app>.vercel.app/api/agent/heartbeat
+#   CRON_SECRET    = the same value set in your Vercel env (protects the route)
+
+on:
+  schedule:
+    - cron: '*/5 * * * *' # every 5 minutes (GitHub minimum granularity)
+  workflow_dispatch: {} # lets you fire it manually from the Actions tab during a demo
+
+# Never let two heartbeats overlap; a newer run cancels an in-flight one.
+concurrency:
+  group: heartbeat
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger agent heartbeat
+        run: |
+          if [ -z "${{ secrets.HEARTBEAT_URL }}" ]; then
+            echo "::error::HEARTBEAT_URL secret is not set"; exit 1
+          fi
+          code=$(curl -sS --max-time 60 -o /tmp/hb.json -w '%{http_code}' \
+            -X POST "${{ secrets.HEARTBEAT_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          echo "HTTP $code"
+          cat /tmp/hb.json || true
+          echo ""
+          if [ "$code" != "200" ]; then
+            echo "::error::Heartbeat returned HTTP $code"; exit 1
+          fi

@@ -20,6 +20,6 @@
     { "source": "/health", "destination": "/api/health" }
   ],
   "crons": [
-    { "path": "/api/agent/heartbeat", "schedule": "*/5 * * * *" }
+    { "path": "/api/agent/heartbeat", "schedule": "0 0 * * *" }
   ]
 }
