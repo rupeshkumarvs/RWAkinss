@@ -350,9 +350,14 @@ export default function PortfolioPage() {
               </div>
             )}
 
-            {/* Policy-vs-position: your saved target differs from your live split. */}
+            {/* Policy-vs-position: your saved target differs from your live split.
+                This manual "hit Run Rebalance" nudge is deliberately decoupled from
+                rebalanceThresholdPct (which only governs AUTO-rebalancing). We show
+                it whenever the target the user just accepted differs from the live
+                position by the displayed rounding — so a 70% → 67% change still
+                prompts even though it's under the auto-rebalance drift threshold. */}
             {!isDemo && !loadError && hasLoaded && rules && chainMethBps != null && m.total > 0 &&
-              Math.abs(rules.targetMethBps / 100 - chainMethBps / 100) >= rules.rebalanceThresholdPct && (
+              Math.round(rules.targetMethBps / 100) !== Math.round(chainMethBps / 100) && (
               <div
                 style={{
                   marginBottom: 20, padding: '12px 16px', borderRadius: 12, fontSize: 13.5,

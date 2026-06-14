@@ -13,9 +13,9 @@ const TEAL = '#2f6b54'
 const PURPLE = '#3f9a73'
 
 const ITEMS = [
+  { href: '/onboarding', label: 'AI CFO', Icon: Bot, color: TEAL },
   { href: '/portfolio', label: 'Portfolio', Icon: PieChart, color: TEAL },
   { href: '/activity', label: 'Activity', Icon: Activity, color: TEAL },
-  { href: '/onboarding', label: 'AI CFO', Icon: Bot, color: TEAL },
   { href: '/settings', label: 'Settings', Icon: Settings, color: TEAL },
 ] as const
 
