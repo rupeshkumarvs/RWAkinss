@@ -1,7 +1,7 @@
 ﻿// Built by vsrupeshkumar
 // SCREEN 1 — Onboarding: wallet connection + plain-English intent capture for
 // the AI CFO. Standalone route (renders outside the hub shell) so it owns its
-// own navbar, per the Turing Test AI x RWA onboarding spec.
+// own navbar, per the AI x RWA onboarding spec.
 'use client'
 
 import Link from 'next/link'

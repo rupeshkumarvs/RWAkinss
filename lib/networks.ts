@@ -1,6 +1,6 @@
 ﻿// Built by vsrupeshkumar
 // All network (chain) configuration for RWAkins wallet connectivity.
-// Updated for The Turing Test Hackathon 2026: Mantle Sepolia ONLY.
+// Mantle Sepolia ONLY.
 
 export const NETWORKS = {
   MANTLE: {

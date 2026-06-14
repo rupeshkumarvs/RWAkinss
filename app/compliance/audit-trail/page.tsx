@@ -3,7 +3,7 @@
 // decision and risk score for the connected wallet, read straight from
 // RWAkinsCompliance events (lib/rwa/creditSuite.readAuditTrail). The monotonic
 // per-user sequence makes any gap or reordering detectable — this is the
-// "radical transparency / on-chain benchmarking" the hackathon is built around.
+// "radical transparency / on-chain benchmarking" the product is built around.
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'

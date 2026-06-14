@@ -130,8 +130,8 @@ Engines are pure + auditable (`lib/creditSuite/*`, "signal-then-code" like the r
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/rupeshkumarvs/RWAkins-Turing-test-hackathon.git
-cd RWAkins-Turing-test-hackathon
+git clone https://github.com/rupeshkumarvs/RWAkinss.git
+cd RWAkinss
 npm install
 ```
 

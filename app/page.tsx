@@ -1,5 +1,5 @@
 // Built by vsrupeshkumar
-// RWAkins landing page — cloudy sky-blue / white "Turing Test hackathon" theme.
+// RWAkins landing page — cloudy sky-blue / white theme.
 // Light cloud-sky background + vertical light rays + forest-green accents, with
 // the dark-gold Credit Passport card kept as the floating, mouse-tilt centerpiece
 // so it pops against the bright sky. CreditPassport3D is intentionally unchanged.
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import deployed from '@/lib/rwa-deployed.json'
 
-// Cloud-sky palette (matches the hackathon banner)
+// Cloud-sky palette
 const NAVY = '#0A0F2E'
 const SLATE = '#475569'
 const FOREST = '#2f6b54'
@@ -448,7 +448,7 @@ export default function LandingPage() {
           <span style={{ fontFamily: DISPLAY, fontWeight: 700, color: NAVY }}>RWAkins</span>
         </div>
         <p style={{ fontSize: 13, color: SLATE, margin: 0 }}>
-          Hackathon prototype on Mantle Sepolia testnet. AI × RWA · Turing Test Hackathon 2026.
+          Prototype on Mantle Sepolia testnet · AI × Real-World Assets · Financial Inclusion.
         </p>
       </footer>
     </div>

@@ -143,7 +143,7 @@ export default function SettingsPage() {
         <Section title="About">
           <div style={{ fontSize: 14, color: 'var(--rwa-text-muted)', lineHeight: 1.7 }}>
             <div>RWAkins — AI CFO on Mantle Sepolia</div>
-            <div>Turing Test Hackathon 2026 · AI × RWA track</div>
+            <div>AI × Real-World Assets · Financial Inclusion</div>
             <div style={{ marginTop: 8 }}>
               <a href="https://sepolia.mantlescan.xyz" target="_blank" rel="noopener noreferrer" style={{ color: TEAL, textDecoration: 'none' }}>
                 Mantlescan explorer ↗

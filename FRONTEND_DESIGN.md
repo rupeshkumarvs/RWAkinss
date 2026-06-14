@@ -199,7 +199,7 @@ Each entry: `route, name, tagline, description, icon, category, chain, status, c
 Helpers: `getToolByRoute`, `getToolColor`, `getToolName`.
 
 > ⚠️ **Chain inconsistency to know:** `lib/tools.ts` currently labels every tool
-> **"Mantle Sepolia"** (`MANTLE_SEPOLIA`, chain 5003, "Turing Test Hackathon"), while the
+> **"Mantle Sepolia"** (`MANTLE_SEPOLIA`, chain 5003), while the
 > landing page, invoice flow, README and recent commits target **Arbitrum Sepolia**
 > ("Ethereum Mexico 2026"). The deployed copy you replicate should pick one chain
 > consistently — the live site reads "Arbitrum Sepolia".
