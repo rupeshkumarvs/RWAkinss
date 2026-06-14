@@ -1,17 +1,12 @@
-# RWAkins — An Autonomous AI CFO for the Underserved
+# RWAkins — AI CFO Agent on Mantle
 
-**Banking-grade yield and on-chain credit for anyone with a phone and a wallet — no bank account, no jargon, no financial expertise required.**
 
-RWAkins is a personal **AI CFO agent** that removes the complexity of real-world-asset (RWA) investing. You don't configure sliders or watch markets — you describe your financial goals in plain English, and an autonomous AI agent manages a tokenized real-world-asset portfolio for you: continuously evaluating live market data against your stated wealth rules and executing **on-chain rebalances on its own**.
-
-> **Themes:** Financial Inclusion & FinTech · AI × Real-World Assets (RWA) — built on **Mantle**.
+RWAkins is a personal **AI CFO agent** that removes the complexity of real-world-asset (RWA) investing. Describe your financial goals in plain English, and an autonomous AI agent manages a tokenized real-world-asset portfolio for you continuously evaluating live market data against your stated wealth rules and executing **on-chain rebalances on its own**.
 
 It manages two yield-bearing real-world assets:
 
 - **USDY** — Ondo's tokenized US Treasury bonds. The stable, dollar-denominated, low-risk leg.
 - **mETH** — Mantle Staked ETH. The growth, higher-yield leg.
-
-Yields and prices are **not hardcoded** — they are pulled live and synced on-chain by the agent itself (see *Live & Dynamic* below).
 
 ---
 
@@ -47,11 +42,10 @@ Every number the agent reasons over and shows is sourced live; the on-chain stat
 | **Compliance screening** | Every wallet is screened against the **Chainalysis on-chain Sanctions Oracle** (the live OFAC list institutions use) — a keyless on-chain read. |
 | **Autonomous execution** | Real `vault.rebalance()` / `rebalanceFor()` on Mantle → real tx hashes + real AMM swaps, driven by an **autonomous heartbeat** so the agent acts without you. Gas-gated oracle writes only fire when the live value actually drifted. |
 
-> **On the assets:** USDY/mETH are deployed as testnet `MockRWAToken` contracts (real Ondo USDY / Mantle mETH are mainnet-only + KYC-gated). The **swap mechanics, price discovery, yields, and volatility are all real** — only the tokens are stand-ins. Mainnet is an address swap (real USDY/mETH + a real Mantle DEX router) plus Ondo KYC away; the agent/vault logic is unchanged.
 
 ---
 
-## The end-to-end inclusion loop: earn → build reputation → borrow
+## The end-to-end inclusion loop: 
 
 The vault is one half of a complete on-chain financial life. **Save → build a credit identity → borrow** — every step KYC-gated, risk-scored, and recorded on Mantle, the same primitives a bank offers, available permissionlessly:
 
@@ -157,7 +151,7 @@ SANCTIONS_RPC_URL=              # a dedicated Ethereum-mainnet RPC for sanctions
 
 ### 3. Deploy contracts
 
-Deploys the full stack to Mantle Sepolia — the two `MockRWAToken`s (USDY, mETH), `RWAkinsAMM`, `RWAkinsVault`, plus the credit suite: `RWAkinsCompliance`, `RWAkinsCreditPassport`, and `RWAkinsLending`. All addresses are written to `lib/rwa-deployed.json` automatically, and the pages flip from "Preview · deploy pending" to "Live on Mantle" the moment they're populated.
+Deploys the full stack to Mantle Sepolia — the two (USDY, mETH), `RWAkinsAMM`, `RWAkinsVault`, plus the credit suite: `RWAkinsCompliance`, `RWAkinsCreditPassport`, and `RWAkinsLending`. All addresses are written to `lib/rwa-deployed.json` automatically, and the pages flip from "Preview · deploy pending" to "Live on Mantle" the moment they're populated.
 
 > **Privileged writes (KYC attestation, credit scoring, risk anchoring, audit logging)** are signed server-side by the verifier/agent key. Set `AGENT_PRIVATE_KEY` to the **deploy key** (the script sets it as the on-chain `attestor` + `agent` + `scorer`). Without it the suite still computes real AI scores over live data and degrades to a decision-only response with `txHash: null` — it never fabricates a hash.
 
@@ -169,9 +163,6 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) and connect your wallet on Mantle Testnet.
 
-### 5. Autonomy (the heartbeat)
-
-The agent acts on its own via a scheduled call to `/api/agent/heartbeat`. A GitHub Actions workflow (`.github/workflows/heartbeat.yml`) drives the live 5-minute cadence for free; Vercel Cron keeps a daily safety-net run. Both send `Authorization: Bearer <CRON_SECRET>`; the endpoint is gas-gated, so it only acts when the live market actually drifted.
 
 ---
 
