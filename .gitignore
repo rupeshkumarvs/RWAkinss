@@ -42,3 +42,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# internal dev docs (kept locally, not published)
+/COMPONENTS.md
+/FRONTEND_DESIGN.md
+/TESTING.md
