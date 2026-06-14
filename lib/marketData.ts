@@ -15,6 +15,7 @@ import { createPublicClient } from 'viem'
 import { RWA_TOKEN_ABI } from '@/lib/rwa/abi'
 import deployed from '@/lib/rwa-deployed.json'
 import { fetchPrices, fetchRealizedVolatilityPct } from '@/lib/api/coingecko'
+import { fetchRwaYields } from '@/lib/api/defillama'
 import { mantleSepolia, mantleTransport } from '@/lib/rwa/rpc'
 
 const serverClient = createPublicClient({ chain: mantleSepolia, transport: mantleTransport() })
@@ -43,8 +44,11 @@ export interface MarketData {
   fetchedAt: number
 }
 
-// Sensible neutral fallbacks if a source is briefly unreachable. These keep the
-// pipeline alive without ever forcing a rebalance (eth24hChange 0 = no signal).
+// Absolute last-resort yields, used ONLY if both the on-chain read AND the live
+// DefiLlama market source are unreachable at once. They keep the pipeline alive
+// without ever forcing a rebalance (eth24hChange 0 = no signal). The normal
+// fallback (see liveYieldFallback) is live DefiLlama data, so these constants are
+// almost never hit — they exist purely so a total outage degrades instead of crashing.
 const FALLBACK_USDY_APY = 4.8
 const FALLBACK_METH_APY = 3.6
 
@@ -58,9 +62,28 @@ async function readApyPct(token: `0x${string}`): Promise<number> {
   return Number(bps) / 100 // 480 bps → 4.80%
 }
 
+/**
+ * Live yield fallback — the SAME real market source the oracle syncs on-chain
+ * (DefiLlama: tokenized-treasury APY for USDY, liquid-staked-ETH APY for mETH).
+ * Used when the on-chain read is unavailable so the fallback stays dynamic
+ * instead of static. Only if DefiLlama is also down do the last-resort constants
+ * apply. `yieldsLive` stays false here because the value did not come off-chain.
+ */
+async function liveYieldFallback(): Promise<{ usdyApy: number; methApy: number }> {
+  try {
+    const y = await fetchRwaYields()
+    return {
+      usdyApy: y.usdyApy ?? FALLBACK_USDY_APY,
+      methApy: y.methApy ?? FALLBACK_METH_APY,
+    }
+  } catch {
+    return { usdyApy: FALLBACK_USDY_APY, methApy: FALLBACK_METH_APY }
+  }
+}
+
 async function fetchYields(): Promise<{ usdyApy: number; methApy: number; live: boolean }> {
   if (!vaultDeployed) {
-    return { usdyApy: FALLBACK_USDY_APY, methApy: FALLBACK_METH_APY, live: false }
+    return { ...(await liveYieldFallback()), live: false }
   }
   try {
     const [usdyApy, methApy] = await Promise.all([
@@ -69,7 +92,7 @@ async function fetchYields(): Promise<{ usdyApy: number; methApy: number; live: 
     ])
     return { usdyApy, methApy, live: true }
   } catch {
-    return { usdyApy: FALLBACK_USDY_APY, methApy: FALLBACK_METH_APY, live: false }
+    return { ...(await liveYieldFallback()), live: false }
   }
 }
 

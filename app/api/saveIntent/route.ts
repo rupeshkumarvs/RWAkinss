@@ -118,3 +118,4 @@ export async function GET(req: Request) {
   const address = new URL(req.url).searchParams.get('address') ?? ''
   if (!address) return NextResponse.json({ error: 'MISSING_ADDRESS' }, { status: 400 })
   return NextResponse.json({ rules: await getIntent(address) })
+}
